@@ -3,7 +3,6 @@ from django.contrib.auth import get_user_model
 
 from .models import Employee
 
-
 User = get_user_model()
 
 
@@ -14,7 +13,7 @@ class EmployeeCreateForm(forms.ModelForm):
     username = forms.CharField()
 
     password = forms.CharField(
-        widget=forms.PasswordInput
+        widget=forms.PasswordInput()
     )
 
     class Meta:
@@ -27,29 +26,69 @@ class EmployeeCreateForm(forms.ModelForm):
             'phone',
             'address',
             'joining_date',
-            'profile_picture',
             'salary',
             'status',
+            'profile_picture',
         ]
+
+        widgets = {
+
+            'joining_date': forms.DateInput(
+                attrs={'type': 'date'}
+            ),
+
+            'address': forms.Textarea(
+                attrs={'rows': 4}
+            ),
+        }
 
     def save(self, commit=True):
 
         user = User.objects.create_user(
+
             username=self.cleaned_data['username'],
+
             email=self.cleaned_data['email'],
+
             password=self.cleaned_data['password'],
+
             role='EMPLOYEE'
         )
-
-        employee_count = Employee.objects.count() + 1
 
         employee = super().save(commit=False)
 
         employee.user = user
 
-        employee.employee_id = f"SCH{employee_count:04d}"
-
         if commit:
             employee.save()
 
         return employee
+
+
+class EmployeeUpdateForm(forms.ModelForm):
+
+    class Meta:
+
+        model = Employee
+
+        fields = [
+            'department',
+            'designation',
+            'phone',
+            'address',
+            'joining_date',
+            'salary',
+            'status',
+            'profile_picture',
+        ]
+
+        widgets = {
+
+            'joining_date': forms.DateInput(
+                attrs={'type': 'date'}
+            ),
+
+            'address': forms.Textarea(
+                attrs={'rows': 4}
+            ),
+        }

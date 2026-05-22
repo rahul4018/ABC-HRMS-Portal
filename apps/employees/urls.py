@@ -2,27 +2,41 @@ from django.urls import path
 
 from .views import (
     employee_list,
-    add_employee,
-    my_profile,
+    employee_detail,
+    employee_add,
+    employee_edit,
+    employee_delete,
 )
 
 urlpatterns = [
 
     path(
-        'employees/',
+        '',
         employee_list,
         name='employee_list'
     ),
 
     path(
-        'employees/add/',
-        add_employee,
-        name='add_employee'
+        'add/',
+        employee_add,
+        name='employee_add'
     ),
 
     path(
-        'my-profile/',
-        my_profile,
-        name='my_profile'
+        '<int:pk>/',
+        employee_detail,
+        name='employee_detail'
+    ),
+
+    path(
+        '<int:pk>/edit/',
+        employee_edit,
+        name='employee_edit'
+    ),
+
+    path(
+        '<int:pk>/delete/',
+        employee_delete,
+        name='employee_delete'
     ),
 ]
