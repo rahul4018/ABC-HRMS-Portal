@@ -1,13 +1,7 @@
 from django.contrib import admin
-from django.urls import path
-from django.shortcuts import render
-
-
-def dashboard(request):
-    return render(request, 'dashboard/index.html')
-
+from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', dashboard, name='dashboard'),
+    path('', include('apps.accounts.urls')),
 ]

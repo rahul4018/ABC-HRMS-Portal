@@ -1,20 +1,42 @@
+/* =========================
+   GLOBAL STYLES
+========================= */
+
 body {
     background-color: #f5f7fb;
     font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
 }
+
+/* =========================
+   MAIN LAYOUT
+========================= */
 
 #wrapper {
     min-height: 100vh;
+    display: flex;
 }
+
+/* =========================
+   SIDEBAR
+========================= */
 
 #sidebar-wrapper {
     width: 260px;
     background: #1a3a6b;
     min-height: 100vh;
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: 1000;
 }
 
 .sidebar-heading {
     border-bottom: 1px solid rgba(255,255,255,0.1);
+    padding-top: 25px;
+    padding-bottom: 25px;
 }
 
 .logo {
@@ -22,11 +44,21 @@ body {
     height: auto;
 }
 
+.list-group {
+    margin-top: 10px;
+}
+
 .list-group-item {
     background: transparent;
     color: white;
     border: none;
-    padding: 15px 20px;
+    padding: 15px 22px;
+    font-size: 16px;
+    transition: 0.3s;
+}
+
+.list-group-item i {
+    font-size: 18px;
 }
 
 .list-group-item:hover {
@@ -34,16 +66,152 @@ body {
     color: white;
 }
 
+.list-group-item.active {
+    background: rgba(255,255,255,0.15);
+    color: white;
+    border-left: 4px solid #f5a623;
+}
+
+/* =========================
+   PAGE CONTENT
+========================= */
+
 #page-content-wrapper {
     flex: 1;
+    margin-left: 260px;
+    min-height: 100vh;
 }
+
+/* =========================
+   NAVBAR
+========================= */
+
+.navbar {
+    height: 75px;
+}
+
+.navbar h4 {
+    color: #1a3a6b;
+}
+
+/* =========================
+   DASHBOARD CARDS
+========================= */
 
 .dashboard-card {
     border: none;
-    border-radius: 15px;
+    border-radius: 18px;
+    background: white;
+    transition: 0.3s;
+}
+
+.dashboard-card:hover {
+    transform: translateY(-4px);
 }
 
 .card-body h2 {
     font-weight: bold;
     color: #1a3a6b;
+    margin-top: 10px;
+}
+
+.card-body h6 {
+    color: #555;
+    font-size: 15px;
+}
+
+/* =========================
+   LOGIN PAGE
+========================= */
+
+.login-body {
+    background: linear-gradient(
+        to right,
+        #1a3a6b,
+        #274d87
+    );
+}
+
+.login-container {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.login-card {
+    background: white;
+    width: 420px;
+    padding: 40px;
+    border-radius: 20px;
+}
+
+.login-logo {
+    width: 100px;
+    height: auto;
+}
+
+.login-btn {
+    background: #1a3a6b;
+    border: none;
+    padding: 12px;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+.login-btn:hover {
+    background: #274d87;
+}
+
+/* =========================
+   FORM ELEMENTS
+========================= */
+
+.form-control {
+    border-radius: 10px;
+    padding: 12px;
+}
+
+.form-control:focus {
+    box-shadow: none;
+    border-color: #1a3a6b;
+}
+
+/* =========================
+   ALERTS
+========================= */
+
+.alert {
+    border-radius: 12px;
+}
+
+/* =========================
+   RESPONSIVE DESIGN
+========================= */
+
+@media (max-width: 992px) {
+
+    #sidebar-wrapper {
+        width: 220px;
+    }
+
+    #page-content-wrapper {
+        margin-left: 220px;
+    }
+}
+
+@media (max-width: 768px) {
+
+    #sidebar-wrapper {
+        display: none;
+    }
+
+    #page-content-wrapper {
+        margin-left: 0;
+    }
+
+    .login-card {
+        width: 100%;
+    }
 }
