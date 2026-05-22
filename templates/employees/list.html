@@ -2,14 +2,25 @@
 
 {% block content %}
 
+<!-- Header -->
 <div class="d-flex justify-content-between align-items-center mb-4">
 
-    <h2 class="fw-bold">
-        Employee Management
-    </h2>
+    <div>
 
-    <a href="#"
+        <h2 class="fw-bold mb-1">
+            Employee Management
+        </h2>
+
+        <p class="text-muted mb-0">
+            Manage employees, departments, and workforce records.
+        </p>
+
+    </div>
+
+    <a href="/employees/add/"
        class="btn btn-primary">
+
+        <i class="bi bi-plus-circle me-1"></i>
 
         Add Employee
 
@@ -17,86 +28,221 @@
 
 </div>
 
+<!-- Employee Card -->
 <div class="card shadow-sm border-0">
 
     <div class="card-body">
 
-        <table class="table table-hover align-middle">
+        <!-- Search + Filter -->
+        <div class="row mb-4">
 
-            <thead>
+            <div class="col-md-8">
 
-                <tr>
+                <input type="text"
+                       class="form-control"
+                       placeholder="Search employees...">
 
-                    <th>Employee ID</th>
-                    <th>Email</th>
-                    <th>Department</th>
-                    <th>Designation</th>
-                    <th>Status</th>
+            </div>
 
-                </tr>
+            <div class="col-md-4">
 
-            </thead>
+                <select class="form-select">
 
-            <tbody>
+                    <option>
+                        Filter by Status
+                    </option>
 
-                {% for employee in employees %}
+                    <option>
+                        Active
+                    </option>
 
-                <tr>
+                    <option>
+                        Inactive
+                    </option>
 
-                    <td>
-                        {{ employee.employee_id }}
-                    </td>
+                </select>
 
-                    <td>
-                        {{ employee.user.email }}
-                    </td>
+            </div>
 
-                    <td>
-                        {{ employee.department }}
-                    </td>
+        </div>
 
-                    <td>
-                        {{ employee.designation }}
-                    </td>
+        <!-- Employee Table -->
+        <div class="table-responsive">
 
-                    <td>
+            <table class="table table-hover align-middle">
 
-                        {% if employee.status == 'ACTIVE' %}
+                <thead class="table-light">
 
-                        <span class="badge bg-success">
-                            Active
-                        </span>
+                    <tr>
 
-                        {% else %}
+                        <th>Photo</th>
+                        <th>Employee ID</th>
+                        <th>Email</th>
+                        <th>Department</th>
+                        <th>Designation</th>
+                        <th>Status</th>
+                        <th>Actions</th>
 
-                        <span class="badge bg-danger">
-                            Inactive
-                        </span>
+                    </tr>
 
-                        {% endif %}
+                </thead>
 
-                    </td>
+                <tbody>
 
-                </tr>
+                    {% for employee in employees %}
 
-                {% empty %}
+                    <tr>
 
-                <tr>
+                        <!-- Profile Photo -->
+                        <td>
 
-                    <td colspan="5"
-                        class="text-center text-muted">
+                            {% if employee.profile_picture %}
 
-                        No employees found.
+                                <img src="{{ employee.profile_picture.url }}"
+                                     class="rounded-circle"
+                                     width="45"
+                                     height="45"
+                                     style="object-fit: cover;">
 
-                    </td>
+                            {% else %}
 
-                </tr>
+                                <img src="https://via.placeholder.com/45"
+                                     class="rounded-circle">
 
-                {% endfor %}
+                            {% endif %}
 
-            </tbody>
+                        </td>
 
-        </table>
+                        <!-- Employee ID -->
+                        <td>
+
+                            <span class="fw-semibold">
+
+                                {{ employee.employee_id }}
+
+                            </span>
+
+                        </td>
+
+                        <!-- Email -->
+                        <td>
+
+                            {{ employee.user.email }}
+
+                        </td>
+
+                        <!-- Department -->
+                        <td>
+
+                            {% if employee.department %}
+
+                                {{ employee.department }}
+
+                            {% else %}
+
+                                <span class="text-muted">
+                                    Not Assigned
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+                        <!-- Designation -->
+                        <td>
+
+                            {{ employee.designation }}
+
+                        </td>
+
+                        <!-- Status -->
+                        <td>
+
+                            {% if employee.status == 'ACTIVE' %}
+
+                                <span class="badge bg-success">
+
+                                    Active
+
+                                </span>
+
+                            {% else %}
+
+                                <span class="badge bg-danger">
+
+                                    Inactive
+
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+                        <!-- Actions -->
+                        <td>
+
+                            <div class="d-flex gap-2">
+
+                                <!-- View -->
+                                <a href="#"
+                                   class="btn btn-sm btn-outline-primary">
+
+                                    <i class="bi bi-eye"></i>
+
+                                </a>
+
+                                <!-- Edit -->
+                                <a href="#"
+                                   class="btn btn-sm btn-outline-warning">
+
+                                    <i class="bi bi-pencil"></i>
+
+                                </a>
+
+                                <!-- Delete -->
+                                <a href="#"
+                                   class="btn btn-sm btn-outline-danger">
+
+                                    <i class="bi bi-trash"></i>
+
+                                </a>
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+                    {% empty %}
+
+                    <tr>
+
+                        <td colspan="7"
+                            class="text-center py-5">
+
+                            <div class="text-muted">
+
+                                <i class="bi bi-people display-5"></i>
+
+                                <p class="mt-3 mb-0">
+
+                                    No employees found.
+
+                                </p>
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
 
     </div>
 
