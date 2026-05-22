@@ -1,0 +1,85 @@
+{% extends 'layouts/base.html' %}
+
+{% block content %}
+
+<h2 class="fw-bold mb-4">
+    My Profile
+</h2>
+
+<div class="card shadow-sm border-0">
+
+    <div class="card-body">
+
+        {% if employee %}
+
+            <div class="row">
+
+                <div class="col-md-3 text-center">
+
+                    {% if employee.profile_picture %}
+
+                        <img src="{{ employee.profile_picture.url }}"
+                             class="img-fluid rounded-circle mb-3"
+                             width="180">
+
+                    {% else %}
+
+                        <img src="https://via.placeholder.com/180"
+                             class="img-fluid rounded-circle mb-3">
+
+                    {% endif %}
+
+                </div>
+
+                <div class="col-md-9">
+
+                    <h3 class="fw-bold">
+                        {{ request.user.email }}
+                    </h3>
+
+                    <hr>
+
+                    <p>
+                        <strong>Employee ID:</strong>
+                        {{ employee.employee_id }}
+                    </p>
+
+                    <p>
+                        <strong>Department:</strong>
+                        {{ employee.department }}
+                    </p>
+
+                    <p>
+                        <strong>Designation:</strong>
+                        {{ employee.designation }}
+                    </p>
+
+                    <p>
+                        <strong>Phone:</strong>
+                        {{ employee.phone }}
+                    </p>
+
+                    <p>
+                        <strong>Status:</strong>
+                        {{ employee.status }}
+                    </p>
+
+                </div>
+
+            </div>
+
+        {% else %}
+
+            <div class="alert alert-warning">
+
+                Employee profile not found.
+
+            </div>
+
+        {% endif %}
+
+    </div>
+
+</div>
+
+{% endblock %}

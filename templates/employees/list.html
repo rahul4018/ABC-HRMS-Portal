@@ -1,0 +1,105 @@
+{% extends 'layouts/base.html' %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+
+    <h2 class="fw-bold">
+        Employee Management
+    </h2>
+
+    <a href="#"
+       class="btn btn-primary">
+
+        Add Employee
+
+    </a>
+
+</div>
+
+<div class="card shadow-sm border-0">
+
+    <div class="card-body">
+
+        <table class="table table-hover align-middle">
+
+            <thead>
+
+                <tr>
+
+                    <th>Employee ID</th>
+                    <th>Email</th>
+                    <th>Department</th>
+                    <th>Designation</th>
+                    <th>Status</th>
+
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                {% for employee in employees %}
+
+                <tr>
+
+                    <td>
+                        {{ employee.employee_id }}
+                    </td>
+
+                    <td>
+                        {{ employee.user.email }}
+                    </td>
+
+                    <td>
+                        {{ employee.department }}
+                    </td>
+
+                    <td>
+                        {{ employee.designation }}
+                    </td>
+
+                    <td>
+
+                        {% if employee.status == 'ACTIVE' %}
+
+                        <span class="badge bg-success">
+                            Active
+                        </span>
+
+                        {% else %}
+
+                        <span class="badge bg-danger">
+                            Inactive
+                        </span>
+
+                        {% endif %}
+
+                    </td>
+
+                </tr>
+
+                {% empty %}
+
+                <tr>
+
+                    <td colspan="5"
+                        class="text-center text-muted">
+
+                        No employees found.
+
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+{% endblock %}
