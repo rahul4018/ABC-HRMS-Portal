@@ -1,0 +1,204 @@
+{% extends 'layouts/base.html' %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+
+    <div>
+
+        <h2 class="fw-bold mb-1">
+            Edit Employee
+        </h2>
+
+        <p class="text-muted mb-0">
+            Update employee information and records.
+        </p>
+
+    </div>
+
+    <a href="{% url 'employee_list' %}"
+       class="btn btn-secondary">
+
+        <i class="bi bi-arrow-left me-1"></i>
+
+        Back
+
+    </a>
+
+</div>
+
+<div class="card border-0 shadow-sm">
+
+    <div class="card-body p-4">
+
+        <form method="POST"
+              enctype="multipart/form-data">
+
+            {% csrf_token %}
+
+            <!-- Personal Information -->
+            <div class="mb-4">
+
+                <h4 class="fw-bold mb-3">
+
+                    <i class="bi bi-person-circle me-2"></i>
+
+                    Personal Information
+
+                </h4>
+
+                <hr>
+
+                <div class="row">
+
+                    <div class="col-md-6 mb-3">
+
+                        <label class="form-label fw-semibold">
+                            Email Address
+                        </label>
+
+                        {{ form.email }}
+
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+
+                        <label class="form-label fw-semibold">
+                            Username
+                        </label>
+
+                        {{ form.username }}
+
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+
+                        <label class="form-label fw-semibold">
+                            Phone Number
+                        </label>
+
+                        {{ form.phone }}
+
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+
+                        <label class="form-label fw-semibold">
+                            Profile Picture
+                        </label>
+
+                        {{ form.profile_picture }}
+
+                    </div>
+
+                    <div class="col-md-12 mb-3">
+
+                        <label class="form-label fw-semibold">
+                            Address
+                        </label>
+
+                        {{ form.address }}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- Employment Information -->
+            <div class="mb-4">
+
+                <h4 class="fw-bold mb-3">
+
+                    <i class="bi bi-briefcase me-2"></i>
+
+                    Employment Information
+
+                </h4>
+
+                <hr>
+
+                <div class="row">
+
+                    <div class="col-md-6 mb-3">
+
+                        <label class="form-label fw-semibold">
+                            Department
+                        </label>
+
+                        {{ form.department }}
+
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+
+                        <label class="form-label fw-semibold">
+                            Designation
+                        </label>
+
+                        {{ form.designation }}
+
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+
+                        <label class="form-label fw-semibold">
+                            Salary
+                        </label>
+
+                        {{ form.salary }}
+
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+
+                        <label class="form-label fw-semibold">
+                            Joining Date
+                        </label>
+
+                        {{ form.joining_date }}
+
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+
+                        <label class="form-label fw-semibold">
+                            Status
+                        </label>
+
+                        {{ form.status }}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- Buttons -->
+            <div class="d-flex gap-2">
+
+                <button type="submit"
+                        class="btn btn-primary">
+
+                    <i class="bi bi-check-circle me-1"></i>
+
+                    Update Employee
+
+                </button>
+
+                <a href="{% url 'employee_list' %}"
+                   class="btn btn-outline-secondary">
+
+                    Cancel
+
+                </a>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock %}

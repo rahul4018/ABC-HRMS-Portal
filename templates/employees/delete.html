@@ -1,0 +1,49 @@
+{% extends 'layouts/base.html' %}
+
+{% block content %}
+
+<div class="card border-0 shadow-sm">
+
+    <div class="card-body text-center p-5">
+
+        <h2 class="fw-bold text-danger mb-3">
+
+            Delete Employee
+
+        </h2>
+
+        <p class="mb-4">
+
+            Are you sure you want to delete
+
+            <strong>
+                {{ employee.user.email }}
+            </strong> ?
+
+        </p>
+
+        <form method="POST">
+
+            {% csrf_token %}
+
+            <button type="submit"
+                    class="btn btn-danger">
+
+                Confirm Delete
+
+            </button>
+
+            <a href="{% url 'employee_list' %}"
+               class="btn btn-secondary">
+
+                Cancel
+
+            </a>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock %}

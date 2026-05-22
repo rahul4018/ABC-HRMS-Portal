@@ -1,0 +1,136 @@
+{% extends 'layouts/base.html' %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+
+    <h2 class="fw-bold">
+        Employee Profile
+    </h2>
+
+    <div class="d-flex gap-2">
+
+        <a href="/employees/{{ employee.id }}/edit/"
+           class="btn btn-warning">
+
+            Edit
+
+        </a>
+
+        {% if request.user.role == 'CEO' %}
+
+        <a href="/employees/{{ employee.id }}/delete/"
+           class="btn btn-danger">
+
+            Delete
+
+        </a>
+
+        {% endif %}
+
+    </div>
+
+</div>
+
+<div class="card border-0 shadow-sm">
+
+    <div class="card-body">
+
+        <div class="row">
+
+            <div class="col-md-3 text-center">
+
+                {% if employee.profile_picture %}
+
+                    <img src="{{ employee.profile_picture.url }}"
+                         class="img-fluid rounded-circle mb-3"
+                         width="180">
+
+                {% else %}
+
+                    <img src="https://via.placeholder.com/180"
+                         class="img-fluid rounded-circle mb-3">
+
+                {% endif %}
+
+            </div>
+
+            <div class="col-md-9">
+
+                <h3 class="fw-bold">
+
+                    {{ employee.user.email }}
+
+                </h3>
+
+                <hr>
+
+                <div class="row">
+
+                    <div class="col-md-6 mb-3">
+
+                        <strong>Employee ID:</strong><br>
+
+                        {{ employee.employee_id }}
+
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+
+                        <strong>Department:</strong><br>
+
+                        {{ employee.department }}
+
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+
+                        <strong>Designation:</strong><br>
+
+                        {{ employee.designation }}
+
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+
+                        <strong>Phone:</strong><br>
+
+                        {{ employee.phone }}
+
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+
+                        <strong>Joining Date:</strong><br>
+
+                        {{ employee.joining_date }}
+
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+
+                        <strong>Status:</strong><br>
+
+                        {{ employee.status }}
+
+                    </div>
+
+                    <div class="col-md-12 mb-3">
+
+                        <strong>Address:</strong><br>
+
+                        {{ employee.address }}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}
