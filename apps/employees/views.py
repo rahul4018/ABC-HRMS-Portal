@@ -1,3 +1,6 @@
+from datetime import date
+from datetime import datetime
+
 from django.shortcuts import (
     render,
     redirect,
@@ -14,6 +17,7 @@ from .models import (
     Employee,
     Department,
     Payslip,
+    Attendance,
 )
 
 from .forms import (
@@ -35,9 +39,12 @@ def dashboard(request):
 
     total_departments = Department.objects.count()
 
+    total_attendance = Attendance.objects.count()
+
     context = {
         'total_employees': total_employees,
         'total_departments': total_departments,
+        'total_attendance': total_attendance,
     }
 
     return render(
@@ -448,5 +455,149 @@ def payslip_detail(request, pk):
     return render(
         request,
         'payslips/detail.html',
+        context
+    )
+
+
+# ==========================================
+# ATTENDANCE MANAGEMENT
+# ==========================================
+
+@login_required
+def attendance_list(request):
+
+    if request.user.role in ['CEO', 'HR_ADMIN']:
+
+        attendances = Attendance.objects.select_related(
+            'employee',
+            'employee__user'
+        ).all()
+
+    else:
+
+        employee = Employee.objects.filter(
+            user=request.user
+        ).first()
+
+        attendances = Attendance.objects.filter(
+            employee=employee
+        )
+
+    context = {
+        'attendances': attendances
+    }
+
+    return render(
+        request,
+        'attendance/list.html',
+        context
+    )
+
+
+@login_required
+def mark_attendance(request):
+
+    employee = Employee.objects.filter(
+        user=request.user
+    ).first()
+
+    if not employee:
+
+        messages.error(
+            request,
+            'Employee profile not found.'
+        )
+
+        return redirect(
+            'attendance_list'
+        )
+
+    today = date.today()
+
+    attendance = Attendance.objects.filter(
+        employee=employee,
+        date=today
+    ).first()
+
+    if request.method == 'POST':
+
+        current_time = datetime.now().time()
+
+        if not attendance:
+
+            Attendance.objects.create(
+                employee=employee,
+                date=today,
+                check_in=current_time,
+                status='PRESENT'
+            )
+
+            messages.success(
+                request,
+                'Check-in successful.'
+            )
+
+        elif not attendance.check_out:
+
+            attendance.check_out = current_time
+
+            attendance.save()
+
+            messages.success(
+                request,
+                'Check-out successful.'
+            )
+
+        else:
+
+            messages.warning(
+                request,
+                'Attendance already completed today.'
+            )
+
+        return redirect(
+            'attendance_list'
+        )
+
+    context = {
+        'attendance': attendance
+    }
+
+    return render(
+        request,
+        'attendance/mark.html',
+        context
+    )
+
+
+@login_required
+def attendance_detail(request, pk):
+
+    attendance = get_object_or_404(
+        Attendance,
+        pk=pk
+    )
+
+    if (
+        request.user.role == 'EMPLOYEE'
+        and attendance.employee.user != request.user
+    ):
+
+        messages.error(
+            request,
+            'Access denied.'
+        )
+
+        return redirect(
+            'attendance_list'
+        )
+
+    context = {
+        'attendance': attendance
+    }
+
+    return render(
+        request,
+        'attendance/detail.html',
         context
     )

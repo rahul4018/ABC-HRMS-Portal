@@ -152,3 +152,64 @@ class Payslip(models.Model):
             f"{self.employee.user.email} - "
             f"{self.month} {self.year}"
         )
+    
+# ==========================================
+# Attendance Model
+# ==========================================
+
+class Attendance(models.Model):
+
+    STATUS_CHOICES = [
+        ('PRESENT', 'Present'),
+        ('ABSENT', 'Absent'),
+        ('HALF_DAY', 'Half Day'),
+    ]
+
+    employee = models.ForeignKey(
+        Employee,
+        on_delete=models.CASCADE
+    )
+
+    date = models.DateField()
+
+    check_in = models.TimeField(
+        null=True,
+        blank=True
+    )
+
+    check_out = models.TimeField(
+        null=True,
+        blank=True
+    )
+
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default='PRESENT'
+    )
+
+    remarks = models.TextField(
+        blank=True,
+        null=True
+    )
+
+    created_at = models.DateTimeField(
+        auto_now_add=True
+    )
+
+    updated_at = models.DateTimeField(
+        auto_now=True
+    )
+
+    class Meta:
+
+        unique_together = (
+            'employee',
+            'date'
+        )
+
+        ordering = ['-date']
+
+    def __str__(self):
+
+        return f"{self.employee.employee_id} - {self.date}"

@@ -1,4 +1,5 @@
 from django.contrib import admin
+from .models import Attendance
 
 from .models import (
     Department,
@@ -35,4 +36,24 @@ class EmployeeAdmin(admin.ModelAdmin):
         'employee_id',
         'user__email',
         'designation',
+    )
+@admin.register(Attendance)
+class AttendanceAdmin(admin.ModelAdmin):
+
+    list_display = (
+        'employee',
+        'date',
+        'status',
+        'check_in',
+        'check_out',
+    )
+
+    list_filter = (
+        'status',
+        'date',
+    )
+
+    search_fields = (
+        'employee__employee_id',
+        'employee__user__email',
     )

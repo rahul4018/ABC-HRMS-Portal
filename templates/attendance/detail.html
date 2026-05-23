@@ -1,0 +1,90 @@
+{% extends 'layouts/base.html' %}
+
+{% block content %}
+
+<div class="card border-0 shadow-sm">
+
+    <div class="card-body p-5">
+
+        <div class="d-flex justify-content-between mb-4">
+
+            <div>
+
+                <h2 class="fw-bold">
+                    Attendance Detail
+                </h2>
+
+                <p class="text-muted">
+                    {{ attendance.date }}
+                </p>
+
+            </div>
+
+            <a href="{% url 'attendance_list' %}"
+               class="btn btn-secondary">
+
+                Back
+
+            </a>
+
+        </div>
+
+        <hr>
+
+        <div class="row mt-4">
+
+            <div class="col-md-6 mb-4">
+
+                <h6 class="text-muted">
+                    Employee
+                </h6>
+
+                <h5>
+                    {{ attendance.employee.user.email }}
+                </h5>
+
+            </div>
+
+            <div class="col-md-6 mb-4">
+
+                <h6 class="text-muted">
+                    Status
+                </h6>
+
+                <h5>
+                    {{ attendance.status }}
+                </h5>
+
+            </div>
+
+            <div class="col-md-6 mb-4">
+
+                <h6 class="text-muted">
+                    Check In
+                </h6>
+
+                <h5>
+                    {{ attendance.check_in }}
+                </h5>
+
+            </div>
+
+            <div class="col-md-6 mb-4">
+
+                <h6 class="text-muted">
+                    Check Out
+                </h6>
+
+                <h5>
+                    {{ attendance.check_out|default:"--" }}
+                </h5>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}
