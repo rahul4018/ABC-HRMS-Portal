@@ -29,6 +29,9 @@ from .forms import (
 )
 
 from apps.accounts.decorators import role_required
+from django.http import HttpResponse
+
+from reportlab.pdfgen import canvas
 
 
 # ==========================================
@@ -725,3 +728,124 @@ def reports_dashboard(request):
         'reports/dashboard.html',
         context
     )
+# ==========================================
+# PAYSLIP PDF DOWNLOAD
+# ==========================================
+
+@login_required
+def download_payslip_pdf(request, pk):
+
+    payslip = get_object_or_404(
+        Payslip,
+        pk=pk
+    )
+
+    if (
+        request.user.role == 'EMPLOYEE'
+        and payslip.employee.user != request.user
+    ):
+
+        messages.error(
+            request,
+            'Access denied.'
+        )
+
+        return redirect(
+            'payslip_list'
+        )
+
+    response = HttpResponse(
+        content_type='application/pdf'
+    )
+
+    response[
+        'Content-Disposition'
+    ] = f'attachment; filename="Payslip_{payslip.id}.pdf"'
+
+    pdf = canvas.Canvas(response)
+
+    pdf.setTitle('Employee Payslip')
+
+    pdf.setFont(
+        'Helvetica-Bold',
+        18
+    )
+
+    pdf.drawString(
+        200,
+        800,
+        'SkillChekHub HRMS'
+    )
+
+    pdf.setFont(
+        'Helvetica',
+        12
+    )
+
+    pdf.drawString(
+        50,
+        740,
+        f'Employee: {payslip.employee.user.email}'
+    )
+
+    pdf.drawString(
+        50,
+        710,
+        f'Department: {payslip.employee.department}'
+    )
+
+    pdf.drawString(
+        50,
+        680,
+        f'Month: {payslip.month}'
+    )
+
+    pdf.drawString(
+        50,
+        650,
+        f'Year: {payslip.year}'
+    )
+
+    pdf.drawString(
+        50,
+        600,
+        f'Basic Salary: ₹ {payslip.basic_salary}'
+    )
+
+    pdf.drawString(
+        50,
+        570,
+        f'Bonus: ₹ {payslip.bonus}'
+    )
+
+    pdf.drawString(
+        50,
+        540,
+        f'Deductions: ₹ {payslip.deductions}'
+    )
+
+    pdf.setFont(
+        'Helvetica-Bold',
+        14
+    )
+
+    pdf.drawString(
+        50,
+        480,
+        f'Net Salary: ₹ {payslip.net_salary}'
+    )
+
+    pdf.setFont(
+        'Helvetica',
+        10
+    )
+
+    pdf.drawString(
+        50,
+        430,
+        'This is a system-generated payslip.'
+    )
+
+    pdf.save()
+
+    return response

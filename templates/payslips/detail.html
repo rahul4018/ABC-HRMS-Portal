@@ -6,7 +6,9 @@
 
     <div class="card-body p-5">
 
-        <div class="d-flex justify-content-between mb-4">
+        <!-- Header -->
+
+        <div class="d-flex justify-content-between align-items-start mb-4">
 
             <div>
 
@@ -14,81 +16,88 @@
                     Payslip
                 </h2>
 
-                <p class="text-muted">
+                <p class="text-muted mb-0">
                     {{ payslip.month }} {{ payslip.year }}
                 </p>
 
             </div>
 
-            <a href="{% url 'payslip_list' %}"
-               class="btn btn-secondary">
+            <!-- Action Buttons -->
 
-                Back
+            <div class="d-flex gap-2">
 
-            </a>
+                <a href="{% url 'payslip_list' %}"
+                   class="btn btn-secondary">
+
+                    <i class="bi bi-arrow-left me-1"></i>
+
+                    Back
+
+                </a>
+
+                <a href="{% url 'download_payslip_pdf' payslip.id %}"
+                   class="btn btn-primary">
+
+                    <i class="bi bi-download me-1"></i>
+
+                    Download PDF
+
+                </a>
+
+            </div>
 
         </div>
 
         <hr>
 
+        <!-- Employee Details -->
+
         <div class="row mt-4">
 
-            <div class="col-md-6 mb-3">
+            <div class="col-md-6 mb-4">
 
                 <h6 class="text-muted">
                     Employee
                 </h6>
 
-                <h5>
+                <h5 class="fw-semibold">
                     {{ payslip.employee.user.email }}
                 </h5>
 
             </div>
 
-            <div class="col-md-6 mb-3">
+            <div class="col-md-6 mb-4">
+
+                <h6 class="text-muted">
+                    Employee ID
+                </h6>
+
+                <h5 class="fw-semibold">
+                    {{ payslip.employee.employee_id }}
+                </h5>
+
+            </div>
+
+            <div class="col-md-6 mb-4">
 
                 <h6 class="text-muted">
                     Department
                 </h6>
 
-                <h5>
+                <h5 class="fw-semibold">
                     {{ payslip.employee.department }}
                 </h5>
 
             </div>
 
-            <div class="col-md-4 mb-3">
+            <div class="col-md-6 mb-4">
 
                 <h6 class="text-muted">
-                    Basic Salary
+                    Designation
                 </h6>
 
-                <h5>
-                    ₹ {{ payslip.basic_salary }}
-                </h5>
-
-            </div>
-
-            <div class="col-md-4 mb-3">
-
-                <h6 class="text-muted">
-                    Bonus
-                </h6>
-
-                <h5 class="text-success">
-                    ₹ {{ payslip.bonus }}
-                </h5>
-
-            </div>
-
-            <div class="col-md-4 mb-3">
-
-                <h6 class="text-muted">
-                    Deductions
-                </h6>
-
-                <h5 class="text-danger">
-                    ₹ {{ payslip.deductions }}
+                <h5 class="fw-semibold">
+                    {{ payslip.employee.designation }}
                 </h5>
 
             </div>
@@ -97,14 +106,100 @@
 
         <hr>
 
+        <!-- Salary Breakdown -->
+
+        <div class="row mt-4">
+
+            <div class="col-md-4 mb-4">
+
+                <div class="card border-0 bg-light h-100">
+
+                    <div class="card-body text-center">
+
+                        <h6 class="text-muted mb-3">
+                            Basic Salary
+                        </h6>
+
+                        <h3 class="fw-bold text-primary">
+                            ₹ {{ payslip.basic_salary }}
+                        </h3>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="col-md-4 mb-4">
+
+                <div class="card border-0 bg-light h-100">
+
+                    <div class="card-body text-center">
+
+                        <h6 class="text-muted mb-3">
+                            Bonus
+                        </h6>
+
+                        <h3 class="fw-bold text-success">
+                            ₹ {{ payslip.bonus }}
+                        </h3>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="col-md-4 mb-4">
+
+                <div class="card border-0 bg-light h-100">
+
+                    <div class="card-body text-center">
+
+                        <h6 class="text-muted mb-3">
+                            Deductions
+                        </h6>
+
+                        <h3 class="fw-bold text-danger">
+                            ₹ {{ payslip.deductions }}
+                        </h3>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <hr>
+
+        <!-- Net Salary -->
+
         <div class="text-end mt-4">
 
-            <h4 class="fw-bold">
+            <h6 class="text-muted mb-2">
+                Final Salary
+            </h6>
 
-                Net Salary:
+            <h2 class="fw-bold text-dark">
+
                 ₹ {{ payslip.net_salary }}
 
-            </h4>
+            </h2>
+
+        </div>
+
+        <!-- Footer -->
+
+        <div class="mt-5 pt-3 border-top">
+
+            <small class="text-muted">
+
+                Generated on:
+                {{ payslip.generated_at|date:"d M Y h:i A" }}
+
+            </small>
 
         </div>
 
