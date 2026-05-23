@@ -13,6 +13,8 @@ from django.contrib.auth.decorators import login_required
 
 from django.db.models import Count
 
+from apps.leave.models import Leave
+
 from .models import (
     Employee,
     Department,
@@ -30,7 +32,7 @@ from apps.accounts.decorators import role_required
 
 
 # ==========================================
-# Dashboard
+# DASHBOARD
 # ==========================================
 
 @login_required
@@ -45,9 +47,13 @@ def dashboard(request):
     total_announcements = Announcement.objects.count()
 
     context = {
+
         'total_employees': total_employees,
+
         'total_departments': total_departments,
+
         'total_attendance': total_attendance,
+
         'total_announcements': total_announcements,
     }
 
@@ -59,7 +65,7 @@ def dashboard(request):
 
 
 # ==========================================
-# Employee List
+# EMPLOYEE MANAGEMENT
 # ==========================================
 
 @login_required
@@ -82,10 +88,6 @@ def employee_list(request):
     )
 
 
-# ==========================================
-# Employee Detail
-# ==========================================
-
 @login_required
 @role_required(['CEO', 'HR_ADMIN'])
 def employee_detail(request, pk):
@@ -105,10 +107,6 @@ def employee_detail(request, pk):
         context
     )
 
-
-# ==========================================
-# Add Employee
-# ==========================================
 
 @login_required
 @role_required(['CEO', 'HR_ADMIN'])
@@ -146,10 +144,6 @@ def employee_add(request):
         context
     )
 
-
-# ==========================================
-# Edit Employee
-# ==========================================
 
 @login_required
 @role_required(['CEO', 'HR_ADMIN'])
@@ -198,10 +192,6 @@ def employee_edit(request, pk):
     )
 
 
-# ==========================================
-# Delete Employee
-# ==========================================
-
 @login_required
 @role_required(['CEO'])
 def employee_delete(request, pk):
@@ -224,7 +214,7 @@ def employee_delete(request, pk):
 
 
 # ==========================================
-# My Profile
+# MY PROFILE
 # ==========================================
 
 @login_required
@@ -251,7 +241,7 @@ def my_profile(request):
 
 
 # ==========================================
-# Department List
+# DEPARTMENT MANAGEMENT
 # ==========================================
 
 @login_required
@@ -272,10 +262,6 @@ def department_list(request):
         context
     )
 
-
-# ==========================================
-# Add Department
-# ==========================================
 
 @login_required
 @role_required(['CEO', 'HR_ADMIN'])
@@ -311,10 +297,6 @@ def department_add(request):
         'departments/add.html'
     )
 
-
-# ==========================================
-# Edit Department
-# ==========================================
 
 @login_required
 @role_required(['CEO', 'HR_ADMIN'])
@@ -360,10 +342,6 @@ def department_edit(request, pk):
         context
     )
 
-
-# ==========================================
-# Delete Department
-# ==========================================
 
 @login_required
 @role_required(['CEO'])
@@ -675,5 +653,75 @@ def announcement_detail(request, pk):
     return render(
         request,
         'announcements/detail.html',
+        context
+    )
+
+
+# ==========================================
+# REPORTS & ANALYTICS
+# ==========================================
+
+@login_required
+@role_required(['CEO', 'HR_ADMIN'])
+def reports_dashboard(request):
+
+    total_employees = Employee.objects.count()
+
+    total_departments = Department.objects.count()
+
+    active_employees = Employee.objects.filter(
+        status='ACTIVE'
+    ).count()
+
+    inactive_employees = Employee.objects.filter(
+        status='INACTIVE'
+    ).count()
+
+    total_leaves = Leave.objects.count()
+
+    approved_leaves = Leave.objects.filter(
+        status='APPROVED'
+    ).count()
+
+    pending_leaves = Leave.objects.filter(
+        status='PENDING'
+    ).count()
+
+    attendance_today = Attendance.objects.filter(
+        date=date.today()
+    ).count()
+
+    recent_announcements = Announcement.objects.all()[:5]
+
+    departments = Department.objects.annotate(
+        total=Count('employee')
+    )
+
+    context = {
+
+        'total_employees': total_employees,
+
+        'total_departments': total_departments,
+
+        'active_employees': active_employees,
+
+        'inactive_employees': inactive_employees,
+
+        'total_leaves': total_leaves,
+
+        'approved_leaves': approved_leaves,
+
+        'pending_leaves': pending_leaves,
+
+        'attendance_today': attendance_today,
+
+        'recent_announcements': recent_announcements,
+
+        'departments': departments,
+    }
+
+    return render(
+        request,
+        'reports/dashboard.html',
         context
     )
