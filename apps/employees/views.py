@@ -13,12 +13,17 @@ from django.contrib.auth.decorators import login_required
 
 from django.db.models import Count
 
+from django.http import HttpResponse
+
+from reportlab.pdfgen import canvas
+
 from apps.leave.models import Leave
+
+from apps.payslips.models import Payslip
 
 from .models import (
     Employee,
     Department,
-    Payslip,
     Attendance,
     Announcement,
 )
