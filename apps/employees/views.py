@@ -26,6 +26,7 @@ from .models import (
     Department,
     Attendance,
     Announcement,
+    EmployeeDocument,
 )
 
 from .forms import (
@@ -34,9 +35,6 @@ from .forms import (
 )
 
 from apps.accounts.decorators import role_required
-from django.http import HttpResponse
-
-from reportlab.pdfgen import canvas
 
 
 # ==========================================
@@ -393,16 +391,12 @@ def payslip_list(request):
 
     if request.user.role in ['CEO', 'HR_ADMIN']:
 
-        payslips = Payslip.objects.all().order_by(
-            '-generated_at'
-        )
+        payslips = Payslip.objects.all()
 
     else:
 
         payslips = Payslip.objects.filter(
             employee__user=request.user
-        ).order_by(
-            '-generated_at'
         )
 
     context = {
@@ -568,20 +562,6 @@ def attendance_detail(request, pk):
         pk=pk
     )
 
-    if (
-        request.user.role == 'EMPLOYEE'
-        and attendance.employee.user != request.user
-    ):
-
-        messages.error(
-            request,
-            'Access denied.'
-        )
-
-        return redirect(
-            'attendance_list'
-        )
-
     context = {
         'attendance': attendance
     }
@@ -681,15 +661,7 @@ def reports_dashboard(request):
         status='ACTIVE'
     ).count()
 
-    inactive_employees = Employee.objects.filter(
-        status='INACTIVE'
-    ).count()
-
     total_leaves = Leave.objects.count()
-
-    approved_leaves = Leave.objects.filter(
-        status='APPROVED'
-    ).count()
 
     pending_leaves = Leave.objects.filter(
         status='PENDING'
@@ -713,11 +685,7 @@ def reports_dashboard(request):
 
         'active_employees': active_employees,
 
-        'inactive_employees': inactive_employees,
-
         'total_leaves': total_leaves,
-
-        'approved_leaves': approved_leaves,
 
         'pending_leaves': pending_leaves,
 
@@ -733,6 +701,8 @@ def reports_dashboard(request):
         'reports/dashboard.html',
         context
     )
+
+
 # ==========================================
 # PAYSLIP PDF DOWNLOAD
 # ==========================================
@@ -744,20 +714,6 @@ def download_payslip_pdf(request, pk):
         Payslip,
         pk=pk
     )
-
-    if (
-        request.user.role == 'EMPLOYEE'
-        and payslip.employee.user != request.user
-    ):
-
-        messages.error(
-            request,
-            'Access denied.'
-        )
-
-        return redirect(
-            'payslip_list'
-        )
 
     response = HttpResponse(
         content_type='application/pdf'
@@ -777,7 +733,7 @@ def download_payslip_pdf(request, pk):
     )
 
     pdf.drawString(
-        200,
+        180,
         800,
         'SkillChekHub HRMS'
     )
@@ -796,61 +752,156 @@ def download_payslip_pdf(request, pk):
     pdf.drawString(
         50,
         710,
-        f'Department: {payslip.employee.department}'
-    )
-
-    pdf.drawString(
-        50,
-        680,
         f'Month: {payslip.month}'
     )
 
     pdf.drawString(
         50,
-        650,
+        680,
         f'Year: {payslip.year}'
     )
 
     pdf.drawString(
         50,
-        600,
-        f'Basic Salary: ₹ {payslip.basic_salary}'
-    )
-
-    pdf.drawString(
-        50,
-        570,
-        f'Bonus: ₹ {payslip.bonus}'
-    )
-
-    pdf.drawString(
-        50,
-        540,
-        f'Deductions: ₹ {payslip.deductions}'
-    )
-
-    pdf.setFont(
-        'Helvetica-Bold',
-        14
-    )
-
-    pdf.drawString(
-        50,
-        480,
+        650,
         f'Net Salary: ₹ {payslip.net_salary}'
-    )
-
-    pdf.setFont(
-        'Helvetica',
-        10
-    )
-
-    pdf.drawString(
-        50,
-        430,
-        'This is a system-generated payslip.'
     )
 
     pdf.save()
 
     return response
+
+
+# ==========================================
+# DOCUMENT MANAGEMENT
+# ==========================================
+
+@login_required
+def document_list(request):
+
+    if request.user.role in ['CEO', 'HR_ADMIN']:
+
+        documents = EmployeeDocument.objects.select_related(
+            'employee',
+            'employee__user'
+        ).all()
+
+    else:
+
+        employee = Employee.objects.filter(
+            user=request.user
+        ).first()
+
+        documents = EmployeeDocument.objects.filter(
+            employee=employee
+        )
+
+    context = {
+        'documents': documents
+    }
+
+    return render(
+        request,
+        'documents/list.html',
+        context
+    )
+
+
+@login_required
+def upload_document(request):
+
+    # CEO and HR_ADMIN can upload
+    # documents for any employee
+    if request.user.role in ['CEO', 'HR_ADMIN']:
+
+        employees = Employee.objects.select_related(
+            'user'
+        ).all()
+
+    # EMPLOYEE can upload only
+    # for themselves
+    else:
+
+        employees = Employee.objects.filter(
+            user=request.user
+        )
+
+    if request.method == 'POST':
+
+        employee = get_object_or_404(
+            Employee,
+            id=request.POST.get('employee')
+        )
+
+        # Prevent employee from uploading
+        # for another employee
+        if (
+            request.user.role == 'EMPLOYEE'
+            and employee.user != request.user
+        ):
+
+            messages.error(
+                request,
+                'Access denied.'
+            )
+
+            return redirect(
+                'document_list'
+            )
+
+        EmployeeDocument.objects.create(
+
+            employee=employee,
+
+            title=request.POST.get('title'),
+
+            document_type=request.POST.get(
+                'document_type'
+            ),
+
+            file=request.FILES.get('file'),
+
+            uploaded_by=request.user
+
+        )
+
+        messages.success(
+            request,
+            'Document uploaded successfully.'
+        )
+
+        return redirect(
+            'document_list'
+        )
+
+    context = {
+        'employees': employees
+    }
+
+    return render(
+        request,
+        'documents/upload.html',
+        context
+    )
+
+
+@login_required
+def delete_document(request, pk):
+
+    document = get_object_or_404(
+        EmployeeDocument,
+        pk=pk
+    )
+
+    document.file.delete()
+
+    document.delete()
+
+    messages.success(
+        request,
+        'Document deleted successfully.'
+    )
+
+    return redirect(
+        'document_list'
+    )

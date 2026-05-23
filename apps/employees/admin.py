@@ -1,6 +1,7 @@
 from django.contrib import admin
 from .models import Attendance
 from .models import Announcement
+from .models import EmployeeDocument
 
 from .models import (
     Department,
@@ -76,4 +77,23 @@ class AnnouncementAdmin(admin.ModelAdmin):
     search_fields = (
         'title',
         'message',
+    )
+
+@admin.register(EmployeeDocument)
+class EmployeeDocumentAdmin(admin.ModelAdmin):
+
+    list_display = (
+        'employee',
+        'title',
+        'document_type',
+        'uploaded_at',
+    )
+
+    search_fields = (
+        'employee__employee_id',
+        'title',
+    )
+
+    list_filter = (
+        'document_type',
     )

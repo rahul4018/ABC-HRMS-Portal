@@ -205,3 +205,57 @@ class Announcement(models.Model):
     def __str__(self):
 
         return self.title
+# ==========================================
+# Employee Documents
+# ==========================================
+
+class EmployeeDocument(models.Model):
+
+    DOCUMENT_TYPES = [
+
+        ('AADHAAR', 'Aadhaar'),
+
+        ('PAN', 'PAN'),
+
+        ('RESUME', 'Resume'),
+
+        ('CERTIFICATE', 'Certificate'),
+
+        ('CONTRACT', 'Contract'),
+
+        ('OTHER', 'Other'),
+
+    ]
+
+    employee = models.ForeignKey(
+        Employee,
+        on_delete=models.CASCADE,
+        related_name='documents'
+    )
+
+    title = models.CharField(
+        max_length=200
+    )
+
+    document_type = models.CharField(
+        max_length=50,
+        choices=DOCUMENT_TYPES
+    )
+
+    file = models.FileField(
+        upload_to='employee_documents/'
+    )
+
+    uploaded_at = models.DateTimeField(
+        auto_now_add=True
+    )
+
+    uploaded_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True
+    )
+
+    def __str__(self):
+
+        return f"{self.employee} - {self.title}"

@@ -1,0 +1,131 @@
+{% extends 'layouts/base.html' %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+
+    <div>
+
+        <h2 class="fw-bold">
+            Employee Documents
+        </h2>
+
+        <p class="text-muted mb-0">
+            Manage employee uploaded files.
+        </p>
+
+    </div>
+
+    <a href="{% url 'upload_document' %}"
+       class="btn btn-primary">
+
+        Upload Document
+
+    </a>
+
+</div>
+
+<div class="card border-0 shadow-sm">
+
+    <div class="card-body">
+
+        <table class="table align-middle">
+
+            <thead class="table-light">
+
+                <tr>
+
+                    <th>Employee</th>
+                    <th>Title</th>
+                    <th>Type</th>
+                    <th>Uploaded</th>
+                    <th>File</th>
+                    <th>Actions</th>
+
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                {% for document in documents %}
+
+                <tr>
+
+                    <td>
+
+                        {{ document.employee.user.email }}
+
+                    </td>
+
+                    <td>
+
+                        {{ document.title }}
+
+                    </td>
+
+                    <td>
+
+                        <span class="badge bg-dark">
+
+                            {{ document.document_type }}
+
+                        </span>
+
+                    </td>
+
+                    <td>
+
+                        {{ document.uploaded_at|date:"d M Y" }}
+
+                    </td>
+
+                    <td>
+
+                        <a href="{{ document.file.url }}"
+                           target="_blank"
+                           class="btn btn-sm btn-success">
+
+                            Open
+
+                        </a>
+
+                    </td>
+
+                    <td>
+
+                        <a href="{% url 'delete_document' document.id %}"
+                           class="btn btn-sm btn-danger">
+
+                            Delete
+
+                        </a>
+
+                    </td>
+
+                </tr>
+
+                {% empty %}
+
+                <tr>
+
+                    <td colspan="6"
+                        class="text-center text-muted py-5">
+
+                        No documents uploaded.
+
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+{% endblock %}
