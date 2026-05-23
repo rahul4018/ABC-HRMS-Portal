@@ -1,0 +1,60 @@
+{% extends 'layouts/base.html' %}
+
+{% block content %}
+
+<div class="card border-0 shadow-sm">
+
+    <div class="card-body p-5">
+
+        <h2 class="fw-bold mb-4">
+            Publish Announcement
+        </h2>
+
+        <form method="POST">
+
+            {% csrf_token %}
+
+            <div class="mb-4">
+
+                <label class="form-label fw-semibold">
+
+                    Title
+
+                </label>
+
+                <input type="text"
+                       name="title"
+                       class="form-control"
+                       required>
+
+            </div>
+
+            <div class="mb-4">
+
+                <label class="form-label fw-semibold">
+
+                    Message
+
+                </label>
+
+                <textarea name="message"
+                          rows="6"
+                          class="form-control"
+                          required></textarea>
+
+            </div>
+
+            <button type="submit"
+                    class="btn btn-primary">
+
+                Publish Announcement
+
+            </button>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock %}

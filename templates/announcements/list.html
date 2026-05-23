@@ -1,0 +1,103 @@
+{% extends 'layouts/base.html' %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+
+    <div>
+
+        <h2 class="fw-bold">
+            Company Announcements
+        </h2>
+
+        <p class="text-muted mb-0">
+            Latest company updates and notices.
+        </p>
+
+    </div>
+
+    {% if request.user.role == 'CEO' or request.user.role == 'HR_ADMIN' %}
+
+    <a href="{% url 'announcement_add' %}"
+       class="btn btn-primary">
+
+        <i class="bi bi-plus-circle me-1"></i>
+
+        New Announcement
+
+    </a>
+
+    {% endif %}
+
+</div>
+
+<div class="row">
+
+    {% for announcement in announcements %}
+
+    <div class="col-md-6 mb-4">
+
+        <div class="card border-0 shadow-sm h-100">
+
+            <div class="card-body">
+
+                <h4 class="fw-bold mb-3">
+
+                    {{ announcement.title }}
+
+                </h4>
+
+                <p class="text-muted">
+
+                    {{ announcement.message|truncatewords:25 }}
+
+                </p>
+
+                <div class="d-flex justify-content-between align-items-center mt-4">
+
+                    <small class="text-secondary">
+
+                        {{ announcement.created_at|date:"d M Y" }}
+
+                    </small>
+
+                    <a href="{% url 'announcement_detail' announcement.id %}"
+                       class="btn btn-dark btn-sm">
+
+                        View
+
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    {% empty %}
+
+    <div class="col-12">
+
+        <div class="card border-0 shadow-sm">
+
+            <div class="card-body text-center py-5">
+
+                <h5 class="text-muted">
+
+                    No announcements available.
+
+                </h5>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    {% endfor %}
+
+</div>
+
+{% endblock %}

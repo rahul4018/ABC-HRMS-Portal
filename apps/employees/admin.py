@@ -1,5 +1,6 @@
 from django.contrib import admin
 from .models import Attendance
+from .models import Announcement
 
 from .models import (
     Department,
@@ -56,4 +57,23 @@ class AttendanceAdmin(admin.ModelAdmin):
     search_fields = (
         'employee__employee_id',
         'employee__user__email',
+    )
+@admin.register(Announcement)
+class AnnouncementAdmin(admin.ModelAdmin):
+
+    list_display = (
+        'title',
+        'created_by',
+        'created_at',
+        'is_active',
+    )
+
+    list_filter = (
+        'is_active',
+        'created_at',
+    )
+
+    search_fields = (
+        'title',
+        'message',
     )

@@ -20,7 +20,6 @@ from apps.employees.views import (
     my_profile,
 )
 
-
 urlpatterns = [
 
     # ==========================================
@@ -99,6 +98,17 @@ urlpatterns = [
         'payslips/',
         include(
             'apps.employees.payslip_urls'
+        )
+    ),
+
+    # ==========================================
+    # ANNOUNCEMENTS
+    # ==========================================
+
+    path(
+        'announcements/',
+        include(
+            'apps.employees.announcement_urls'
         )
     ),
 

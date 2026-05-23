@@ -18,6 +18,7 @@ from .models import (
     Department,
     Payslip,
     Attendance,
+    Announcement,
 )
 
 from .forms import (
@@ -41,10 +42,13 @@ def dashboard(request):
 
     total_attendance = Attendance.objects.count()
 
+    total_announcements = Announcement.objects.count()
+
     context = {
         'total_employees': total_employees,
         'total_departments': total_departments,
         'total_attendance': total_attendance,
+        'total_announcements': total_announcements,
     }
 
     return render(
@@ -599,5 +603,77 @@ def attendance_detail(request, pk):
     return render(
         request,
         'attendance/detail.html',
+        context
+    )
+
+
+# ==========================================
+# ANNOUNCEMENT MANAGEMENT
+# ==========================================
+
+@login_required
+def announcement_list(request):
+
+    announcements = Announcement.objects.filter(
+        is_active=True
+    )
+
+    context = {
+        'announcements': announcements
+    }
+
+    return render(
+        request,
+        'announcements/list.html',
+        context
+    )
+
+
+@login_required
+@role_required(['CEO', 'HR_ADMIN'])
+def announcement_add(request):
+
+    if request.method == 'POST':
+
+        Announcement.objects.create(
+
+            title=request.POST.get('title'),
+
+            message=request.POST.get('message'),
+
+            created_by=request.user
+
+        )
+
+        messages.success(
+            request,
+            'Announcement published successfully.'
+        )
+
+        return redirect(
+            'announcement_list'
+        )
+
+    return render(
+        request,
+        'announcements/add.html'
+    )
+
+
+@login_required
+def announcement_detail(request, pk):
+
+    announcement = get_object_or_404(
+        Announcement,
+        pk=pk
+    )
+
+    context = {
+        'announcement': announcement
+    }
+
+    return render(
+        request,
+        'announcements/detail.html',
         context
     )
