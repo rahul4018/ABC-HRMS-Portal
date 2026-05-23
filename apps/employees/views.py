@@ -1,32 +1,34 @@
 from django.shortcuts import (
     render,
     redirect,
-    get_object_or_404
+    get_object_or_404,
 )
 
 from django.contrib import messages
+
 from django.contrib.auth.decorators import login_required
 
-from .models import Employee
+from django.db.models import Count
+
+from .models import (
+    Employee,
+    Department,
+)
+
 from .forms import (
     EmployeeCreateForm,
-    EmployeeUpdateForm
+    EmployeeUpdateForm,
 )
 
 from apps.accounts.decorators import role_required
 
 
-# =========================
+# ==========================================
 # Employee List
-# =========================
+# ==========================================
 
 @login_required
-@role_required(
-    allowed_roles=[
-        'CEO',
-        'HR',
-    ]
-)
+@role_required(['CEO', 'HR_ADMIN'])
 def employee_list(request):
 
     employees = Employee.objects.select_related(
@@ -45,17 +47,12 @@ def employee_list(request):
     )
 
 
-# =========================
+# ==========================================
 # Employee Detail
-# =========================
+# ==========================================
 
 @login_required
-@role_required(
-    allowed_roles=[
-        'CEO',
-        'HR',
-    ]
-)
+@role_required(['CEO', 'HR_ADMIN'])
 def employee_detail(request, pk):
 
     employee = get_object_or_404(
@@ -74,17 +71,12 @@ def employee_detail(request, pk):
     )
 
 
-# =========================
+# ==========================================
 # Add Employee
-# =========================
+# ==========================================
 
 @login_required
-@role_required(
-    allowed_roles=[
-        'CEO',
-        'HR',
-    ]
-)
+@role_required(['CEO', 'HR_ADMIN'])
 def employee_add(request):
 
     form = EmployeeCreateForm()
@@ -120,17 +112,12 @@ def employee_add(request):
     )
 
 
-# =========================
+# ==========================================
 # Edit Employee
-# =========================
+# ==========================================
 
 @login_required
-@role_required(
-    allowed_roles=[
-        'CEO',
-        'HR',
-    ]
-)
+@role_required(['CEO', 'HR_ADMIN'])
 def employee_edit(request, pk):
 
     employee = get_object_or_404(
@@ -176,16 +163,12 @@ def employee_edit(request, pk):
     )
 
 
-# =========================
+# ==========================================
 # Delete Employee
-# =========================
+# ==========================================
 
 @login_required
-@role_required(
-    allowed_roles=[
-        'CEO'
-    ]
-)
+@role_required(['CEO'])
 def employee_delete(request, pk):
 
     employee = get_object_or_404(
@@ -193,42 +176,28 @@ def employee_delete(request, pk):
         pk=pk
     )
 
-    if request.method == 'POST':
+    employee.delete()
 
-        employee.user.delete()
-
-        messages.success(
-            request,
-            'Employee deleted successfully.'
-        )
-
-        return redirect(
-            'employee_list'
-        )
-
-    context = {
-        'employee': employee
-    }
-
-    return render(
+    messages.success(
         request,
-        'employees/delete.html',
-        context
+        'Employee deleted successfully.'
+    )
+
+    return redirect(
+        'employee_list'
     )
 
 
-# =========================
+# ==========================================
 # My Profile
-# =========================
+# ==========================================
 
 @login_required
-@role_required(
-    allowed_roles=[
-        'CEO',
-        'HR',
-        'EMPLOYEE'
-    ]
-)
+@role_required([
+    'CEO',
+    'HR_ADMIN',
+    'EMPLOYEE'
+])
 def my_profile(request):
 
     employee = Employee.objects.filter(
@@ -242,5 +211,135 @@ def my_profile(request):
     return render(
         request,
         'employees/profile.html',
+        context
+    )
+
+
+# ==========================================
+# Department List
+# ==========================================
+
+@login_required
+@role_required(['CEO', 'HR_ADMIN'])
+def department_list(request):
+
+    departments = Department.objects.annotate(
+        employee_count=Count('employee')
+    )
+
+    context = {
+        'departments': departments
+    }
+
+    return render(
+        request,
+        'departments/list.html',
+        context
+    )
+
+
+# ==========================================
+# Add Department
+# ==========================================
+
+@login_required
+@role_required(['CEO', 'HR_ADMIN'])
+def add_department(request):
+
+    if request.method == 'POST':
+
+        name = request.POST.get('name')
+
+        Department.objects.create(
+            name=name
+        )
+
+        messages.success(
+            request,
+            'Department added successfully.'
+        )
+
+        return redirect(
+            'department_list'
+        )
+
+    return render(
+        request,
+        'departments/add.html'
+    )
+
+
+# ==========================================
+# Edit Department
+# ==========================================
+
+@login_required
+@role_required(['CEO', 'HR_ADMIN'])
+def edit_department(request, department_id):
+
+    department = get_object_or_404(
+        Department,
+        id=department_id
+    )
+
+    if request.method == 'POST':
+
+        department.name = request.POST.get('name')
+
+        department.save()
+
+        messages.success(
+            request,
+            'Department updated successfully.'
+        )
+
+        return redirect(
+            'department_list'
+        )
+
+    context = {
+        'department': department
+    }
+
+    return render(
+        request,
+        'departments/edit.html',
+        context
+    )
+
+
+# ==========================================
+# Delete Department
+# ==========================================
+
+@login_required
+@role_required(['CEO'])
+def delete_department(request, department_id):
+
+    department = get_object_or_404(
+        Department,
+        id=department_id
+    )
+
+    if request.method == 'POST':
+
+        department.delete()
+
+        messages.success(
+            request,
+            'Department deleted successfully.'
+        )
+
+        return redirect(
+            'department_list'
+        )
+
+    context = {
+        'department': department
+    }
+
+    return render(
+        request,
+        'departments/delete.html',
         context
     )

@@ -1,0 +1,190 @@
+{% extends 'layouts/base.html' %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+
+    <div>
+
+        <h2 class="fw-bold">
+            Leave Request Details
+        </h2>
+
+        <p class="text-muted mb-0">
+            Review and manage leave request.
+        </p>
+
+    </div>
+
+    <a href="/leave/"
+       class="btn btn-secondary">
+
+        <i class="bi bi-arrow-left me-1"></i>
+
+        Back
+
+    </a>
+
+</div>
+
+<div class="card border-0 shadow-sm">
+
+    <div class="card-body p-4">
+
+        <div class="row g-4">
+
+            <div class="col-md-6">
+
+                <label class="fw-semibold text-muted">
+                    Employee
+                </label>
+
+                <p class="fs-5">
+                    {{ leave.employee.user.email }}
+                </p>
+
+            </div>
+
+            <div class="col-md-6">
+
+                <label class="fw-semibold text-muted">
+                    Leave Type
+                </label>
+
+                <p class="fs-5">
+                    {{ leave.leave_type }}
+                </p>
+
+            </div>
+
+            <div class="col-md-6">
+
+                <label class="fw-semibold text-muted">
+                    Start Date
+                </label>
+
+                <p class="fs-5">
+                    {{ leave.start_date }}
+                </p>
+
+            </div>
+
+            <div class="col-md-6">
+
+                <label class="fw-semibold text-muted">
+                    End Date
+                </label>
+
+                <p class="fs-5">
+                    {{ leave.end_date }}
+                </p>
+
+            </div>
+
+            <div class="col-12">
+
+                <label class="fw-semibold text-muted">
+                    Reason
+                </label>
+
+                <div class="p-3 bg-light rounded">
+
+                    {{ leave.reason }}
+
+                </div>
+
+            </div>
+
+            <div class="col-12">
+
+                <label class="fw-semibold text-muted">
+                    Current Status
+                </label>
+
+                <div class="mt-2">
+
+                    {% if leave.status == 'APPROVED' %}
+
+                        <span class="badge bg-success fs-6">
+                            Approved
+                        </span>
+
+                    {% elif leave.status == 'REJECTED' %}
+
+                        <span class="badge bg-danger fs-6">
+                            Rejected
+                        </span>
+
+                    {% else %}
+
+                        <span class="badge bg-warning text-dark fs-6">
+                            Pending
+                        </span>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+        </div>
+
+        {% if request.user.role == 'CEO' or request.user.role == 'HR_ADMIN' %}
+
+        <hr class="my-4">
+
+        <form method="POST">
+
+            {% csrf_token %}
+
+            <div class="row align-items-end">
+
+                <div class="col-md-4">
+
+                    <label class="form-label fw-semibold">
+                        Update Status
+                    </label>
+
+                    <select name="status"
+                            class="form-select">
+
+                        <option value="PENDING">
+                            Pending
+                        </option>
+
+                        <option value="APPROVED">
+                            Approved
+                        </option>
+
+                        <option value="REJECTED">
+                            Rejected
+                        </option>
+
+                    </select>
+
+                </div>
+
+                <div class="col-md-3">
+
+                    <button type="submit"
+                            class="btn btn-primary">
+
+                        <i class="bi bi-check-circle me-1"></i>
+
+                        Update Status
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </form>
+
+        {% endif %}
+
+    </div>
+
+</div>
+
+{% endblock %}

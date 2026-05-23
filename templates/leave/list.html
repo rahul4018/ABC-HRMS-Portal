@@ -1,0 +1,134 @@
+{% extends 'layouts/base.html' %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+
+    <div>
+
+        <h2 class="fw-bold">
+            Leave Management
+        </h2>
+
+        <p class="text-muted mb-0">
+            Manage employee leave requests.
+        </p>
+
+    </div>
+
+    <a href="/leave/apply/"
+       class="btn btn-primary">
+
+        Apply Leave
+
+    </a>
+
+</div>
+
+<div class="card border-0 shadow-sm">
+
+    <div class="card-body">
+
+        <table class="table align-middle">
+
+            <thead>
+
+                <tr>
+
+                    <th>Employee</th>
+                    <th>Leave Type</th>
+                    <th>Duration</th>
+                    <th>Status</th>
+                    <th>Action</th>
+
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                {% for leave in leaves %}
+
+                <tr>
+
+                    <td>
+
+                        {{ leave.employee.user.email }}
+
+                    </td>
+
+                    <td>
+
+                        {{ leave.leave_type }}
+
+                    </td>
+
+                    <td>
+
+                        {{ leave.start_date }}
+                        →
+                        {{ leave.end_date }}
+
+                    </td>
+
+                    <td>
+
+                        {% if leave.status == 'APPROVED' %}
+
+                            <span class="badge bg-success">
+                                Approved
+                            </span>
+
+                        {% elif leave.status == 'REJECTED' %}
+
+                            <span class="badge bg-danger">
+                                Rejected
+                            </span>
+
+                        {% else %}
+
+                            <span class="badge bg-warning text-dark">
+                                Pending
+                            </span>
+
+                        {% endif %}
+
+                    </td>
+
+                    <td>
+
+                        <a href="/leave/{{ leave.id }}/"
+                           class="btn btn-sm btn-dark">
+
+                            View
+
+                        </a>
+
+                    </td>
+
+                </tr>
+
+                {% empty %}
+
+                <tr>
+
+                    <td colspan="5"
+                        class="text-center text-muted py-5">
+
+                        No leave requests found.
+
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+{% endblock %}

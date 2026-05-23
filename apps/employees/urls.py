@@ -1,43 +1,55 @@
 from django.urls import path
 
-from apps.employees.views import (
+from .views import (
     employee_list,
-    employee_profile,
-    add_employee,
-    edit_employee,
-    delete_employee,
+    employee_detail,
+    employee_add,
+    employee_edit,
+    employee_delete,
+    my_profile,
 )
 
 urlpatterns = [
 
+    # Employee List
     path(
-        '',
+        'employees/',
         employee_list,
         name='employee_list'
     ),
 
+    # Add Employee
     path(
-        'add/',
-        add_employee,
-        name='add_employee'
+        'employees/add/',
+        employee_add,
+        name='employee_add'
     ),
 
+    # Employee Detail
     path(
-        'profile/',
-        employee_profile,
-        name='employee_profile'
+        'employees/<int:pk>/',
+        employee_detail,
+        name='employee_detail'
     ),
 
+    # Edit Employee
     path(
-        'edit/<int:employee_id>/',
-        edit_employee,
-        name='edit_employee'
+        'employees/<int:pk>/edit/',
+        employee_edit,
+        name='employee_edit'
     ),
 
+    # Delete Employee
     path(
-        'delete/<int:employee_id>/',
-        delete_employee,
-        name='delete_employee'
+        'employees/<int:pk>/delete/',
+        employee_delete,
+        name='employee_delete'
     ),
 
+    # My Profile
+    path(
+        'my-profile/',
+        my_profile,
+        name='my_profile'
+    ),
 ]

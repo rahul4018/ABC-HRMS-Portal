@@ -1,0 +1,44 @@
+{% extends 'layouts/base.html' %}
+
+{% block content %}
+
+<h2 class="fw-bold mb-4">
+    Edit Department
+</h2>
+
+<div class="card border-0 shadow-sm">
+
+    <div class="card-body">
+
+        <form method="POST">
+
+            {% csrf_token %}
+
+            <div class="mb-3">
+
+                <label class="form-label">
+                    Department Name
+                </label>
+
+                <input type="text"
+                       name="name"
+                       class="form-control"
+                       value="{{ department.name }}"
+                       required>
+
+            </div>
+
+            <button type="submit"
+                    class="btn btn-primary">
+
+                Update Department
+
+            </button>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock %}
