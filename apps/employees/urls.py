@@ -7,49 +7,104 @@ from .views import (
     employee_edit,
     employee_delete,
     my_profile,
+
+    department_list,
+    department_add,
+    department_edit,
+    department_delete,
+
+    payslip_list,
+    payslip_detail,
 )
 
 urlpatterns = [
 
-    # Employee List
+    # ==========================================
+    # EMPLOYEE URLS
+    # ==========================================
+
     path(
-        'employees/',
+        '',
         employee_list,
         name='employee_list'
     ),
 
-    # Add Employee
     path(
-        'employees/add/',
+        'add/',
         employee_add,
         name='employee_add'
     ),
 
-    # Employee Detail
     path(
-        'employees/<int:pk>/',
+        '<int:pk>/',
         employee_detail,
         name='employee_detail'
     ),
 
-    # Edit Employee
     path(
-        'employees/<int:pk>/edit/',
+        '<int:pk>/edit/',
         employee_edit,
         name='employee_edit'
     ),
 
-    # Delete Employee
     path(
-        'employees/<int:pk>/delete/',
+        '<int:pk>/delete/',
         employee_delete,
         name='employee_delete'
     ),
 
-    # My Profile
+    # ==========================================
+    # PROFILE
+    # ==========================================
+
     path(
         'my-profile/',
         my_profile,
         name='my_profile'
     ),
+
+    # ==========================================
+    # DEPARTMENT URLS
+    # ==========================================
+
+    path(
+        'departments/',
+        department_list,
+        name='department_list'
+    ),
+
+    path(
+        'departments/add/',
+        department_add,
+        name='add_department'
+    ),
+
+    path(
+        'departments/<int:pk>/edit/',
+        department_edit,
+        name='edit_department'
+    ),
+
+    path(
+        'departments/<int:pk>/delete/',
+        department_delete,
+        name='delete_department'
+    ),
+
+    # ==========================================
+    # PAYSLIP URLS
+    # ==========================================
+
+    path(
+        'payslips/',
+        payslip_list,
+        name='payslip_list'
+    ),
+
+    path(
+        'payslips/<int:pk>/',
+        payslip_detail,
+        name='payslip_detail'
+    ),
+
 ]

@@ -1,23 +1,26 @@
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 
+from apps.employees.models import (
+    Employee,
+    Department,
+)
+
 
 @login_required
-def dashboard_view(request):
+def dashboard(request):
 
-    if request.user.role == 'CEO':
-        return render(
-            request,
-            'dashboard/ceo.html'
-        )
+    total_employees = Employee.objects.count()
 
-    elif request.user.role == 'HR':
-        return render(
-            request,
-            'dashboard/hr.html'
-        )
+    total_departments = Department.objects.count()
+
+    context = {
+        'total_employees': total_employees,
+        'total_departments': total_departments,
+    }
 
     return render(
         request,
-        'dashboard/employee.html'
+        'dashboard/index.html',
+        context
     )

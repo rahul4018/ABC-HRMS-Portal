@@ -9,19 +9,22 @@ from django.conf import settings
 
 from django.conf.urls.static import static
 
-from apps.dashboard.views import (
-    dashboard_view,
-)
+from apps.dashboard.views import dashboard
 
 from apps.accounts.views import (
     login_view,
     logout_view,
 )
 
+from apps.employees.views import (
+    my_profile,
+)
+
+
 urlpatterns = [
 
     # ==========================================
-    # Admin Panel
+    # ADMIN
     # ==========================================
 
     path(
@@ -30,7 +33,7 @@ urlpatterns = [
     ),
 
     # ==========================================
-    # Authentication
+    # AUTHENTICATION
     # ==========================================
 
     path(
@@ -46,28 +49,49 @@ urlpatterns = [
     ),
 
     # ==========================================
-    # Dashboard
+    # DASHBOARD
     # ==========================================
 
     path(
         '',
-        dashboard_view,
+        dashboard,
         name='dashboard'
     ),
 
     # ==========================================
-    # Employee + Department Module
+    # EMPLOYEES
     # ==========================================
 
     path(
-        '',
+        'employees/',
         include(
             'apps.employees.urls'
         )
     ),
 
     # ==========================================
-    # Leave Management Module
+    # PAYSLIPS
+    # ==========================================
+
+    path(
+        'payslips/',
+        include(
+            'apps.employees.payslip_urls'
+        )
+    ),
+
+    # ==========================================
+    # MY PROFILE
+    # ==========================================
+
+    path(
+        'my-profile/',
+        my_profile,
+        name='my_profile'
+    ),
+
+    # ==========================================
+    # LEAVE MANAGEMENT
     # ==========================================
 
     path(
@@ -80,7 +104,7 @@ urlpatterns = [
 ]
 
 # ==========================================
-# Media Files
+# MEDIA FILES
 # ==========================================
 
 if settings.DEBUG:

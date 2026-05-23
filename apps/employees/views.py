@@ -13,6 +13,7 @@ from django.db.models import Count
 from .models import (
     Employee,
     Department,
+    Payslip,
 )
 
 from .forms import (
@@ -21,6 +22,29 @@ from .forms import (
 )
 
 from apps.accounts.decorators import role_required
+
+
+# ==========================================
+# Dashboard
+# ==========================================
+
+@login_required
+def dashboard(request):
+
+    total_employees = Employee.objects.count()
+
+    total_departments = Department.objects.count()
+
+    context = {
+        'total_employees': total_employees,
+        'total_departments': total_departments,
+    }
+
+    return render(
+        request,
+        'dashboard/index.html',
+        context
+    )
 
 
 # ==========================================
@@ -225,7 +249,7 @@ def department_list(request):
 
     departments = Department.objects.annotate(
         employee_count=Count('employee')
-    )
+    ).order_by('name')
 
     context = {
         'departments': departments
@@ -244,19 +268,27 @@ def department_list(request):
 
 @login_required
 @role_required(['CEO', 'HR_ADMIN'])
-def add_department(request):
+def department_add(request):
 
     if request.method == 'POST':
 
-        name = request.POST.get('name')
-
         Department.objects.create(
-            name=name
+
+            name=request.POST.get('name'),
+
+            description=request.POST.get(
+                'description'
+            ),
+
+            department_head=request.POST.get(
+                'department_head'
+            )
+
         )
 
         messages.success(
             request,
-            'Department added successfully.'
+            'Department created successfully.'
         )
 
         return redirect(
@@ -275,16 +307,26 @@ def add_department(request):
 
 @login_required
 @role_required(['CEO', 'HR_ADMIN'])
-def edit_department(request, department_id):
+def department_edit(request, pk):
 
     department = get_object_or_404(
         Department,
-        id=department_id
+        pk=pk
     )
 
     if request.method == 'POST':
 
-        department.name = request.POST.get('name')
+        department.name = request.POST.get(
+            'name'
+        )
+
+        department.description = request.POST.get(
+            'description'
+        )
+
+        department.department_head = request.POST.get(
+            'department_head'
+        )
 
         department.save()
 
@@ -314,11 +356,11 @@ def edit_department(request, department_id):
 
 @login_required
 @role_required(['CEO'])
-def delete_department(request, department_id):
+def department_delete(request, pk):
 
     department = get_object_or_404(
         Department,
-        id=department_id
+        pk=pk
     )
 
     if request.method == 'POST':
@@ -341,5 +383,70 @@ def delete_department(request, department_id):
     return render(
         request,
         'departments/delete.html',
+        context
+    )
+
+
+# ==========================================
+# PAYSLIP MANAGEMENT
+# ==========================================
+
+@login_required
+def payslip_list(request):
+
+    if request.user.role in ['CEO', 'HR_ADMIN']:
+
+        payslips = Payslip.objects.all().order_by(
+            '-generated_at'
+        )
+
+    else:
+
+        payslips = Payslip.objects.filter(
+            employee__user=request.user
+        ).order_by(
+            '-generated_at'
+        )
+
+    context = {
+        'payslips': payslips
+    }
+
+    return render(
+        request,
+        'payslips/list.html',
+        context
+    )
+
+
+@login_required
+def payslip_detail(request, pk):
+
+    payslip = get_object_or_404(
+        Payslip,
+        pk=pk
+    )
+
+    if (
+        request.user.role == 'EMPLOYEE'
+        and payslip.employee.user != request.user
+    ):
+
+        messages.error(
+            request,
+            'Access denied.'
+        )
+
+        return redirect(
+            'payslip_list'
+        )
+
+    context = {
+        'payslip': payslip
+    }
+
+    return render(
+        request,
+        'payslips/detail.html',
         context
     )

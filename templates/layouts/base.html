@@ -87,7 +87,7 @@
             <!-- Departments -->
             {% if request.user.role == 'CEO' or request.user.role == 'HR_ADMIN' %}
 
-            <a href="/departments/"
+            <a href="/employees/departments/"
                class="list-group-item list-group-item-action">
 
                 <i class="bi bi-building me-2"></i>
@@ -108,6 +108,16 @@
 
             </a>
 
+            <!-- Payslips -->
+            <a href="/payslips/"
+               class="list-group-item list-group-item-action">
+
+                <i class="bi bi-wallet2 me-2"></i>
+
+                Payslips
+
+            </a>
+
             <!-- My Profile -->
             <a href="/my-profile/"
                class="list-group-item list-group-item-action">
@@ -125,16 +135,6 @@
                 <i class="bi bi-file-earmark-text me-2"></i>
 
                 Documents
-
-            </a>
-
-            <!-- Payslips -->
-            <a href="#"
-               class="list-group-item list-group-item-action">
-
-                <i class="bi bi-wallet2 me-2"></i>
-
-                Payslips
 
             </a>
 

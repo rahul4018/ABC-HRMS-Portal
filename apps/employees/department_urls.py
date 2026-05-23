@@ -2,12 +2,16 @@ from django.urls import path
 
 from apps.employees.views import (
     department_list,
-    add_department,
-    edit_department,
-    delete_department,
+    department_add,
+    department_edit,
+    department_delete,
 )
 
 urlpatterns = [
+
+    # ==========================================
+    # Department List
+    # ==========================================
 
     path(
         '',
@@ -15,22 +19,34 @@ urlpatterns = [
         name='department_list'
     ),
 
+    # ==========================================
+    # Add Department
+    # ==========================================
+
     path(
         'add/',
-        add_department,
-        name='add_department'
+        department_add,
+        name='department_add'
     ),
 
-    path(
-        'edit/<int:department_id>/',
-        edit_department,
-        name='edit_department'
-    ),
+    # ==========================================
+    # Edit Department
+    # ==========================================
 
     path(
-        'delete/<int:department_id>/',
-        delete_department,
-        name='delete_department'
+        '<int:pk>/edit/',
+        department_edit,
+        name='department_edit'
+    ),
+
+    # ==========================================
+    # Delete Department
+    # ==========================================
+
+    path(
+        '<int:pk>/delete/',
+        department_delete,
+        name='department_delete'
     ),
 
 ]

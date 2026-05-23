@@ -31,14 +31,22 @@
 
     <div class="card-body">
 
-        <table class="table align-middle">
+        <table class="table align-middle table-hover">
 
-            <thead>
+            <thead class="table-light">
 
                 <tr>
 
                     <th>Department</th>
+
+                    <th>Description</th>
+
+                    <th>Department Head</th>
+
                     <th>Total Employees</th>
+
+                    <th>Created</th>
+
                     <th>Actions</th>
 
                 </tr>
@@ -53,7 +61,43 @@
 
                     <td>
 
-                        {{ department.name }}
+                        <span class="fw-semibold">
+
+                            {{ department.name }}
+
+                        </span>
+
+                    </td>
+
+                    <td>
+
+                        {% if department.description %}
+
+                            {{ department.description }}
+
+                        {% else %}
+
+                            <span class="text-muted">
+                                No description
+                            </span>
+
+                        {% endif %}
+
+                    </td>
+
+                    <td>
+
+                        {% if department.department_head %}
+
+                            {{ department.department_head }}
+
+                        {% else %}
+
+                            <span class="text-muted">
+                                Not Assigned
+                            </span>
+
+                        {% endif %}
 
                     </td>
 
@@ -69,23 +113,33 @@
 
                     <td>
 
-                        <a href="{% url 'edit_department' department.id %}"
-                           class="btn btn-sm btn-primary">
+                        {{ department.created_at|date:"d M Y" }}
 
-                            Edit
+                    </td>
 
-                        </a>
+                    <td>
 
-                        {% if request.user.role == 'CEO' %}
+                        <div class="d-flex gap-2">
 
-                        <a href="{% url 'delete_department' department.id %}"
-                           class="btn btn-sm btn-danger">
+                            <a href="{% url 'edit_department' department.id %}"
+                               class="btn btn-sm btn-primary">
 
-                            Delete
+                                <i class="bi bi-pencil-square"></i>
 
-                        </a>
+                            </a>
 
-                        {% endif %}
+                            {% if request.user.role == 'CEO' %}
+
+                            <a href="{% url 'delete_department' department.id %}"
+                               class="btn btn-sm btn-danger">
+
+                                <i class="bi bi-trash"></i>
+
+                            </a>
+
+                            {% endif %}
+
+                        </div>
 
                     </td>
 
@@ -95,7 +149,7 @@
 
                 <tr>
 
-                    <td colspan="3"
+                    <td colspan="6"
                         class="text-center text-muted py-5">
 
                         No departments found.

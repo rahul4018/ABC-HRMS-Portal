@@ -1,0 +1,115 @@
+{% extends 'layouts/base.html' %}
+
+{% block content %}
+
+<div class="card border-0 shadow-sm">
+
+    <div class="card-body p-5">
+
+        <div class="d-flex justify-content-between mb-4">
+
+            <div>
+
+                <h2 class="fw-bold">
+                    Payslip
+                </h2>
+
+                <p class="text-muted">
+                    {{ payslip.month }} {{ payslip.year }}
+                </p>
+
+            </div>
+
+            <a href="{% url 'payslip_list' %}"
+               class="btn btn-secondary">
+
+                Back
+
+            </a>
+
+        </div>
+
+        <hr>
+
+        <div class="row mt-4">
+
+            <div class="col-md-6 mb-3">
+
+                <h6 class="text-muted">
+                    Employee
+                </h6>
+
+                <h5>
+                    {{ payslip.employee.user.email }}
+                </h5>
+
+            </div>
+
+            <div class="col-md-6 mb-3">
+
+                <h6 class="text-muted">
+                    Department
+                </h6>
+
+                <h5>
+                    {{ payslip.employee.department }}
+                </h5>
+
+            </div>
+
+            <div class="col-md-4 mb-3">
+
+                <h6 class="text-muted">
+                    Basic Salary
+                </h6>
+
+                <h5>
+                    ₹ {{ payslip.basic_salary }}
+                </h5>
+
+            </div>
+
+            <div class="col-md-4 mb-3">
+
+                <h6 class="text-muted">
+                    Bonus
+                </h6>
+
+                <h5 class="text-success">
+                    ₹ {{ payslip.bonus }}
+                </h5>
+
+            </div>
+
+            <div class="col-md-4 mb-3">
+
+                <h6 class="text-muted">
+                    Deductions
+                </h6>
+
+                <h5 class="text-danger">
+                    ₹ {{ payslip.deductions }}
+                </h5>
+
+            </div>
+
+        </div>
+
+        <hr>
+
+        <div class="text-end mt-4">
+
+            <h4 class="fw-bold">
+
+                Net Salary:
+                ₹ {{ payslip.net_salary }}
+
+            </h4>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}
