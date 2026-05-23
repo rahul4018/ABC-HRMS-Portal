@@ -2,187 +2,157 @@
 
 {% block content %}
 
-<!-- Header -->
 <div class="d-flex justify-content-between align-items-center mb-4">
 
     <div>
 
-        <h2 class="fw-bold mb-1">
+        <h2 class="fw-bold">
             Employee Management
         </h2>
 
         <p class="text-muted mb-0">
-            Manage employees, departments, and workforce records.
+            Manage employees efficiently.
         </p>
 
     </div>
 
-    {% if request.user.role == 'CEO' or request.user.role == 'HR' %}
+    <div class="d-flex gap-2">
 
-    <a href="{% url 'employee_add' %}"
-       class="btn btn-primary shadow-sm">
+        <a href="{% url 'export_employees_csv' %}"
+           class="btn btn-success">
 
-        <i class="bi bi-plus-circle me-2"></i>
+            <i class="bi bi-download me-1"></i>
 
-        Add Employee
+            Export CSV
 
-    </a>
+        </a>
 
-    {% endif %}
+        <a href="/employees/add/"
+           class="btn btn-primary">
 
-</div>
+            <i class="bi bi-plus-circle me-1"></i>
 
-<!-- Stats Cards -->
-<div class="row mb-4">
+            Add Employee
 
-    <div class="col-md-4">
-
-        <div class="card border-0 shadow-sm dashboard-card">
-
-            <div class="card-body">
-
-                <div class="d-flex justify-content-between align-items-center">
-
-                    <div>
-
-                        <h6 class="text-muted">
-                            Total Employees
-                        </h6>
-
-                        <h2 class="fw-bold">
-                            {{ employees.count }}
-                        </h2>
-
-                    </div>
-
-                    <div class="icon-circle bg-primary-subtle">
-
-                        <i class="bi bi-people-fill text-primary"></i>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </div>
-
-    <div class="col-md-4">
-
-        <div class="card border-0 shadow-sm dashboard-card">
-
-            <div class="card-body">
-
-                <div class="d-flex justify-content-between align-items-center">
-
-                    <div>
-
-                        <h6 class="text-muted">
-                            Active Employees
-                        </h6>
-
-                        <h2 class="fw-bold text-success">
-
-                            {{ employees|length }}
-
-                        </h2>
-
-                    </div>
-
-                    <div class="icon-circle bg-success-subtle">
-
-                        <i class="bi bi-person-check-fill text-success"></i>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </div>
-
-    <div class="col-md-4">
-
-        <div class="card border-0 shadow-sm dashboard-card">
-
-            <div class="card-body">
-
-                <div class="d-flex justify-content-between align-items-center">
-
-                    <div>
-
-                        <h6 class="text-muted">
-                            Departments
-                        </h6>
-
-                        <h2 class="fw-bold text-warning">
-                            {{ employees.count }}
-                        </h2>
-
-                    </div>
-
-                    <div class="icon-circle bg-warning-subtle">
-
-                        <i class="bi bi-building text-warning"></i>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
+        </a>
 
     </div>
 
 </div>
 
-<!-- Employee Table -->
+<!-- SEARCH & FILTERS -->
+
+<div class="card border-0 shadow-sm mb-4">
+
+    <div class="card-body">
+
+        <form method="GET">
+
+            <div class="row g-3">
+
+                <!-- Search -->
+
+                <div class="col-md-4">
+
+                    <input type="text"
+                           name="search"
+                           class="form-control"
+                           placeholder="Search by email..."
+                           value="{{ search_query }}">
+
+                </div>
+
+                <!-- Department -->
+
+                <div class="col-md-3">
+
+                    <select name="department"
+                            class="form-select">
+
+                        <option value="">
+                            All Departments
+                        </option>
+
+                        {% for department in departments %}
+
+                        <option value="{{ department.id }}"
+                            {% if department_filter == department.id|stringformat:"s" %}
+                                selected
+                            {% endif %}>
+
+                            {{ department.name }}
+
+                        </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+                <!-- Status -->
+
+                <div class="col-md-3">
+
+                    <select name="status"
+                            class="form-select">
+
+                        <option value="">
+                            All Status
+                        </option>
+
+                        <option value="ACTIVE"
+                            {% if status_filter == 'ACTIVE' %}
+                                selected
+                            {% endif %}>
+
+                            Active
+
+                        </option>
+
+                        <option value="INACTIVE"
+                            {% if status_filter == 'INACTIVE' %}
+                                selected
+                            {% endif %}>
+
+                            Inactive
+
+                        </option>
+
+                    </select>
+
+                </div>
+
+                <!-- Button -->
+
+                <div class="col-md-2 d-grid">
+
+                    <button type="submit"
+                            class="btn btn-dark">
+
+                        Filter
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+<!-- EMPLOYEE TABLE -->
+
 <div class="card border-0 shadow-sm">
 
     <div class="card-body">
 
-        <!-- Search & Filter -->
-        <div class="row mb-4">
-
-            <div class="col-md-8">
-
-                <input type="text"
-                       class="form-control"
-                       placeholder="Search employees...">
-
-            </div>
-
-            <div class="col-md-4">
-
-                <select class="form-select">
-
-                    <option>
-                        Filter by Status
-                    </option>
-
-                    <option>
-                        Active
-                    </option>
-
-                    <option>
-                        Inactive
-                    </option>
-
-                </select>
-
-            </div>
-
-        </div>
-
-        <!-- Table -->
         <div class="table-responsive">
 
-            <table class="table align-middle table-hover">
+            <table class="table table-hover align-middle">
 
                 <thead class="table-light">
 
@@ -193,7 +163,7 @@
                         <th>Department</th>
                         <th>Designation</th>
                         <th>Status</th>
-                        <th class="text-center">Actions</th>
+                        <th>Actions</th>
 
                     </tr>
 
@@ -207,9 +177,7 @@
 
                         <td>
 
-                            <span class="fw-semibold">
-                                {{ employee.employee_id }}
-                            </span>
+                            {{ employee.employee_id }}
 
                         </td>
 
@@ -221,17 +189,7 @@
 
                         <td>
 
-                            {% if employee.department %}
-
-                                {{ employee.department }}
-
-                            {% else %}
-
-                                <span class="text-muted">
-                                    Not Assigned
-                                </span>
-
-                            {% endif %}
+                            {{ employee.department }}
 
                         </td>
 
@@ -263,39 +221,25 @@
 
                         </td>
 
-                        <td class="text-center">
+                        <td>
 
-                            <!-- View -->
-                            <a href="{% url 'employee_detail' employee.id %}"
-                               class="btn btn-sm btn-outline-primary">
+                            <div class="d-flex gap-2">
 
-                                <i class="bi bi-eye"></i>
+                                <a href="/employees/{{ employee.id }}/"
+                                   class="btn btn-sm btn-dark">
 
-                            </a>
+                                    View
 
-                            {% if request.user.role == 'CEO' or request.user.role == 'HR' %}
+                                </a>
 
-                            <!-- Edit -->
-                            <a href="{% url 'employee_edit' employee.id %}"
-                               class="btn btn-sm btn-outline-warning">
+                                <a href="/employees/{{ employee.id }}/edit/"
+                                   class="btn btn-sm btn-primary">
 
-                                <i class="bi bi-pencil-square"></i>
+                                    Edit
 
-                            </a>
+                                </a>
 
-                            {% endif %}
-
-                            {% if request.user.role == 'CEO' %}
-
-                            <!-- Delete -->
-                            <a href="{% url 'employee_delete' employee.id %}"
-                               class="btn btn-sm btn-outline-danger">
-
-                                <i class="bi bi-trash"></i>
-
-                            </a>
-
-                            {% endif %}
+                            </div>
 
                         </td>
 
@@ -306,15 +250,9 @@
                     <tr>
 
                         <td colspan="6"
-                            class="text-center py-5">
+                            class="text-center text-muted py-5">
 
-                            <div class="text-muted">
-
-                                <i class="bi bi-people display-6 d-block mb-3"></i>
-
-                                No employees found.
-
-                            </div>
+                            No employees found.
 
                         </td>
 

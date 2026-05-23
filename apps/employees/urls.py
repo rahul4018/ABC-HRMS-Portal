@@ -1,6 +1,11 @@
 from django.urls import path
 
 from .views import (
+
+    # ==========================================
+    # EMPLOYEE
+    # ==========================================
+
     employee_list,
     employee_detail,
     employee_add,
@@ -8,13 +13,55 @@ from .views import (
     employee_delete,
     my_profile,
 
+    # ==========================================
+    # DEPARTMENTS
+    # ==========================================
+
     department_list,
     department_add,
     department_edit,
     department_delete,
 
+    # ==========================================
+    # PAYSLIPS
+    # ==========================================
+
     payslip_list,
     payslip_detail,
+    download_payslip_pdf,
+
+    # ==========================================
+    # ATTENDANCE
+    # ==========================================
+
+    attendance_list,
+    mark_attendance,
+
+    # ==========================================
+    # ANNOUNCEMENTS
+    # ==========================================
+
+    announcement_list,
+
+    # ==========================================
+    # REPORTS
+    # ==========================================
+
+    reports_dashboard,
+
+    # ==========================================
+    # DOCUMENTS
+    # ==========================================
+
+    document_list,
+    upload_document,
+    delete_document,
+
+    # ==========================================
+    # EXPORTS
+    # ==========================================
+
+    export_employees_csv,
 )
 
 urlpatterns = [
@@ -33,6 +80,12 @@ urlpatterns = [
         'add/',
         employee_add,
         name='employee_add'
+    ),
+
+    path(
+        'export/csv/',
+        export_employees_csv,
+        name='export_employees_csv'
     ),
 
     path(
@@ -105,6 +158,70 @@ urlpatterns = [
         'payslips/<int:pk>/',
         payslip_detail,
         name='payslip_detail'
+    ),
+
+    path(
+        'payslips/<int:pk>/pdf/',
+        download_payslip_pdf,
+        name='download_payslip_pdf'
+    ),
+
+    # ==========================================
+    # ATTENDANCE URLS
+    # ==========================================
+
+    path(
+        'attendance/',
+        attendance_list,
+        name='attendance_list'
+    ),
+
+    path(
+        'attendance/mark/',
+        mark_attendance,
+        name='mark_attendance'
+    ),
+
+    # ==========================================
+    # ANNOUNCEMENT URLS
+    # ==========================================
+
+    path(
+        'announcements/',
+        announcement_list,
+        name='announcement_list'
+    ),
+
+    # ==========================================
+    # REPORTS URLS
+    # ==========================================
+
+    path(
+        'reports/',
+        reports_dashboard,
+        name='reports_dashboard'
+    ),
+
+    # ==========================================
+    # DOCUMENT URLS
+    # ==========================================
+
+    path(
+        'documents/',
+        document_list,
+        name='document_list'
+    ),
+
+    path(
+        'documents/upload/',
+        upload_document,
+        name='upload_document'
+    ),
+
+    path(
+        'documents/<int:pk>/delete/',
+        delete_document,
+        name='delete_document'
     ),
 
 ]

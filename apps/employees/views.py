@@ -1,3 +1,5 @@
+import csv
+
 from datetime import date
 from datetime import datetime
 
@@ -11,14 +13,13 @@ from django.contrib import messages
 
 from django.contrib.auth.decorators import login_required
 
-from django.db.models import Count
+from django.db.models import Count, Q
 
 from django.http import HttpResponse
 
 from reportlab.pdfgen import canvas
 
 from apps.leave.models import Leave
-
 from apps.payslips.models import Payslip
 
 from .models import (
@@ -52,6 +53,14 @@ def dashboard(request):
 
     total_announcements = Announcement.objects.count()
 
+    active_employees = Employee.objects.filter(
+        status='ACTIVE'
+    ).count()
+
+    pending_leaves = Leave.objects.filter(
+        status='PENDING'
+    ).count()
+
     context = {
 
         'total_employees': total_employees,
@@ -61,6 +70,10 @@ def dashboard(request):
         'total_attendance': total_attendance,
 
         'total_announcements': total_announcements,
+
+        'active_employees': active_employees,
+
+        'pending_leaves': pending_leaves,
     }
 
     return render(
@@ -83,8 +96,55 @@ def employee_list(request):
         'department'
     ).all()
 
+    search_query = request.GET.get(
+        'search'
+    )
+
+    department_filter = request.GET.get(
+        'department'
+    )
+
+    status_filter = request.GET.get(
+        'status'
+    )
+
+    if search_query:
+
+        employees = employees.filter(
+
+            Q(user__email__icontains=search_query) |
+
+            Q(employee_id__icontains=search_query) |
+
+            Q(designation__icontains=search_query)
+
+        )
+
+    if department_filter:
+
+        employees = employees.filter(
+            department__id=department_filter
+        )
+
+    if status_filter:
+
+        employees = employees.filter(
+            status=status_filter
+        )
+
+    departments = Department.objects.all()
+
     context = {
-        'employees': employees
+
+        'employees': employees,
+
+        'departments': departments,
+
+        'search_query': search_query,
+
+        'department_filter': department_filter,
+
+        'status_filter': status_filter,
     }
 
     return render(
@@ -92,6 +152,52 @@ def employee_list(request):
         'employees/list.html',
         context
     )
+
+
+@login_required
+@role_required(['CEO', 'HR_ADMIN'])
+def export_employees_csv(request):
+
+    response = HttpResponse(
+        content_type='text/csv'
+    )
+
+    response[
+        'Content-Disposition'
+    ] = 'attachment; filename="employees.csv"'
+
+    writer = csv.writer(response)
+
+    writer.writerow([
+        'Employee ID',
+        'Email',
+        'Department',
+        'Designation',
+        'Status',
+    ])
+
+    employees = Employee.objects.select_related(
+        'user',
+        'department'
+    ).all()
+
+    for employee in employees:
+
+        writer.writerow([
+
+            employee.employee_id,
+
+            employee.user.email,
+
+            employee.department,
+
+            employee.designation,
+
+            employee.status,
+
+        ])
+
+    return response
 
 
 @login_required
@@ -391,7 +497,10 @@ def payslip_list(request):
 
     if request.user.role in ['CEO', 'HR_ADMIN']:
 
-        payslips = Payslip.objects.all()
+        payslips = Payslip.objects.select_related(
+            'employee',
+            'employee__user'
+        ).all()
 
     else:
 
@@ -715,6 +824,20 @@ def download_payslip_pdf(request, pk):
         pk=pk
     )
 
+    if (
+        request.user.role == 'EMPLOYEE'
+        and payslip.employee.user != request.user
+    ):
+
+        messages.error(
+            request,
+            'Access denied.'
+        )
+
+        return redirect(
+            'payslip_list'
+        )
+
     response = HttpResponse(
         content_type='application/pdf'
     )
@@ -752,18 +875,24 @@ def download_payslip_pdf(request, pk):
     pdf.drawString(
         50,
         710,
-        f'Month: {payslip.month}'
+        f'Department: {payslip.employee.department}'
     )
 
     pdf.drawString(
         50,
         680,
-        f'Year: {payslip.year}'
+        f'Month: {payslip.month}'
     )
 
     pdf.drawString(
         50,
         650,
+        f'Year: {payslip.year}'
+    )
+
+    pdf.drawString(
+        50,
+        620,
         f'Net Salary: ₹ {payslip.net_salary}'
     )
 
@@ -810,16 +939,12 @@ def document_list(request):
 @login_required
 def upload_document(request):
 
-    # CEO and HR_ADMIN can upload
-    # documents for any employee
     if request.user.role in ['CEO', 'HR_ADMIN']:
 
         employees = Employee.objects.select_related(
             'user'
         ).all()
 
-    # EMPLOYEE can upload only
-    # for themselves
     else:
 
         employees = Employee.objects.filter(
@@ -833,8 +958,6 @@ def upload_document(request):
             id=request.POST.get('employee')
         )
 
-        # Prevent employee from uploading
-        # for another employee
         if (
             request.user.role == 'EMPLOYEE'
             and employee.user != request.user
@@ -849,6 +972,19 @@ def upload_document(request):
                 'document_list'
             )
 
+        file = request.FILES.get('file')
+
+        if not file:
+
+            messages.error(
+                request,
+                'Please select a file.'
+            )
+
+            return redirect(
+                'upload_document'
+            )
+
         EmployeeDocument.objects.create(
 
             employee=employee,
@@ -859,7 +995,7 @@ def upload_document(request):
                 'document_type'
             ),
 
-            file=request.FILES.get('file'),
+            file=file,
 
             uploaded_by=request.user
 
@@ -892,6 +1028,20 @@ def delete_document(request, pk):
         EmployeeDocument,
         pk=pk
     )
+
+    if (
+        request.user.role == 'EMPLOYEE'
+        and document.employee.user != request.user
+    ):
+
+        messages.error(
+            request,
+            'Access denied.'
+        )
+
+        return redirect(
+            'document_list'
+        )
 
     document.file.delete()
 
