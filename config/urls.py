@@ -9,6 +9,11 @@ from django.conf import settings
 
 from django.conf.urls.static import static
 
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView,
+)
+
 from apps.dashboard.views import dashboard
 
 from apps.accounts.views import (
@@ -45,6 +50,31 @@ urlpatterns = [
         'logout/',
         logout_view,
         name='logout'
+    ),
+
+    # ==========================================
+    # JWT AUTHENTICATION API
+    # ==========================================
+
+    path(
+        'api/token/',
+        TokenObtainPairView.as_view(),
+        name='token_obtain_pair'
+    ),
+
+    path(
+        'api/token/refresh/',
+        TokenRefreshView.as_view(),
+        name='token_refresh'
+    ),
+
+    # ==========================================
+    # API ROUTES
+    # ==========================================
+
+    path(
+        'api/',
+        include('api.urls')
     ),
 
     # ==========================================

@@ -1,5 +1,6 @@
 from pathlib import Path
 from decouple import config
+from datetime import timedelta
 
 # Base Directory
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -10,12 +11,17 @@ SECRET_KEY = config(
     default='django-insecure-change-this-later'
 )
 
-DEBUG = config('DEBUG', cast=bool, default=True)
+DEBUG = config(
+    'DEBUG',
+    cast=bool,
+    default=True
+)
 
 ALLOWED_HOSTS = ['*']
 
 # Installed Apps
 INSTALLED_APPS = [
+
     # Django Apps
     'django.contrib.admin',
     'django.contrib.auth',
@@ -23,6 +29,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    # Third Party Apps
+    'rest_framework',
+    'rest_framework_simplejwt',
 
     # Project Apps
     'apps.accounts',
@@ -36,6 +46,9 @@ INSTALLED_APPS = [
     'apps.dashboard',
     'apps.reports',
     'apps.audit_logs',
+
+    # API App
+    'api',
 ]
 
 # Middleware
@@ -56,8 +69,13 @@ ROOT_URLCONF = 'config.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates'],
+
+        'DIRS': [
+            BASE_DIR / 'templates'
+        ],
+
         'APP_DIRS': True,
+
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.debug',
@@ -72,7 +90,7 @@ TEMPLATES = [
 # WSGI
 WSGI_APPLICATION = 'config.wsgi.application'
 
-# Database (Temporary SQLite for Development)
+# Database
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -111,8 +129,41 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 # Authentication Redirects
 LOGIN_URL = '/login/'
+
 LOGIN_REDIRECT_URL = '/'
+
 LOGOUT_REDIRECT_URL = '/login/'
 
 # Default Primary Key
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Django REST Framework
+REST_FRAMEWORK = {
+
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+
+    ),
+
+    'DEFAULT_PERMISSION_CLASSES': (
+
+        'rest_framework.permissions.IsAuthenticated',
+
+    ),
+}
+
+# JWT Configuration
+SIMPLE_JWT = {
+
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
+
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
+
+    'ROTATE_REFRESH_TOKENS': False,
+
+    'BLACKLIST_AFTER_ROTATION': False,
+
+    'AUTH_HEADER_TYPES': ('Bearer',),
+
+}
