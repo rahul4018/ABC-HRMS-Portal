@@ -7,17 +7,17 @@
     <div>
 
         <h2 class="fw-bold">
-            Performance Management Reports (PMR)
+            PMR Management
         </h2>
 
         <p class="text-muted mb-0">
-            Manage employee performance reports.
+            Performance Management Reports
         </p>
 
     </div>
 
     <a href="{% url 'pmr_create' %}"
-       class="btn btn-success">
+       class="btn btn-dark">
 
         Create PMR
 
@@ -35,10 +35,9 @@
 
                 <tr>
 
-                    <th>Employee</th>
                     <th>Title</th>
+                    <th>Employee</th>
                     <th>Status</th>
-                    <th>Created</th>
                     <th>Actions</th>
 
                 </tr>
@@ -53,40 +52,48 @@
 
                     <td>
 
-                        {{ pmr.employee.user.email }}
-
-                    </td>
-
-                    <td>
-
                         {{ pmr.title }}
 
                     </td>
 
                     <td>
 
-                        {% if pmr.status == 'PENDING' %}
+                        {{ pmr.employee.user.email }}
 
-                            <span class="badge bg-warning text-dark">
-                                Pending
-                            </span>
+                    </td>
 
-                        {% elif pmr.status == 'APPROVED' %}
+                    <td>
+
+                        {% if pmr.status == 'APPROVED' %}
 
                             <span class="badge bg-success">
+
                                 Approved
+
                             </span>
 
                         {% elif pmr.status == 'REJECTED' %}
 
                             <span class="badge bg-danger">
+
                                 Rejected
+
+                            </span>
+
+                        {% elif pmr.status == 'RESUBMIT' %}
+
+                            <span class="badge bg-warning text-dark">
+
+                                Resubmit
+
                             </span>
 
                         {% else %}
 
                             <span class="badge bg-secondary">
-                                {{ pmr.status }}
+
+                                Pending
+
                             </span>
 
                         {% endif %}
@@ -95,18 +102,37 @@
 
                     <td>
 
-                        {{ pmr.created_at|date:"d M Y" }}
-
-                    </td>
-
-                    <td>
-
                         <a href="{% url 'pmr_detail' pmr.id %}"
-                           class="btn btn-sm btn-primary">
+                           class="btn btn-primary btn-sm">
 
                             View
 
                         </a>
+
+                        {% if request.user.role == 'SUPERVISOR' and pmr.status == 'PENDING' %}
+
+                            <a href="{% url 'pmr_approve' pmr.id %}"
+                               class="btn btn-success btn-sm">
+
+                                Approve
+
+                            </a>
+
+                            <a href="{% url 'pmr_reject' pmr.id %}"
+                               class="btn btn-danger btn-sm">
+
+                                Reject
+
+                            </a>
+
+                            <a href="{% url 'pmr_send_back' pmr.id %}"
+                               class="btn btn-warning btn-sm">
+
+                                Send Back
+
+                            </a>
+
+                        {% endif %}
 
                     </td>
 
@@ -116,10 +142,10 @@
 
                 <tr>
 
-                    <td colspan="5"
-                        class="text-center text-muted py-4">
+                    <td colspan="4"
+                        class="text-center text-muted py-5">
 
-                        No PMR records found.
+                        No PMRs found.
 
                     </td>
 
