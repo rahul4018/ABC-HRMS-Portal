@@ -55,6 +55,8 @@ INSTALLED_APPS = [
     # Client Modules
     'resignation',
     'appraisal',
+    'promotions',
+    'requestsystem',
 
     # API
     'api',

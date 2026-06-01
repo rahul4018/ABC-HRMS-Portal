@@ -9,47 +9,20 @@ from rest_framework_simplejwt.views import (
 )
 
 from apps.dashboard.views import dashboard
+from apps.accounts.views import login_view, logout_view
+from apps.employees.views import my_profile
 
-from apps.accounts.views import (
-    login_view,
-    logout_view,
-)
-
-from apps.employees.views import (
-    my_profile,
-)
 
 urlpatterns = [
 
-    # ==========================================
-    # ADMIN
-    # ==========================================
+    # Admin
+    path("admin/", admin.site.urls),
 
-    path(
-        "admin/",
-        admin.site.urls
-    ),
+    # Authentication
+    path("login/", login_view, name="login"),
+    path("logout/", logout_view, name="logout"),
 
-    # ==========================================
-    # AUTHENTICATION
-    # ==========================================
-
-    path(
-        "login/",
-        login_view,
-        name="login"
-    ),
-
-    path(
-        "logout/",
-        logout_view,
-        name="logout"
-    ),
-
-    # ==========================================
-    # JWT AUTHENTICATION
-    # ==========================================
-
+    # JWT Authentication
     path(
         "api/token/",
         TokenObtainPairView.as_view(),
@@ -62,114 +35,76 @@ urlpatterns = [
         name="token_refresh"
     ),
 
-    # ==========================================
-    # API ROUTES
-    # ==========================================
+    # API
+    path("api/", include("api.urls")),
 
-    path(
-        "api/",
-        include("api.urls")
-    ),
+    # Dashboard
+    path("", dashboard, name="dashboard"),
 
-    # ==========================================
-    # DASHBOARD
-    # ==========================================
-
-    path(
-        "",
-        dashboard,
-        name="dashboard"
-    ),
-
-    # ==========================================
-    # EMPLOYEE MANAGEMENT
-    # ==========================================
-
+    # Employees
     path(
         "employees/",
         include("apps.employees.urls")
     ),
 
-    # ==========================================
-    # DEPARTMENT MANAGEMENT
-    # ==========================================
-
+    # Departments
     path(
         "departments/",
         include("apps.employees.department_urls")
     ),
 
-    # ==========================================
-    # ATTENDANCE
-    # ==========================================
-
+    # Attendance
     path(
         "attendance/",
         include("apps.employees.attendance_urls")
     ),
 
-    # ==========================================
-    # PAYSLIP
-    # ==========================================
-
+    # Payslips
     path(
         "payslips/",
         include("apps.employees.payslip_urls")
     ),
 
-    # ==========================================
-    # REPORTS
-    # ==========================================
-
+    # Reports
     path(
         "reports/",
         include("apps.employees.report_urls")
     ),
 
-    # ==========================================
-    # MY PROFILE
-    # ==========================================
-
+    # Profile
     path(
         "my-profile/",
         my_profile,
         name="my_profile"
     ),
 
-    # ==========================================
-    # LMS (LEAVE MANAGEMENT)
-    # ==========================================
-
+    # Leave Management System
     path(
         "leave/",
         include("apps.leave.urls")
     ),
 
-    # ==========================================
-    # DMS (DOCUMENT MANAGEMENT)
-    # ==========================================
-
+    # Document Management System
     path(
         "documents/",
         include("apps.employees.document_urls")
     ),
 
-    # ==========================================
-    # RESIGNATION MODULE
-    # ==========================================
-
+    # Resignation
     path(
         "resignation/",
         include("resignation.urls")
     ),
+
+    # PMR / Appraisal
+    path(
+        "appraisal/",
+        include("appraisal.urls")
+    ),
 ]
 
-# ==========================================
-# MEDIA FILES
-# ==========================================
 
 if settings.DEBUG:
-
     urlpatterns += static(
         settings.MEDIA_URL,
         document_root=settings.MEDIA_ROOT

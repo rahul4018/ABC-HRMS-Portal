@@ -1,0 +1,52 @@
+{% extends 'layouts/base.html' %}
+
+{% block content %}
+
+<div class="card shadow-sm">
+
+    <div class="card-body">
+
+        <h2>Create PMR</h2>
+
+        <hr>
+
+        <form method="post">
+
+            {% csrf_token %}
+
+            <div class="mb-3">
+
+                <label class="form-label">
+                    Employee
+                </label>
+
+                <input type="text"
+                       class="form-control">
+
+            </div>
+
+            <div class="mb-3">
+
+                <label class="form-label">
+                    Performance Summary
+                </label>
+
+                <textarea class="form-control"
+                          rows="5"></textarea>
+
+            </div>
+
+            <button type="submit"
+                    class="btn btn-success">
+
+                Submit PMR
+
+            </button>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock %}

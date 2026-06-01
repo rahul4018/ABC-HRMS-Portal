@@ -1,0 +1,177 @@
+{% extends 'layouts/base.html' %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+
+    <div>
+
+        <h2 class="fw-bold">
+            PMR Details
+        </h2>
+
+        <p class="text-muted mb-0">
+            Performance Management Report Information
+        </p>
+
+    </div>
+
+    <a href="{% url 'pmr_list' %}"
+       class="btn btn-secondary">
+
+        Back
+
+    </a>
+
+</div>
+
+<div class="card border-0 shadow-sm">
+
+    <div class="card-body">
+
+        <div class="row">
+
+            <div class="col-md-6 mb-3">
+
+                <label class="fw-bold">
+                    Employee
+                </label>
+
+                <p>
+
+                    {{ pmr.employee.user.email }}
+
+                </p>
+
+            </div>
+
+            <div class="col-md-6 mb-3">
+
+                <label class="fw-bold">
+                    Status
+                </label>
+
+                <p>
+
+                    {% if pmr.status == 'PENDING' %}
+
+                        <span class="badge bg-warning text-dark">
+                            Pending
+                        </span>
+
+                    {% elif pmr.status == 'APPROVED' %}
+
+                        <span class="badge bg-success">
+                            Approved
+                        </span>
+
+                    {% elif pmr.status == 'REJECTED' %}
+
+                        <span class="badge bg-danger">
+                            Rejected
+                        </span>
+
+                    {% else %}
+
+                        <span class="badge bg-secondary">
+                            {{ pmr.status }}
+                        </span>
+
+                    {% endif %}
+
+                </p>
+
+            </div>
+
+            <div class="col-md-12 mb-3">
+
+                <label class="fw-bold">
+                    Title
+                </label>
+
+                <p>
+
+                    {{ pmr.title }}
+
+                </p>
+
+            </div>
+
+            <div class="col-md-12 mb-3">
+
+                <label class="fw-bold">
+                    Performance Summary
+                </label>
+
+                <div class="border rounded p-3 bg-light">
+
+                    {{ pmr.description }}
+
+                </div>
+
+            </div>
+
+            <div class="col-md-6 mb-3">
+
+                <label class="fw-bold">
+                    Created On
+                </label>
+
+                <p>
+
+                    {{ pmr.created_at|date:"d M Y H:i" }}
+
+                </p>
+
+            </div>
+
+            <div class="col-md-6 mb-3">
+
+                <label class="fw-bold">
+                    Last Updated
+                </label>
+
+                <p>
+
+                    {{ pmr.updated_at|date:"d M Y H:i" }}
+
+                </p>
+
+            </div>
+
+        </div>
+
+        <hr>
+
+        <div class="d-flex gap-2">
+
+            <a href="{% url 'pmr_list' %}"
+               class="btn btn-secondary">
+
+                Back to PMR List
+
+            </a>
+
+            {% if pmr.status == 'PENDING' %}
+
+            <button class="btn btn-success">
+
+                Approve
+
+            </button>
+
+            <button class="btn btn-danger">
+
+                Reject
+
+            </button>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

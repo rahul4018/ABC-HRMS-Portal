@@ -2,10 +2,137 @@
 
 {% block content %}
 
-<h2>Performance Management Report (PMR)</h2>
+<div class="d-flex justify-content-between align-items-center mb-4">
 
-<p>
-    PMR module setup completed.
-</p>
+    <div>
+
+        <h2 class="fw-bold">
+            Performance Management Reports (PMR)
+        </h2>
+
+        <p class="text-muted mb-0">
+            Manage employee performance reports.
+        </p>
+
+    </div>
+
+    <a href="{% url 'pmr_create' %}"
+       class="btn btn-success">
+
+        Create PMR
+
+    </a>
+
+</div>
+
+<div class="card border-0 shadow-sm">
+
+    <div class="card-body">
+
+        <table class="table table-hover align-middle">
+
+            <thead>
+
+                <tr>
+
+                    <th>Employee</th>
+                    <th>Title</th>
+                    <th>Status</th>
+                    <th>Created</th>
+                    <th>Actions</th>
+
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                {% for pmr in pmrs %}
+
+                <tr>
+
+                    <td>
+
+                        {{ pmr.employee.user.email }}
+
+                    </td>
+
+                    <td>
+
+                        {{ pmr.title }}
+
+                    </td>
+
+                    <td>
+
+                        {% if pmr.status == 'PENDING' %}
+
+                            <span class="badge bg-warning text-dark">
+                                Pending
+                            </span>
+
+                        {% elif pmr.status == 'APPROVED' %}
+
+                            <span class="badge bg-success">
+                                Approved
+                            </span>
+
+                        {% elif pmr.status == 'REJECTED' %}
+
+                            <span class="badge bg-danger">
+                                Rejected
+                            </span>
+
+                        {% else %}
+
+                            <span class="badge bg-secondary">
+                                {{ pmr.status }}
+                            </span>
+
+                        {% endif %}
+
+                    </td>
+
+                    <td>
+
+                        {{ pmr.created_at|date:"d M Y" }}
+
+                    </td>
+
+                    <td>
+
+                        <a href="{% url 'pmr_detail' pmr.id %}"
+                           class="btn btn-sm btn-primary">
+
+                            View
+
+                        </a>
+
+                    </td>
+
+                </tr>
+
+                {% empty %}
+
+                <tr>
+
+                    <td colspan="5"
+                        class="text-center text-muted py-4">
+
+                        No PMR records found.
+
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
 
 {% endblock %}
