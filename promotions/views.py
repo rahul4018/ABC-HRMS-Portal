@@ -1,3 +1,9 @@
 from django.shortcuts import render
 
-# Create your views here.
+
+def promotion_list(request):
+
+    return render(
+        request,
+        'promotions/list.html'
+    )

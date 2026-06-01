@@ -101,6 +101,10 @@ urlpatterns = [
         "appraisal/",
         include("appraisal.urls")
     ),
+    path(
+    "promotions/",
+    include("promotions.urls")
+),
 ]
 
 
