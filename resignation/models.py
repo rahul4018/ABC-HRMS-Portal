@@ -19,7 +19,8 @@ class Resignation(models.Model):
 
     employee = models.ForeignKey(
         Employee,
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        related_name='resignations'
     )
 
     reason = models.TextField()
@@ -45,6 +46,18 @@ class Resignation(models.Model):
         auto_now=True
     )
 
+    class Meta:
+
+        ordering = ['-created_at']
+
+        verbose_name = 'Resignation'
+
+        verbose_name_plural = 'Resignations'
+
     def __str__(self):
 
-        return f"{self.employee} - {self.status}"
+        return (
+            f"{self.employee.employee_id} - "
+            f"{self.employee.user.email} - "
+            f"{self.status}"
+        )

@@ -5,6 +5,7 @@
 <div class="d-flex justify-content-between align-items-center mb-4">
 
     <div>
+
         <h2 class="fw-bold">
             Resignation Management
         </h2>
@@ -12,29 +13,35 @@
         <p class="text-muted mb-0">
             Manage employee resignation requests.
         </p>
+
     </div>
 
-    <a href="/resignation/apply/"
+    <a href="{% url 'apply_resignation' %}"
        class="btn btn-dark">
+
         Apply Resignation
+
     </a>
 
 </div>
 
-<div class="card shadow-sm border-0">
+<div class="card border-0 shadow-sm">
 
     <div class="card-body">
 
-        <table class="table align-middle">
+        <table class="table table-hover align-middle">
 
             <thead>
 
                 <tr>
+
                     <th>Employee</th>
                     <th>Reason</th>
                     <th>Last Working Day</th>
                     <th>Status</th>
                     <th>Applied On</th>
+                    <th>Actions</th>
+
                 </tr>
 
             </thead>
@@ -46,15 +53,21 @@
                 <tr>
 
                     <td>
+
                         {{ resignation.employee.user.email }}
+
                     </td>
 
                     <td>
-                        {{ resignation.reason }}
+
+                        {{ resignation.reason|truncatechars:50 }}
+
                     </td>
 
                     <td>
+
                         {{ resignation.last_working_day }}
+
                     </td>
 
                     <td>
@@ -82,7 +95,39 @@
                     </td>
 
                     <td>
+
                         {{ resignation.created_at|date:"d M Y" }}
+
+                    </td>
+
+                    <td>
+
+                        {% if resignation.status == 'PENDING' %}
+
+                            <a href="{% url 'approve_resignation' resignation.id %}"
+                               class="btn btn-success btn-sm">
+
+                                Approve
+
+                            </a>
+
+                            <a href="{% url 'reject_resignation' resignation.id %}"
+                               class="btn btn-danger btn-sm">
+
+                                Reject
+
+                            </a>
+
+                        {% else %}
+
+                            <span class="text-muted">
+
+                                No Action
+
+                            </span>
+
+                        {% endif %}
+
                     </td>
 
                 </tr>
@@ -91,8 +136,8 @@
 
                 <tr>
 
-                    <td colspan="5"
-                        class="text-center text-muted py-4">
+                    <td colspan="6"
+                        class="text-center text-muted py-5">
 
                         No resignation requests found.
 

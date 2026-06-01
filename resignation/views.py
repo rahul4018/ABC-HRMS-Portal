@@ -14,7 +14,10 @@ from apps.employees.models import Employee
 @login_required
 def resignation_list(request):
 
-    resignations = Resignation.objects.all().order_by(
+    resignations = Resignation.objects.select_related(
+        "employee",
+        "employee__user"
+    ).all().order_by(
         "-created_at"
     )
 
@@ -102,11 +105,12 @@ def approve_resignation(
     )
 
     resignation.status = "APPROVED"
+
     resignation.save()
 
     messages.success(
         request,
-        "Resignation approved."
+        "Resignation approved successfully."
     )
 
     return redirect(
@@ -126,11 +130,12 @@ def reject_resignation(
     )
 
     resignation.status = "REJECTED"
+
     resignation.save()
 
     messages.success(
         request,
-        "Resignation rejected."
+        "Resignation rejected successfully."
     )
 
     return redirect(
