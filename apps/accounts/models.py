@@ -40,3 +40,36 @@ class User(AbstractUser):
     def __str__(self):
 
         return self.email
+
+
+class CompanySettings(models.Model):
+
+    company_name = models.CharField(
+        max_length=200
+    )
+
+    company_address = models.TextField()
+
+    company_email = models.EmailField()
+
+    company_phone = models.CharField(
+        max_length=20
+    )
+
+    company_logo = models.ImageField(
+        upload_to='company/',
+        blank=True,
+        null=True
+    )
+
+    created_at = models.DateTimeField(
+        auto_now_add=True
+    )
+
+    updated_at = models.DateTimeField(
+        auto_now=True
+    )
+
+    def __str__(self):
+
+        return self.company_name
