@@ -35,10 +35,10 @@ def dashboard_view(request):
 
     role = request.user.role
 
-    if role == 'CEO':
-        return render(request, 'dashboard/ceo.html')
+    if role == 'SUPERVISOR':
+        return render(request, 'dashboard/SUPERVISOR.html')
 
-    elif role == 'HR_ADMIN':
+    elif role == 'SUPERVISOR':
         return render(request, 'dashboard/hr.html')
 
     return render(request, 'dashboard/employee.html')

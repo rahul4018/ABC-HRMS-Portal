@@ -88,7 +88,7 @@ def dashboard(request):
 # ==========================================
 
 @login_required
-@role_required(['CEO', 'HR_ADMIN'])
+@role_required(['SUPERVISOR', 'SUPERVISOR'])
 def employee_list(request):
 
     employees = Employee.objects.select_related(
@@ -155,7 +155,7 @@ def employee_list(request):
 
 
 @login_required
-@role_required(['CEO', 'HR_ADMIN'])
+@role_required(['SUPERVISOR', 'SUPERVISOR'])
 def export_employees_csv(request):
 
     response = HttpResponse(
@@ -201,7 +201,7 @@ def export_employees_csv(request):
 
 
 @login_required
-@role_required(['CEO', 'HR_ADMIN'])
+@role_required(['SUPERVISOR', 'SUPERVISOR'])
 def employee_detail(request, pk):
 
     employee = get_object_or_404(
@@ -221,7 +221,7 @@ def employee_detail(request, pk):
 
 
 @login_required
-@role_required(['CEO', 'HR_ADMIN'])
+@role_required(['SUPERVISOR', 'SUPERVISOR'])
 def employee_add(request):
 
     form = EmployeeCreateForm()
@@ -258,7 +258,7 @@ def employee_add(request):
 
 
 @login_required
-@role_required(['CEO', 'HR_ADMIN'])
+@role_required(['SUPERVISOR', 'SUPERVISOR'])
 def employee_edit(request, pk):
 
     employee = get_object_or_404(
@@ -305,7 +305,7 @@ def employee_edit(request, pk):
 
 
 @login_required
-@role_required(['CEO'])
+@role_required(['SUPERVISOR'])
 def employee_delete(request, pk):
 
     employee = get_object_or_404(
@@ -331,8 +331,8 @@ def employee_delete(request, pk):
 
 @login_required
 @role_required([
-    'CEO',
-    'HR_ADMIN',
+    'SUPERVISOR',
+    'SUPERVISOR',
     'EMPLOYEE'
 ])
 def my_profile(request):
@@ -357,7 +357,7 @@ def my_profile(request):
 # ==========================================
 
 @login_required
-@role_required(['CEO', 'HR_ADMIN'])
+@role_required(['SUPERVISOR', 'SUPERVISOR'])
 def department_list(request):
 
     departments = Department.objects.annotate(
@@ -376,7 +376,7 @@ def department_list(request):
 
 
 @login_required
-@role_required(['CEO', 'HR_ADMIN'])
+@role_required(['SUPERVISOR', 'SUPERVISOR'])
 def department_add(request):
 
     if request.method == 'POST':
@@ -411,7 +411,7 @@ def department_add(request):
 
 
 @login_required
-@role_required(['CEO', 'HR_ADMIN'])
+@role_required(['SUPERVISOR', 'SUPERVISOR'])
 def department_edit(request, pk):
 
     department = get_object_or_404(
@@ -456,7 +456,7 @@ def department_edit(request, pk):
 
 
 @login_required
-@role_required(['CEO'])
+@role_required(['SUPERVISOR'])
 def department_delete(request, pk):
 
     department = get_object_or_404(
@@ -495,7 +495,7 @@ def department_delete(request, pk):
 @login_required
 def payslip_list(request):
 
-    if request.user.role in ['CEO', 'HR_ADMIN']:
+    if request.user.role in ['SUPERVISOR', 'SUPERVISOR']:
 
         payslips = Payslip.objects.select_related(
             'employee',
@@ -559,7 +559,7 @@ def payslip_detail(request, pk):
 @login_required
 def attendance_list(request):
 
-    if request.user.role in ['CEO', 'HR_ADMIN']:
+    if request.user.role in ['SUPERVISOR', 'SUPERVISOR']:
 
         attendances = Attendance.objects.select_related(
             'employee',
@@ -705,7 +705,7 @@ def announcement_list(request):
 
 
 @login_required
-@role_required(['CEO', 'HR_ADMIN'])
+@role_required(['SUPERVISOR', 'SUPERVISOR'])
 def announcement_add(request):
 
     if request.method == 'POST':
@@ -759,7 +759,7 @@ def announcement_detail(request, pk):
 # ==========================================
 
 @login_required
-@role_required(['CEO', 'HR_ADMIN'])
+@role_required(['SUPERVISOR', 'SUPERVISOR'])
 def reports_dashboard(request):
 
     total_employees = Employee.objects.count()
@@ -908,7 +908,7 @@ def download_payslip_pdf(request, pk):
 @login_required
 def document_list(request):
 
-    if request.user.role in ['CEO', 'HR_ADMIN']:
+    if request.user.role in ['SUPERVISOR', 'SUPERVISOR']:
 
         documents = EmployeeDocument.objects.select_related(
             'employee',
@@ -939,7 +939,7 @@ def document_list(request):
 @login_required
 def upload_document(request):
 
-    if request.user.role in ['CEO', 'HR_ADMIN']:
+    if request.user.role in ['SUPERVISOR', 'SUPERVISOR']:
 
         employees = Employee.objects.select_related(
             'user'

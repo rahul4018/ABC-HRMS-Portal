@@ -16,7 +16,7 @@
 
     </div>
 
-    {% if request.user.role == 'CEO' or request.user.role == 'HR_ADMIN' %}
+    {% if request.user.role == 'SUPERVISOR' or request.user.role == 'SUPERVISOR' %}
 
     <a href="{% url 'announcement_add' %}"
        class="btn btn-primary">

@@ -128,7 +128,7 @@
 
                             </a>
 
-                            {% if request.user.role == 'CEO' %}
+                            {% if request.user.role == 'SUPERVISOR' %}
 
                             <a href="{% url 'delete_department' department.id %}"
                                class="btn btn-sm btn-danger">

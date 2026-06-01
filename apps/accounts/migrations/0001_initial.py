@@ -95,8 +95,8 @@ class Migration(migrations.Migration):
                     "role",
                     models.CharField(
                         choices=[
-                            ("CEO", "CEO"),
-                            ("HR_ADMIN", "HR Admin"),
+                            ("SUPERVISOR", "SUPERVISOR"),
+                            ("SUPERVISOR", "HR Admin"),
                             ("EMPLOYEE", "Employee"),
                         ],
                         default="EMPLOYEE",

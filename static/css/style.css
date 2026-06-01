@@ -1,217 +1,468 @@
-/* =========================
-   GLOBAL STYLES
-========================= */
+/* ========================================
+   CLIENT HRMS THEME
+======================================== */
+
+:root {
+
+    --sidebar-bg: #1f2937;
+    --sidebar-hover: #374151;
+
+    --primary: #4f46e5;
+    --primary-hover: #4338ca;
+
+    --success: #16a34a;
+    --danger: #dc2626;
+
+    --bg: #f8fafc;
+    --card-bg: #ffffff;
+
+    --text-dark: #111827;
+    --text-muted: #6b7280;
+
+    --border: #e5e7eb;
+
+}
+
+/* ========================================
+   GLOBAL
+======================================== */
 
 body {
-    background-color: #f5f7fb;
-    font-family: Arial, sans-serif;
+
+    background-color: var(--bg);
+
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+
     margin: 0;
+
     padding: 0;
+
     overflow-x: hidden;
+
+    color: var(--text-dark);
+
 }
 
-/* =========================
+/* ========================================
    MAIN LAYOUT
-========================= */
+======================================== */
 
 #wrapper {
+
     min-height: 100vh;
+
     display: flex;
+
 }
 
-/* =========================
+#page-content-wrapper {
+
+    flex: 1;
+
+    margin-left: 260px;
+
+    min-height: 100vh;
+
+}
+
+/* ========================================
    SIDEBAR
-========================= */
+======================================== */
 
 #sidebar-wrapper {
+
     width: 260px;
-    background: #1a3a6b;
+
+    background: var(--sidebar-bg);
+
     min-height: 100vh;
+
     position: fixed;
+
     left: 0;
+
     top: 0;
+
     z-index: 1000;
+
+    box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+
 }
 
 .sidebar-heading {
-    border-bottom: 1px solid rgba(255,255,255,0.1);
+
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+
     padding-top: 25px;
+
     padding-bottom: 25px;
+
 }
 
 .logo {
-    width: 90px;
+
+    width: 85px;
+
     height: auto;
+
 }
 
 .list-group {
+
     margin-top: 10px;
+
 }
 
 .list-group-item {
+
     background: transparent;
-    color: white;
+
+    color: #ffffff;
+
     border: none;
+
     padding: 15px 22px;
-    font-size: 16px;
-    transition: 0.3s;
+
+    font-size: 15px;
+
+    font-weight: 500;
+
+    transition: all 0.3s ease;
+
 }
 
 .list-group-item i {
+
     font-size: 18px;
+
 }
 
 .list-group-item:hover {
-    background: rgba(255,255,255,0.1);
+
+    background: var(--sidebar-hover);
+
     color: white;
+
+    padding-left: 28px;
+
 }
 
 .list-group-item.active {
-    background: rgba(255,255,255,0.15);
+
+    background: rgba(79,70,229,0.20);
+
+    border-left: 4px solid var(--primary);
+
     color: white;
-    border-left: 4px solid #f5a623;
+
 }
 
-/* =========================
-   PAGE CONTENT
-========================= */
-
-#page-content-wrapper {
-    flex: 1;
-    margin-left: 260px;
-    min-height: 100vh;
-}
-
-/* =========================
+/* ========================================
    NAVBAR
-========================= */
+======================================== */
 
 .navbar {
+
+    background: white !important;
+
     height: 75px;
+
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+
 }
 
 .navbar h4 {
-    color: #1a3a6b;
+
+    color: var(--text-dark);
+
+    font-weight: 700;
+
 }
 
-/* =========================
+/* ========================================
    DASHBOARD CARDS
-========================= */
+======================================== */
 
 .dashboard-card {
+
     border: none;
-    border-radius: 18px;
-    background: white;
-    transition: 0.3s;
+
+    border-radius: 16px;
+
+    background: var(--card-bg);
+
+    transition: all 0.3s ease;
+
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+
 }
 
 .dashboard-card:hover {
-    transform: translateY(-4px);
+
+    transform: translateY(-5px);
+
 }
 
 .card-body h2 {
-    font-weight: bold;
-    color: #1a3a6b;
-    margin-top: 10px;
+
+    font-weight: 700;
+
+    color: var(--primary);
+
 }
 
 .card-body h6 {
-    color: #555;
-    font-size: 15px;
+
+    color: var(--text-muted);
+
+    font-size: 14px;
+
 }
 
-/* =========================
+/* ========================================
+   TABLES
+======================================== */
+
+.table {
+
+    margin-bottom: 0;
+
+}
+
+.table thead {
+
+    background: #f3f4f6;
+
+}
+
+.table thead th {
+
+    color: var(--text-dark);
+
+    font-weight: 600;
+
+    border-bottom: 1px solid var(--border);
+
+}
+
+.table tbody tr:hover {
+
+    background: #f9fafb;
+
+}
+
+/* ========================================
+   BUTTONS
+======================================== */
+
+.btn-primary {
+
+    background: var(--primary);
+
+    border: none;
+
+}
+
+.btn-primary:hover {
+
+    background: var(--primary-hover);
+
+}
+
+.btn-success {
+
+    background: var(--success);
+
+    border: none;
+
+}
+
+.btn-danger {
+
+    background: var(--danger);
+
+    border: none;
+
+}
+
+.btn-secondary {
+
+    border: none;
+
+}
+
+/* ========================================
+   CARDS
+======================================== */
+
+.card {
+
+    border: none;
+
+    border-radius: 16px;
+
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+
+}
+
+/* ========================================
+   BADGES
+======================================== */
+
+.badge {
+
+    font-size: 12px;
+
+    padding: 7px 10px;
+
+    border-radius: 8px;
+
+}
+
+/* ========================================
+   FORMS
+======================================== */
+
+.form-control,
+.form-select {
+
+    border-radius: 10px;
+
+    padding: 12px;
+
+    border: 1px solid var(--border);
+
+}
+
+.form-control:focus,
+.form-select:focus {
+
+    border-color: var(--primary);
+
+    box-shadow: 0 0 0 0.15rem rgba(79,70,229,0.20);
+
+}
+
+/* ========================================
    LOGIN PAGE
-========================= */
+======================================== */
 
 .login-body {
+
     background: linear-gradient(
-        to right,
-        #1a3a6b,
-        #274d87
+        135deg,
+        #1f2937,
+        #374151
     );
+
 }
 
 .login-container {
+
     min-height: 100vh;
+
     display: flex;
+
     justify-content: center;
+
     align-items: center;
+
     padding: 20px;
+
 }
 
 .login-card {
+
     background: white;
-    width: 420px;
+
+    width: 430px;
+
     padding: 40px;
-    border-radius: 20px;
+
+    border-radius: 18px;
+
+    box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+
 }
 
 .login-logo {
+
     width: 100px;
+
     height: auto;
+
 }
 
 .login-btn {
-    background: #1a3a6b;
+
+    background: var(--primary);
+
     border: none;
+
     padding: 12px;
-    font-weight: bold;
-    transition: 0.3s;
+
+    font-weight: 600;
+
+    transition: all 0.3s ease;
+
 }
 
 .login-btn:hover {
-    background: #274d87;
+
+    background: var(--primary-hover);
+
 }
 
-/* =========================
-   FORM ELEMENTS
-========================= */
-
-.form-control {
-    border-radius: 10px;
-    padding: 12px;
-}
-
-.form-control:focus {
-    box-shadow: none;
-    border-color: #1a3a6b;
-}
-
-/* =========================
+/* ========================================
    ALERTS
-========================= */
+======================================== */
 
 .alert {
+
     border-radius: 12px;
+
+    border: none;
+
 }
 
-/* =========================
-   RESPONSIVE DESIGN
-========================= */
+/* ========================================
+   RESPONSIVE
+======================================== */
 
 @media (max-width: 992px) {
 
     #sidebar-wrapper {
+
         width: 220px;
+
     }
 
     #page-content-wrapper {
+
         margin-left: 220px;
+
     }
+
 }
 
 @media (max-width: 768px) {
 
     #sidebar-wrapper {
+
         display: none;
+
     }
 
     #page-content-wrapper {
+
         margin-left: 0;
+
     }
 
     .login-card {
+
         width: 100%;
+
     }
+
 }

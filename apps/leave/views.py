@@ -16,7 +16,7 @@ from apps.employees.models import Employee
 @login_required
 def leave_list(request):
 
-    if request.user.role in ['CEO', 'HR_ADMIN']:
+    if request.user.role in ['SUPERVISOR', 'SUPERVISOR']:
 
         leaves = Leave.objects.select_related(
             'employee',
@@ -99,7 +99,7 @@ def leave_detail(request, pk):
 
     if request.method == 'POST':
 
-        if request.user.role in ['CEO', 'HR_ADMIN']:
+        if request.user.role in ['SUPERVISOR', 'SUPERVISOR']:
 
             leave.status = request.POST.get(
                 'status'

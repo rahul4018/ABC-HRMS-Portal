@@ -17,7 +17,7 @@
 
         </a>
 
-        {% if request.user.role == 'CEO' %}
+        {% if request.user.role == 'SUPERVISOR' %}
 
         <a href="/employees/{{ employee.id }}/delete/"
            class="btn btn-danger">
