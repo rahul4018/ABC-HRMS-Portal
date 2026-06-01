@@ -4,127 +4,207 @@
 
 <div class="d-flex justify-content-between align-items-center mb-4">
 
-    <div>
+```
+<div>
 
-        <h2 class="fw-bold">
-            Employee Documents
-        </h2>
+    <h2 class="fw-bold">
+        Document Management
+    </h2>
 
-        <p class="text-muted mb-0">
-            Manage employee uploaded files.
-        </p>
-
-    </div>
-
-    <a href="{% url 'upload_document' %}"
-       class="btn btn-primary">
-
-        Upload Document
-
-    </a>
+    <p class="text-muted mb-0">
+        Manage employee uploaded documents.
+    </p>
 
 </div>
 
-<div class="card border-0 shadow-sm">
+<a href="{% url 'upload_document' %}"
+   class="btn btn-primary">
 
-    <div class="card-body">
+    Upload Document
 
-        <table class="table align-middle">
+</a>
+```
 
-            <thead class="table-light">
+</div>
 
-                <tr>
+<div class="card">
 
-                    <th>Employee</th>
-                    <th>Title</th>
-                    <th>Type</th>
-                    <th>Uploaded</th>
-                    <th>File</th>
-                    <th>Actions</th>
+```
+<div class="card-body">
 
-                </tr>
+    <table class="table align-middle">
 
-            </thead>
+        <thead>
 
-            <tbody>
+            <tr>
 
-                {% for document in documents %}
+                <th>Employee</th>
 
-                <tr>
+                <th>Title</th>
 
-                    <td>
+                <th>Type</th>
 
-                        {{ document.employee.user.email }}
+                <th>Status</th>
 
-                    </td>
+                <th>Uploaded</th>
 
-                    <td>
+                <th>File</th>
 
-                        {{ document.title }}
+                <th>Actions</th>
 
-                    </td>
+            </tr>
 
-                    <td>
+        </thead>
 
-                        <span class="badge bg-dark">
+        <tbody>
 
-                            {{ document.document_type }}
+            {% for document in documents %}
+
+            <tr>
+
+                <td>
+
+                    {{ document.employee.user.email }}
+
+                </td>
+
+                <td>
+
+                    {{ document.title }}
+
+                </td>
+
+                <td>
+
+                    {{ document.get_document_type_display }}
+
+                </td>
+
+                <td>
+
+                    {% if document.status == 'APPROVED' %}
+
+                        <span class="badge bg-success">
+
+                            Approved
 
                         </span>
 
-                    </td>
+                    {% elif document.status == 'REJECTED' %}
 
-                    <td>
+                        <span class="badge bg-danger">
 
-                        {{ document.uploaded_at|date:"d M Y" }}
+                            Rejected
 
-                    </td>
+                        </span>
 
-                    <td>
+                    {% elif document.status == 'SENT_BACK' %}
 
-                        <a href="{{ document.file.url }}"
-                           target="_blank"
-                           class="btn btn-sm btn-success">
+                        <span class="badge bg-info">
 
-                            Open
+                            Sent Back
 
-                        </a>
+                        </span>
 
-                    </td>
+                    {% else %}
 
-                    <td>
+                        <span class="badge bg-warning text-dark">
 
-                        <a href="{% url 'delete_document' document.id %}"
-                           class="btn btn-sm btn-danger">
+                            Pending
 
-                            Delete
+                        </span>
 
-                        </a>
+                    {% endif %}
 
-                    </td>
+                </td>
 
-                </tr>
+                <td>
 
-                {% empty %}
+                    {{ document.uploaded_at|date:"d M Y" }}
 
-                <tr>
+                </td>
 
-                    <td colspan="6"
-                        class="text-center text-muted py-5">
+                <td>
 
-                        No documents uploaded.
+                    <a href="{{ document.file.url }}"
+                       target="_blank"
+                       class="btn btn-sm btn-secondary">
 
-                    </td>
+                        Open
 
-                </tr>
+                    </a>
 
-                {% endfor %}
+                </td>
 
-            </tbody>
+                <td>
 
-        </table>
+                    {% if request.user.role == 'SUPERVISOR' %}
 
-    </div>
+                        {% if document.status == 'PENDING' %}
+
+                            <a href="{% url 'approve_document' document.id %}"
+                               class="btn btn-sm btn-success">
+
+                                Approve
+
+                            </a>
+
+                            <a href="{% url 'reject_document' document.id %}"
+                               class="btn btn-sm btn-danger">
+
+                                Reject
+
+                            </a>
+
+                            <a href="{% url 'send_back_document' document.id %}"
+                               class="btn btn-sm btn-warning">
+
+                                Send Back
+
+                            </a>
+
+                        {% endif %}
+
+                    {% else %}
+
+                        {% if document.status == 'SENT_BACK' or document.status == 'REJECTED' %}
+
+                            <a href="{% url 'delete_document' document.id %}"
+                               class="btn btn-sm btn-danger">
+
+                                Remove
+
+                            </a>
+
+                        {% endif %}
+
+                    {% endif %}
+
+                </td>
+
+            </tr>
+
+            {% empty %}
+
+            <tr>
+
+                <td colspan="7"
+                    class="text-center text-muted py-5">
+
+                    No documents found.
+
+                </td>
+
+            </tr>
+
+            {% endfor %}
+
+        </tbody>
+
+    </table>
+
+</div>
+```
 
 </div>
 

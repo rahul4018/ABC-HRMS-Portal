@@ -1055,3 +1055,39 @@ def delete_document(request, pk):
     return redirect(
         'document_list'
     )
+from django.shortcuts import get_object_or_404, redirect
+from django.contrib import messages
+# Assuming these are your custom decorators
+
+
+@login_required
+@role_required(['SUPERVISOR'])
+def approve_document(request, pk):
+    document = get_object_or_404(EmployeeDocument, pk=pk)
+    document.status = 'APPROVED'
+    document.save()
+    
+    messages.success(request, 'Document approved successfully.')
+    return redirect('document_list')
+
+
+@login_required
+@role_required(['SUPERVISOR'])
+def reject_document(request, pk):
+    document = get_object_or_404(EmployeeDocument, pk=pk)
+    document.status = 'REJECTED'
+    document.save()
+    
+    messages.success(request, 'Document rejected successfully.')
+    return redirect('document_list')
+
+
+@login_required
+@role_required(['SUPERVISOR'])
+def send_back_document(request, pk):
+    document = get_object_or_404(EmployeeDocument, pk=pk)
+    document.status = 'SENT_BACK'
+    document.save()
+    
+    messages.success(request, 'Document sent back for correction.')
+    return redirect('document_list')

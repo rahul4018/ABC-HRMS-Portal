@@ -1,0 +1,58 @@
+{% extends 'layouts/base.html' %}
+{% block content %}
+
+<div class="mb-4">
+    <h2 class="fw-bold mb-1">Audit Logs</h2>
+    <p class="text-muted mb-0">System activity and action history tracking records.</p>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="ps-4">Date & Time</th>
+                        <th>User Identity</th>
+                        <th>Module</th>
+                        <th class="pe-4">Action Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for log in logs %}
+                        <tr>
+                            <td class="ps-4 text-nowrap">
+                                <i class="bi bi-clock text-muted me-1"></i>
+                                {{ log.created_at|date:"d M Y H:i" }}
+                            </td>
+                            <td>
+                                {% if log.user %}
+                                    <span class="fw-semibold text-dark">{{ log.user.email }}</span>
+                                {% else %}
+                                    <span class="badge bg-secondary text-uppercase font-monospace" style="font-size: 0.75rem;">System</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="badge bg-light text-dark border text-uppercase font-monospace">
+                                    {{ log.module }}
+                                </span>
+                            </td>
+                            <td class="pe-4 text-secondary">
+                                {{ log.action }}
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="4" class="text-center text-muted py-5">
+                                <i class="bi bi-shield-slash fs-2 d-block mb-2 text-secondary"></i>
+                                No system audit logging activity discovered.
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

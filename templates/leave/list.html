@@ -4,130 +4,172 @@
 
 <div class="d-flex justify-content-between align-items-center mb-4">
 
-    <div>
+```
+<div>
 
-        <h2 class="fw-bold">
-            Leave Management
-        </h2>
+    <h2 class="fw-bold">
+        Leave Management
+    </h2>
 
-        <p class="text-muted mb-0">
-            Manage employee leave requests.
-        </p>
-
-    </div>
-
-    <a href="/leave/apply/"
-       class="btn btn-primary">
-
-        Apply Leave
-
-    </a>
+    <p class="text-muted mb-0">
+        Manage employee leave requests.
+    </p>
 
 </div>
 
-<div class="card border-0 shadow-sm">
+{% if request.user.role != 'SUPERVISOR' %}
 
-    <div class="card-body">
+<a href="/leave/apply/"
+   class="btn btn-primary">
 
-        <table class="table align-middle">
+    Apply Leave
 
-            <thead>
+</a>
 
-                <tr>
+{% endif %}
+```
 
-                    <th>Employee</th>
-                    <th>Leave Type</th>
-                    <th>Duration</th>
-                    <th>Status</th>
-                    <th>Action</th>
+</div>
 
-                </tr>
+<div class="card">
 
-            </thead>
+```
+<div class="card-body">
 
-            <tbody>
+    <table class="table align-middle">
 
-                {% for leave in leaves %}
+        <thead>
 
-                <tr>
+            <tr>
 
-                    <td>
+                <th>Employee</th>
 
-                        {{ leave.employee.user.email }}
+                <th>Leave Type</th>
 
-                    </td>
+                <th>Duration</th>
 
-                    <td>
+                <th>Status</th>
 
-                        {{ leave.leave_type }}
+                <th>Actions</th>
 
-                    </td>
+            </tr>
 
-                    <td>
+        </thead>
 
-                        {{ leave.start_date }}
-                        →
-                        {{ leave.end_date }}
+        <tbody>
 
-                    </td>
+            {% for leave in leaves %}
 
-                    <td>
+            <tr>
 
-                        {% if leave.status == 'APPROVED' %}
+                <td>
 
-                            <span class="badge bg-success">
-                                Approved
-                            </span>
+                    {{ leave.employee.user.email }}
 
-                        {% elif leave.status == 'REJECTED' %}
+                </td>
 
-                            <span class="badge bg-danger">
-                                Rejected
-                            </span>
+                <td>
 
-                        {% else %}
+                    {{ leave.get_leave_type_display }}
 
-                            <span class="badge bg-warning text-dark">
-                                Pending
-                            </span>
+                </td>
 
-                        {% endif %}
+                <td>
 
-                    </td>
+                    {{ leave.start_date }}
 
-                    <td>
+                    -
 
-                        <a href="/leave/{{ leave.id }}/"
-                           class="btn btn-sm btn-dark">
+                    {{ leave.end_date }}
 
-                            View
+                </td>
+
+                <td>
+
+                    {% if leave.status == 'APPROVED' %}
+
+                    <span class="badge bg-success">
+
+                        Approved
+
+                    </span>
+
+                    {% elif leave.status == 'REJECTED' %}
+
+                    <span class="badge bg-danger">
+
+                        Rejected
+
+                    </span>
+
+                    {% else %}
+
+                    <span class="badge bg-warning text-dark">
+
+                        Pending
+
+                    </span>
+
+                    {% endif %}
+
+                </td>
+
+                <td>
+
+                    <a href="/leave/{{ leave.id }}/"
+                       class="btn btn-sm btn-dark">
+
+                        View
+
+                    </a>
+
+                    {% if request.user.role == 'SUPERVISOR' %}
+
+                        {% if leave.status == 'PENDING' %}
+
+                        <a href="/leave/{{ leave.id }}/approve/"
+                           class="btn btn-sm btn-success">
+
+                            Approve
 
                         </a>
 
-                    </td>
+                        <a href="/leave/{{ leave.id }}/reject/"
+                           class="btn btn-sm btn-danger">
 
-                </tr>
+                            Reject
 
-                {% empty %}
+                        </a>
 
-                <tr>
+                        {% endif %}
 
-                    <td colspan="5"
-                        class="text-center text-muted py-5">
+                    {% endif %}
 
-                        No leave requests found.
+                </td>
 
-                    </td>
+            </tr>
 
-                </tr>
+            {% empty %}
 
-                {% endfor %}
+            <tr>
 
-            </tbody>
+                <td colspan="5"
+                    class="text-center text-muted py-5">
 
-        </table>
+                    No leave requests found.
 
-    </div>
+                </td>
+
+            </tr>
+
+            {% endfor %}
+
+        </tbody>
+
+    </table>
+
+</div>
+```
 
 </div>
 

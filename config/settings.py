@@ -58,6 +58,8 @@ INSTALLED_APPS = [
     'promotions',
     'requestsystem',
     'notifications',
+    'recruitment',
+    'audit',
 
     # API
     'api',

@@ -1,164 +1,90 @@
 {% extends 'layouts/base.html' %}
-
 {% block content %}
 
 <div class="d-flex justify-content-between align-items-center mb-4">
-
     <div>
-
-        <h2 class="fw-bold">
-            PMR Management
-        </h2>
-
-        <p class="text-muted mb-0">
-            Performance Management Reports
-        </p>
-
+        <h2 class="fw-bold mb-1">Performance Management Reports</h2>
+        <p class="text-muted mb-0">Track employee performance reviews and approvals.</p>
     </div>
-
-    <a href="{% url 'pmr_create' %}"
-       class="btn btn-dark">
-
-        Create PMR
-
-    </a>
-
+    {% if request.user.role != 'SUPERVISOR' %}
+        <a href="{% url 'pmr_create' %}" class="btn btn-primary">
+            Create PMR
+        </a>
+    {% endif %}
 </div>
 
-<div class="card border-0 shadow-sm">
-
+<div class="card">
     <div class="card-body">
+        <div class="table-responsive">
+            <table class="table align-middle">
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Employee</th>
+                        <th>Submitted On</th>
+                        <th>Status</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for pmr in pmrs %}
+                        <tr>
+                            <td><strong>{{ pmr.title }}</strong></td>
+                            <td>{{ pmr.employee.user.email }}</td>
+                            <td>{{ pmr.submitted_date|date:"d M Y" }}</td>
+                            <td>
+                                {% if pmr.status == 'APPROVED' %}
+                                    <span class="badge bg-success">Approved</span>
+                                {% elif pmr.status == 'REJECTED' %}
+                                    <span class="badge bg-danger">Rejected</span>
+                                {% elif pmr.status == 'RESUBMIT' %}
+                                    <span class="badge bg-warning text-dark">Resubmit</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">Pending</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="d-flex justify-content-end gap-1">
+                                    <a href="{% url 'pmr_detail' pmr.pk %}" class="btn btn-sm btn-dark">
+                                        View
+                                    </a>
 
-        <table class="table table-hover align-middle">
+                                    {% if request.user.role == 'SUPERVISOR' and pmr.status == 'PENDING' %}
+                                        <form action="{% url 'pmr_approve' pmr.pk %}" method="post" class="d-inline">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-sm btn-success">Approve</button>
+                                        </form>
 
-            <thead>
+                                        <form action="{% url 'pmr_reject' pmr.pk %}" method="post" class="d-inline">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-sm btn-danger">Reject</button>
+                                        </form>
 
-                <tr>
+                                        <form action="{% url 'pmr_send_back' pmr.pk %}" method="post" class="d-inline">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-sm btn-warning">Send Back</button>
+                                        </form>
+                                    {% endif %}
 
-                    <th>Title</th>
-                    <th>Employee</th>
-                    <th>Status</th>
-                    <th>Actions</th>
-
-                </tr>
-
-            </thead>
-
-            <tbody>
-
-                {% for pmr in pmrs %}
-
-                <tr>
-
-                    <td>
-
-                        {{ pmr.title }}
-
-                    </td>
-
-                    <td>
-
-                        {{ pmr.employee.user.email }}
-
-                    </td>
-
-                    <td>
-
-                        {% if pmr.status == 'APPROVED' %}
-
-                            <span class="badge bg-success">
-
-                                Approved
-
-                            </span>
-
-                        {% elif pmr.status == 'REJECTED' %}
-
-                            <span class="badge bg-danger">
-
-                                Rejected
-
-                            </span>
-
-                        {% elif pmr.status == 'RESUBMIT' %}
-
-                            <span class="badge bg-warning text-dark">
-
-                                Resubmit
-
-                            </span>
-
-                        {% else %}
-
-                            <span class="badge bg-secondary">
-
-                                Pending
-
-                            </span>
-
-                        {% endif %}
-
-                    </td>
-
-                    <td>
-
-                        <a href="{% url 'pmr_detail' pmr.id %}"
-                           class="btn btn-primary btn-sm">
-
-                            View
-
-                        </a>
-
-                        {% if request.user.role == 'SUPERVISOR' and pmr.status == 'PENDING' %}
-
-                            <a href="{% url 'pmr_approve' pmr.id %}"
-                               class="btn btn-success btn-sm">
-
-                                Approve
-
-                            </a>
-
-                            <a href="{% url 'pmr_reject' pmr.id %}"
-                               class="btn btn-danger btn-sm">
-
-                                Reject
-
-                            </a>
-
-                            <a href="{% url 'pmr_send_back' pmr.id %}"
-                               class="btn btn-warning btn-sm">
-
-                                Send Back
-
-                            </a>
-
-                        {% endif %}
-
-                    </td>
-
-                </tr>
-
-                {% empty %}
-
-                <tr>
-
-                    <td colspan="4"
-                        class="text-center text-muted py-5">
-
-                        No PMRs found.
-
-                    </td>
-
-                </tr>
-
-                {% endfor %}
-
-            </tbody>
-
-        </table>
-
+                                    {% if request.user.role == 'EMPLOYEE' and pmr.status == 'RESUBMIT' %}
+                                        <a href="{% url 'pmr_create' %}" class="btn btn-sm btn-primary">
+                                            Resubmit
+                                        </a>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center text-muted py-5">
+                                No PMRs found.
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
-
 </div>
 
 {% endblock %}
