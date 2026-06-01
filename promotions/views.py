@@ -4,6 +4,10 @@ from django.shortcuts import (
     get_object_or_404
 )
 
+from django.http import HttpResponse
+
+from reportlab.pdfgen import canvas
+
 from apps.employees.models import Employee
 
 from .models import Promotion
@@ -100,3 +104,121 @@ def reject_promotion(
     return redirect(
         'promotion_list'
     )
+
+
+def promotion_letter(
+    request,
+    pk
+):
+
+    promotion = get_object_or_404(
+        Promotion,
+        pk=pk
+    )
+
+    response = HttpResponse(
+        content_type='application/pdf'
+    )
+
+    response[
+        'Content-Disposition'
+    ] = (
+        f'attachment; '
+        f'filename="Promotion_Letter_{promotion.employee.employee_id}.pdf"'
+    )
+
+    pdf = canvas.Canvas(
+        response
+    )
+
+    pdf.setTitle(
+        "Promotion Letter"
+    )
+
+    pdf.setFont(
+        "Helvetica-Bold",
+        18
+    )
+
+    pdf.drawString(
+        180,
+        800,
+        "PROMOTION LETTER"
+    )
+
+    pdf.setFont(
+        "Helvetica",
+        12
+    )
+
+    pdf.drawString(
+        50,
+        740,
+        f"Employee ID: {promotion.employee.employee_id}"
+    )
+
+    pdf.drawString(
+        50,
+        710,
+        f"Employee Email: {promotion.employee.user.email}"
+    )
+
+    pdf.drawString(
+        50,
+        680,
+        f"Old Designation: {promotion.old_designation}"
+    )
+
+    pdf.drawString(
+        50,
+        650,
+        f"New Designation: {promotion.new_designation}"
+    )
+
+    pdf.drawString(
+        50,
+        620,
+        f"Effective Date: {promotion.effective_date}"
+    )
+
+    pdf.drawString(
+        50,
+        560,
+        "Congratulations on your promotion."
+    )
+
+    pdf.drawString(
+        50,
+        530,
+        "We appreciate your contribution"
+    )
+
+    pdf.drawString(
+        50,
+        500,
+        "and wish you success in your"
+    )
+
+    pdf.drawString(
+        50,
+        470,
+        "new role and responsibilities."
+    )
+
+    pdf.drawString(
+        50,
+        400,
+        "Authorized By"
+    )
+
+    pdf.drawString(
+        50,
+        370,
+        "Supervisor"
+    )
+
+    pdf.showPage()
+
+    pdf.save()
+
+    return response

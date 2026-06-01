@@ -1,9 +1,10 @@
 from django.urls import path
-
+from .views import promotion_letter
 from .views import (
     promotion_list,
     create_promotion,
     approve_promotion,
+    
     reject_promotion,
 )
 
@@ -32,5 +33,10 @@ urlpatterns = [
         reject_promotion,
         name='reject_promotion'
     ),
+    path(
+    '<int:pk>/letter/',
+    promotion_letter,
+    name='promotion_letter'
+),
 
 ]

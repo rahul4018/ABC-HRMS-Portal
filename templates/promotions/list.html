@@ -21,6 +21,7 @@
    class="btn btn-success">
 
     <i class="bi bi-plus-circle me-1"></i>
+
     Create Promotion
 
 </a>
@@ -44,7 +45,7 @@
                 <th>New Designation</th>
                 <th>Effective Date</th>
                 <th>Status</th>
-                <th width="220">Actions</th>
+                <th width="320">Actions</th>
 
             </tr>
 
@@ -128,15 +129,16 @@
 
                     </a>
 
-                    {% else %}
-
-                    <span class="text-muted">
-
-                        No Action Required
-
-                    </span>
-
                     {% endif %}
+
+                    <a href="{% url 'promotion_letter' promotion.id %}"
+                       class="btn btn-secondary btn-sm">
+
+                        <i class="bi bi-file-earmark-pdf"></i>
+
+                        Letter
+
+                    </a>
 
                 </td>
 
@@ -147,7 +149,7 @@
             <tr>
 
                 <td colspan="6"
-                    class="text-center py-4 text-muted">
+                    class="text-center py-5 text-muted">
 
                     No promotions found.
 
