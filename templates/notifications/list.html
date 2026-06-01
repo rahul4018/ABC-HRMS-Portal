@@ -1,0 +1,88 @@
+{% extends 'layouts/base.html' %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+
+    <div>
+
+        <h2 class="fw-bold">
+            Notifications
+        </h2>
+
+        <p class="text-muted mb-0">
+            All system notifications
+        </p>
+
+    </div>
+
+</div>
+
+<div class="card">
+
+    <div class="card-body p-0">
+
+        <table class="table mb-0">
+
+            <thead>
+
+                <tr>
+
+                    <th>Title</th>
+                    <th>Message</th>
+                    <th>Date</th>
+
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                {% for notification in notifications %}
+
+                <tr>
+
+                    <td>
+
+                        {{ notification.title }}
+
+                    </td>
+
+                    <td>
+
+                        {{ notification.message }}
+
+                    </td>
+
+                    <td>
+
+                        {{ notification.created_at|date:"d M Y H:i" }}
+
+                    </td>
+
+                </tr>
+
+                {% empty %}
+
+                <tr>
+
+                    <td colspan="3"
+                        class="text-center py-5 text-muted">
+
+                        No notifications found
+
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+{% endblock %}

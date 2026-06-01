@@ -1,0 +1,188 @@
+{% extends 'layouts/base.html' %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+
+    <div>
+
+        <h2 class="fw-bold mb-1">
+            Dashboard
+        </h2>
+
+        <p class="text-muted mb-0">
+            Welcome to the Employee Management Portal
+        </p>
+
+    </div>
+
+</div>
+
+<div class="row g-4 mb-4">
+
+    <div class="col-xl-3 col-md-6">
+
+        <div class="stat-card">
+
+            <div>
+
+                <span class="stat-label">
+                    Employees
+                </span>
+
+                <h2 class="stat-value">
+                    {{ total_employees }}
+                </h2>
+
+            </div>
+
+            <i class="bi bi-people stat-icon"></i>
+
+        </div>
+
+    </div>
+
+    <div class="col-xl-3 col-md-6">
+
+        <div class="stat-card">
+
+            <div>
+
+                <span class="stat-label">
+                    Departments
+                </span>
+
+                <h2 class="stat-value">
+                    {{ total_departments }}
+                </h2>
+
+            </div>
+
+            <i class="bi bi-building stat-icon"></i>
+
+        </div>
+
+    </div>
+
+    <div class="col-xl-3 col-md-6">
+
+        <div class="stat-card">
+
+            <div>
+
+                <span class="stat-label">
+                    Leave Requests
+                </span>
+
+                <h2 class="stat-value">
+                    {{ pending_leave }}
+                </h2>
+
+            </div>
+
+            <i class="bi bi-calendar-check stat-icon"></i>
+
+        </div>
+
+    </div>
+
+    <div class="col-xl-3 col-md-6">
+
+        <div class="stat-card">
+
+            <div>
+
+                <span class="stat-label">
+                    Resignations
+                </span>
+
+                <h2 class="stat-value">
+                    {{ pending_resignation }}
+                </h2>
+
+            </div>
+
+            <i class="bi bi-box-arrow-left stat-icon"></i>
+
+        </div>
+
+    </div>
+
+</div>
+
+<div class="row g-4">
+
+    <div class="col-lg-8">
+
+        <div class="card">
+
+            <div class="card-header">
+
+                Recent Activities
+
+            </div>
+
+            <div class="card-body">
+
+                <div class="activity-item">
+                    Employee Joined
+                    <span>Today</span>
+                </div>
+
+                <div class="activity-item">
+                    Promotion Approved
+                    <span>Today</span>
+                </div>
+
+                <div class="activity-item">
+                    Leave Request Submitted
+                    <span>Today</span>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="col-lg-4">
+
+        <div class="card">
+
+            <div class="card-header">
+
+                Quick Actions
+
+            </div>
+
+            <div class="card-body">
+
+                <div class="quick-grid">
+
+                    <a href="/employees/" class="quick-action">
+                        Employees
+                    </a>
+
+                    <a href="/leave/" class="quick-action">
+                        Leave
+                    </a>
+
+                    <a href="/promotions/" class="quick-action">
+                        Promotion
+                    </a>
+
+                    <a href="/payslips/" class="quick-action">
+                        Payslip
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

@@ -8,7 +8,7 @@ from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
 )
-
+from django.urls import path, include
 from apps.dashboard.views import dashboard
 from apps.accounts.views import login_view, logout_view
 from apps.employees.views import my_profile
@@ -110,6 +110,10 @@ path(
     "settings/",
     company_settings,
     name="company_settings"
+),
+path(
+    'notifications/',
+    include('notifications.urls')
 ),
 ]
 
