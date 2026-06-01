@@ -1,5 +1,11 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import (
+    render,
+    redirect,
+    get_object_or_404
+)
+
 from apps.employees.models import Employee
+
 from .models import Promotion
 
 
@@ -29,13 +35,23 @@ def create_promotion(request):
 
         Promotion.objects.create(
             employee=employee,
-            old_designation=request.POST.get('old_designation'),
-            new_designation=request.POST.get('new_designation'),
-            effective_date=request.POST.get('effective_date'),
-            remarks=request.POST.get('remarks')
+            old_designation=request.POST.get(
+                'old_designation'
+            ),
+            new_designation=request.POST.get(
+                'new_designation'
+            ),
+            effective_date=request.POST.get(
+                'effective_date'
+            ),
+            remarks=request.POST.get(
+                'remarks'
+            )
         )
 
-        return redirect('promotion_list')
+        return redirect(
+            'promotion_list'
+        )
 
     employees = Employee.objects.all()
 
@@ -45,4 +61,42 @@ def create_promotion(request):
         {
             'employees': employees
         }
+    )
+
+
+def approve_promotion(
+    request,
+    pk
+):
+
+    promotion = get_object_or_404(
+        Promotion,
+        pk=pk
+    )
+
+    promotion.status = 'APPROVED'
+
+    promotion.save()
+
+    return redirect(
+        'promotion_list'
+    )
+
+
+def reject_promotion(
+    request,
+    pk
+):
+
+    promotion = get_object_or_404(
+        Promotion,
+        pk=pk
+    )
+
+    promotion.status = 'REJECTED'
+
+    promotion.save()
+
+    return redirect(
+        'promotion_list'
     )
