@@ -1,0 +1,80 @@
+{% extends 'layouts/base.html' %}
+
+{% block content %}
+
+<div class="card shadow-sm border-0">
+
+    <div class="card-body p-4">
+
+        <div class="mb-4">
+
+            <h2 class="fw-bold">
+                Resignation Request
+            </h2>
+
+            <p class="text-muted mb-0">
+                Submit your resignation request for supervisor approval.
+            </p>
+
+        </div>
+
+        <form method="post">
+
+            {% csrf_token %}
+
+            <div class="mb-3">
+
+                <label class="form-label fw-semibold">
+                    Reason for Resignation
+                </label>
+
+                <textarea
+                    name="reason"
+                    class="form-control"
+                    rows="5"
+                    placeholder="Enter your resignation reason..."
+                    required></textarea>
+
+            </div>
+
+            <div class="mb-4">
+
+                <label class="form-label fw-semibold">
+                    Last Working Day
+                </label>
+
+                <input
+                    type="date"
+                    name="last_working_day"
+                    class="form-control"
+                    required>
+
+            </div>
+
+            <div class="d-flex gap-2">
+
+                <button
+                    type="submit"
+                    class="btn btn-danger">
+
+                    Submit Resignation
+
+                </button>
+
+                <a
+                    href="{% url 'resignation_list' %}"
+                    class="btn btn-secondary">
+
+                    Cancel
+
+                </a>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock %}

@@ -1,14 +1,6 @@
 from django.contrib import admin
+from django.urls import path, include
 from django.conf import settings
-from django.conf.urls.static import static
-
-from django.urls import (
-    path,
-    include,
-)
-
-from django.conf import settings
-
 from django.conf.urls.static import static
 
 from rest_framework_simplejwt.views import (
@@ -34,7 +26,7 @@ urlpatterns = [
     # ==========================================
 
     path(
-        'admin/',
+        "admin/",
         admin.site.urls
     ),
 
@@ -43,31 +35,31 @@ urlpatterns = [
     # ==========================================
 
     path(
-        'login/',
+        "login/",
         login_view,
-        name='login'
+        name="login"
     ),
 
     path(
-        'logout/',
+        "logout/",
         logout_view,
-        name='logout'
+        name="logout"
     ),
 
     # ==========================================
-    # JWT AUTHENTICATION API
+    # JWT AUTHENTICATION
     # ==========================================
 
     path(
-        'api/token/',
+        "api/token/",
         TokenObtainPairView.as_view(),
-        name='token_obtain_pair'
+        name="token_obtain_pair"
     ),
 
     path(
-        'api/token/refresh/',
+        "api/token/refresh/",
         TokenRefreshView.as_view(),
-        name='token_refresh'
+        name="token_refresh"
     ),
 
     # ==========================================
@@ -75,8 +67,8 @@ urlpatterns = [
     # ==========================================
 
     path(
-        'api/',
-        include('api.urls')
+        "api/",
+        include("api.urls")
     ),
 
     # ==========================================
@@ -84,31 +76,27 @@ urlpatterns = [
     # ==========================================
 
     path(
-        '',
+        "",
         dashboard,
-        name='dashboard'
+        name="dashboard"
     ),
 
     # ==========================================
-    # EMPLOYEES
+    # EMPLOYEE MANAGEMENT
     # ==========================================
 
     path(
-        'employees/',
-        include(
-            'apps.employees.urls'
-        )
+        "employees/",
+        include("apps.employees.urls")
     ),
 
     # ==========================================
-    # DEPARTMENTS
+    # DEPARTMENT MANAGEMENT
     # ==========================================
 
     path(
-        'departments/',
-        include(
-            'apps.employees.department_urls'
-        )
+        "departments/",
+        include("apps.employees.department_urls")
     ),
 
     # ==========================================
@@ -116,43 +104,26 @@ urlpatterns = [
     # ==========================================
 
     path(
-        'attendance/',
-        include(
-            'apps.employees.attendance_urls'
-        )
+        "attendance/",
+        include("apps.employees.attendance_urls")
     ),
 
     # ==========================================
-    # PAYSLIPS
+    # PAYSLIP
     # ==========================================
 
     path(
-        'payslips/',
-        include(
-            'apps.employees.payslip_urls'
-        )
+        "payslips/",
+        include("apps.employees.payslip_urls")
     ),
 
     # ==========================================
-    # ANNOUNCEMENTS
+    # REPORTS
     # ==========================================
 
     path(
-        'announcements/',
-        include(
-            'apps.employees.announcement_urls'
-        )
-    ),
-
-    # ==========================================
-    # REPORTS & ANALYTICS
-    # ==========================================
-
-    path(
-        'reports/',
-        include(
-            'apps.employees.report_urls'
-        )
+        "reports/",
+        include("apps.employees.report_urls")
     ),
 
     # ==========================================
@@ -160,34 +131,46 @@ urlpatterns = [
     # ==========================================
 
     path(
-        'my-profile/',
+        "my-profile/",
         my_profile,
-        name='my_profile'
+        name="my_profile"
     ),
 
     # ==========================================
-    # LEAVE MANAGEMENT
+    # LMS (LEAVE MANAGEMENT)
     # ==========================================
 
     path(
-        'leave/',
-        include(
-            'apps.leave.urls'
-        )
+        "leave/",
+        include("apps.leave.urls")
     ),
-  
-    path(
-    'documents/',
-    include('apps.employees.document_urls')
-),
 
+    # ==========================================
+    # DMS (DOCUMENT MANAGEMENT)
+    # ==========================================
+
+    path(
+        "documents/",
+        include("apps.employees.document_urls")
+    ),
+
+    # ==========================================
+    # RESIGNATION MODULE
+    # ==========================================
+
+    path(
+        "resignation/",
+        include("resignation.urls")
+    ),
 ]
 
 # ==========================================
 # MEDIA FILES
 # ==========================================
 
-urlpatterns += static(
-    settings.MEDIA_URL,
-    document_root=settings.MEDIA_ROOT
-)
+if settings.DEBUG:
+
+    urlpatterns += static(
+        settings.MEDIA_URL,
+        document_root=settings.MEDIA_ROOT
+    )

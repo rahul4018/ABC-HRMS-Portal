@@ -14,15 +14,12 @@
 
 <title>SkillChekHub HRMS</title>
 
-<!-- Bootstrap -->
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
       rel="stylesheet">
 
-<!-- Bootstrap Icons -->
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
       rel="stylesheet">
 
-<!-- Custom CSS -->
 <link rel="stylesheet"
       href="{% static 'css/style.css' %}">
 ```
@@ -53,10 +50,8 @@
 
     </div>
 
-    <!-- Sidebar Menu -->
     <div class="list-group list-group-flush">
 
-        <!-- Dashboard -->
         <a href="/"
            class="list-group-item list-group-item-action">
 
@@ -65,7 +60,6 @@
 
         </a>
 
-        <!-- Supervisor Menu -->
         {% if request.user.role == 'SUPERVISOR' %}
 
         <a href="/employees/"
@@ -94,7 +88,6 @@
 
         {% endif %}
 
-        <!-- DMS -->
         <a href="/documents/"
            class="list-group-item list-group-item-action">
 
@@ -103,7 +96,6 @@
 
         </a>
 
-        <!-- LMS -->
         <a href="/leave/"
            class="list-group-item list-group-item-action">
 
@@ -112,7 +104,6 @@
 
         </a>
 
-        <!-- Reports -->
         <a href="/reports/"
            class="list-group-item list-group-item-action">
 
@@ -121,7 +112,6 @@
 
         </a>
 
-        <!-- Payslip -->
         <a href="/payslips/"
            class="list-group-item list-group-item-action">
 
@@ -130,7 +120,6 @@
 
         </a>
 
-        <!-- Appraisal -->
         <a href="#"
            class="list-group-item list-group-item-action">
 
@@ -139,7 +128,6 @@
 
         </a>
 
-        <!-- Promotions -->
         <a href="#"
            class="list-group-item list-group-item-action">
 
@@ -148,8 +136,7 @@
 
         </a>
 
-        <!-- Resignation -->
-        <a href="#"
+        <a href="/resignation/"
            class="list-group-item list-group-item-action">
 
             <i class="bi bi-box-arrow-left me-2"></i>
@@ -157,7 +144,6 @@
 
         </a>
 
-        <!-- My Profile -->
         <a href="/my-profile/"
            class="list-group-item list-group-item-action">
 
@@ -166,7 +152,6 @@
 
         </a>
 
-        <!-- Settings -->
         <a href="#"
            class="list-group-item list-group-item-action">
 
@@ -182,7 +167,6 @@
 <!-- Main Content -->
 <div id="page-content-wrapper">
 
-    <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom px-4 shadow-sm">
 
         <div class="container-fluid">
@@ -229,21 +213,19 @@
 
     </nav>
 
-    <!-- Messages -->
     {% if messages %}
 
     <div class="container mt-3">
 
         {% for message in messages %}
 
-        <div class="alert alert-{{ message.tags }} alert-dismissible fade show shadow-sm">
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
 
             {{ message }}
 
             <button type="button"
                     class="btn-close"
-                    data-bs-dismiss="alert">
-            </button>
+                    data-bs-dismiss="alert"></button>
 
         </div>
 
@@ -253,7 +235,6 @@
 
     {% endif %}
 
-    <!-- Content -->
     <div class="container-fluid p-4">
 
         {% block content %}
