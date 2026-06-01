@@ -2,10 +2,101 @@
 
 {% block content %}
 
-<h2>Promotion Management</h2>
+<div class="d-flex justify-content-between mb-4">
 
-<p>
-    Promotion module is ready.
-</p>
+    <div>
+
+        <h2 class="fw-bold">
+            Promotion Management
+        </h2>
+
+        <p class="text-muted">
+            Employee promotion records
+        </p>
+
+    </div>
+
+    <a href="/promotions/create/"
+       class="btn btn-success">
+
+        Create Promotion
+
+    </a>
+
+</div>
+
+<div class="card">
+
+    <div class="card-body">
+
+        <table class="table">
+
+            <thead>
+
+                <tr>
+
+                    <th>Employee</th>
+                    <th>Old Designation</th>
+                    <th>New Designation</th>
+                    <th>Effective Date</th>
+
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                {% for promotion in promotions %}
+
+                <tr>
+
+                    <td>
+
+                        {{ promotion.employee.user.email }}
+
+                    </td>
+
+                    <td>
+
+                        {{ promotion.old_designation }}
+
+                    </td>
+
+                    <td>
+
+                        {{ promotion.new_designation }}
+
+                    </td>
+
+                    <td>
+
+                        {{ promotion.effective_date }}
+
+                    </td>
+
+                </tr>
+
+                {% empty %}
+
+                <tr>
+
+                    <td colspan="4"
+                        class="text-center">
+
+                        No promotions found
+
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
 
 {% endblock %}

@@ -1,0 +1,108 @@
+{% extends 'layouts/base.html' %}
+
+{% block content %}
+
+<h2 class="mb-4">
+    Create Promotion
+</h2>
+
+<div class="card">
+
+    <div class="card-body">
+
+        <form method="post">
+
+            {% csrf_token %}
+
+            <div class="mb-3">
+
+                <label class="form-label">
+                    Employee
+                </label>
+
+                <select name="employee"
+                        class="form-control">
+
+                    {% for employee in employees %}
+
+                    <option value="{{ employee.id }}">
+
+                        {{ employee.user.email }}
+
+                    </option>
+
+                    {% endfor %}
+
+                </select>
+
+            </div>
+
+            <div class="mb-3">
+
+                <label class="form-label">
+
+                    Old Designation
+
+                </label>
+
+                <input type="text"
+                       name="old_designation"
+                       class="form-control">
+
+            </div>
+
+            <div class="mb-3">
+
+                <label class="form-label">
+
+                    New Designation
+
+                </label>
+
+                <input type="text"
+                       name="new_designation"
+                       class="form-control">
+
+            </div>
+
+            <div class="mb-3">
+
+                <label class="form-label">
+
+                    Effective Date
+
+                </label>
+
+                <input type="date"
+                       name="effective_date"
+                       class="form-control">
+
+            </div>
+
+            <div class="mb-3">
+
+                <label class="form-label">
+
+                    Remarks
+
+                </label>
+
+                <textarea name="remarks"
+                          class="form-control"></textarea>
+
+            </div>
+
+            <button type="submit"
+                    class="btn btn-success">
+
+                Create Promotion
+
+            </button>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock %}
