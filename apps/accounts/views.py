@@ -1,12 +1,18 @@
 import random
 import string
 from django.contrib import messages
-from django.contrib.auth import authenticate, login, logout, get_user_model
+from django.contrib.auth import (
+    authenticate,
+    login,
+    logout,
+    get_user_model
+)
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.hashers import make_password
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import render, redirect
 from .models import CompanySettings
+
 
 def login_view(request):
     if request.user.is_authenticated:
@@ -48,22 +54,22 @@ def forgot_password(request):
             messages.error(request, 'No account found with this email.')
             return render(request, 'accounts/forgot_password.html')
 
-        # Generate standard 8-character temporary alphanumeric block
         temporary_password = ''.join(
             random.choices(string.ascii_letters + string.digits, k=8)
         )
-
         user.password = make_password(temporary_password)
         user.save()
 
-        # Send string to your template context securely
         return render(
             request,
             'accounts/forgot_password.html',
             {'temporary_password': temporary_password}
         )
 
-    return render(request, 'accounts/forgot_password.html')
+    return render(
+        request, 
+        'accounts/forgot_password.html'
+    )
 
 
 @login_required
@@ -97,6 +103,7 @@ def company_settings(request):
         settings_obj.company_email = request.POST.get('company_email')
         settings_obj.company_phone = request.POST.get('company_phone')
 
+        # Files must be pulled from request.FILES, not request.POST
         if request.FILES.get('company_logo'):
             settings_obj.company_logo = request.FILES.get('company_logo')
 
@@ -109,6 +116,15 @@ def company_settings(request):
         'settings/company.html',
         {'settings_obj': settings_obj}
     )
+
+
+def terms_view(request):
+    return render(request, 'legal/terms.html')
+
+
+def privacy_view(request):
+    return render(request, 'legal/privacy.html')
+
 
 def logout_view(request):
     logout(request)
