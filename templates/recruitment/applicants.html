@@ -1,36 +1,43 @@
 {% extends 'layouts/base.html' %}
+
 {% block content %}
+<div class="container-fluid py-4">
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <div>
-        <h2 class="fw-bold mb-1">Applicants</h2>
-        <p class="text-muted mb-0">
-            <strong>{{ requirement.title }}</strong> &middot; {{ requirement.department }}
-        </p>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-1">Applicants</h2>
+            <p class="text-muted mb-0">
+                <strong>{{ requirement.title }}</strong> • {{ requirement.department }}
+            </p>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            <span class="badge bg-primary fs-6">
+                Total Applicants: {{ applicants.count }}
+            </span>
+            <a href="{% url 'requirement_list' %}" class="btn btn-secondary">Back</a>
+        </div>
     </div>
-    <a href="{% url 'requirement_list' %}" class="btn btn-secondary">
-        Back to Requirements
-    </a>
-</div>
 
-<div class="card shadow-sm">
-    <div class="card-body p-0">
-        <div class="table-responsive">
-            <table class="table align-middle mb-0">
-                <thead class="table-light">
-                    <tr>
-                        <th>Name</th>
-                        <th>Email</th>
-                        <th>Phone</th>
-                        <th>Status</th>
-                        <th>Resume</th>
-                        <th class="text-end px-4">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for applicant in applicants %}
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
                         <tr>
-                            <td class="ps-4"><strong>{{ applicant.full_name }}</strong></td>
+                            <th class="ps-4">Name</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th>Status</th>
+                            <th>Resume</th>
+                            <th class="text-end pe-4">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for applicant in applicants %}
+                        <tr>
+                            <td class="ps-4">
+                                <strong>{{ applicant.full_name }}</strong>
+                            </td>
                             <td>{{ applicant.email }}</td>
                             <td>{{ applicant.phone }}</td>
                             <td>
@@ -50,61 +57,64 @@
                             </td>
                             <td>
                                 {% if applicant.resume %}
-                                    <a href="{{ applicant.resume.url }}" target="_blank" class="btn btn-sm btn-outline-dark">
+                                    <a href="{{ applicant.resume.url }}" target="_blank" class="btn btn-outline-dark btn-sm">
                                         View Resume
                                     </a>
                                 {% else %}
-                                    <span class="text-muted small">No Resume</span>
+                                    <span class="text-muted">No Resume</span>
                                 {% endif %}
                             </td>
-                            <td class="pe-4">
+                            <td class="text-end pe-4">
                                 <div class="d-flex justify-content-end flex-wrap gap-1">
-                                    
                                     {% if applicant.status == 'APPLIED' %}
-                                        <form action="{% url 'shortlist_applicant' applicant.pk %}" method="post" class="d-inline">
+                                        <form method="POST" action="{% url 'shortlist_applicant' applicant.pk %}">
                                             {% csrf_token %}
-                                            <button type="submit" class="btn btn-sm btn-info text-dark">Shortlist</button>
+                                            <button type="submit" class="btn btn-info btn-sm text-dark">Shortlist</button>
+                                        </form>
+                                        <form method="POST" action="{% url 'reject_applicant' applicant.pk %}">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-danger btn-sm">Reject</button>
                                         </form>
                                     {% endif %}
 
                                     {% if applicant.status == 'SHORTLISTED' %}
-                                        <form action="{% url 'select_applicant' applicant.pk %}" method="post" class="d-inline">
+                                        <form method="POST" action="{% url 'select_applicant' applicant.pk %}">
                                             {% csrf_token %}
-                                            <button type="submit" class="btn btn-sm btn-success">Select</button>
+                                            <button type="submit" class="btn btn-success btn-sm">Select</button>
                                         </form>
                                     {% endif %}
 
                                     {% if applicant.status == 'SELECTED' %}
-                                        <form action="{% url 'onboard_applicant' applicant.pk %}" method="post" class="d-inline">
+                                        <form method="POST" action="{% url 'onboard_applicant' applicant.pk %}">
                                             {% csrf_token %}
-                                            <button type="submit" class="btn btn-sm btn-dark">Onboard</button>
+                                            <button type="submit" class="btn btn-dark btn-sm">Onboard</button>
                                         </form>
                                     {% endif %}
 
                                     {% if applicant.status == 'ONBOARDED' and not applicant.employee_created %}
-                                        <a href="{% url 'convert_to_employee' applicant.pk %}" class="btn btn-sm btn-primary">
+                                        <a href="{% url 'convert_to_employee' applicant.pk %}" class="btn btn-primary btn-sm">
                                             Create Employee
                                         </a>
                                     {% endif %}
 
                                     {% if applicant.employee_created %}
-                                        <span class="badge bg-success py-2">Employee Created</span>
+                                        <span class="badge bg-success">Employee Created</span>
                                     {% endif %}
-                                    
                                 </div>
                             </td>
                         </tr>
-                    {% empty %}
+                        {% empty %}
                         <tr>
-                            <td colspan="6" class="text-center text-muted py-5">
-                                No applicants found for this position.
+                            <td colspan="6" class="text-center py-5 text-muted">
+                                No applicants found.
                             </td>
                         </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
-</div>
 
+</div>
 {% endblock %}

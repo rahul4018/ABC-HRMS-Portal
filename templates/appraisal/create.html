@@ -1,52 +1,85 @@
 {% extends 'layouts/base.html' %}
-
 {% block content %}
 
-<div class="card shadow-sm">
+<div class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center mb-4 gap-3">
+    <div>
+        <h2 class="fw-bold mb-1">
+            Create Performance Management Report
+        </h2>
+        <p class="text-muted mb-0">
+            Submit your achievements and goals for review.
+        </p>
+    </div>
+    <a href="{% url 'pmr_list' %}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left me-1"></i> Back to List
+    </a>
+</div>
 
-    <div class="card-body">
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-4">
 
-        <h2>Create PMR</h2>
-
-        <hr>
-
-        <form method="post">
-
+        <form method="POST">
             {% csrf_token %}
 
-            <div class="mb-3">
-
-                <label class="form-label">
-                    Employee
+            <div class="mb-4">
+                <label class="form-label fw-semibold" for="id_title">
+                    PMR Title
                 </label>
-
-                <input type="text"
-                       class="form-control">
-
+                <input
+                    type="text"
+                    id="id_title"
+                    name="title"
+                    class="form-control"
+                    placeholder="Example: Q2 2026 Performance Review"
+                    required
+                >
             </div>
 
-            <div class="mb-3">
-
-                <label class="form-label">
-                    Performance Summary
+            <div class="mb-4">
+                <label class="form-label fw-semibold" for="id_achievements">
+                    Key Achievements
                 </label>
-
-                <textarea class="form-control"
-                          rows="5"></textarea>
-
+                <textarea
+                    id="id_achievements"
+                    name="achievements"
+                    class="form-control"
+                    rows="6"
+                    placeholder="Describe your achievements, completed tasks, successful projects, contributions, and improvements..."
+                    required
+                ></textarea>
             </div>
 
-            <button type="submit"
-                    class="btn btn-success">
+            <div class="mb-4">
+                <label class="form-label fw-semibold" for="id_goals">
+                    Goals & Objectives
+                </label>
+                <textarea
+                    id="id_goals"
+                    name="goals"
+                    class="form-control"
+                    rows="6"
+                    placeholder="Describe your goals, learning plans, certifications, projects, and targets for the next review period..."
+                    required
+                ></textarea>
+            </div>
 
-                Submit PMR
+            <div class="alert alert-info border-0 bg-light-subtle shadow-sm mb-4">
+                <i class="bi bi-info-circle-fill text-info me-2"></i>
+                <strong>Note:</strong> After submission, your PMR will be securely transmitted and reviewed by your Supervisor. You may track whether it receives approval, rejection, or a modification request from your dashboard.
+            </div>
 
-            </button>
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-success px-4">
+                    Submit PMR
+                </button>
+                <a href="{% url 'pmr_list' %}" class="btn btn-secondary px-4">
+                    Cancel
+                </a>
+            </div>
 
         </form>
 
     </div>
-
 </div>
 
 {% endblock %}

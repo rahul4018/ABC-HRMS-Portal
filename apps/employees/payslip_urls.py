@@ -4,6 +4,7 @@ from apps.employees.views import (
     payslip_list,
     payslip_detail,
     download_payslip_pdf,
+    create_payslip,
 )
 
 urlpatterns = [
@@ -12,6 +13,12 @@ urlpatterns = [
         '',
         payslip_list,
         name='payslip_list'
+    ),
+
+    path(
+        'create/',
+        create_payslip,
+        name='create_payslip'
     ),
 
     path(

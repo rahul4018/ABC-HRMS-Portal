@@ -1,210 +1,193 @@
 {% extends 'layouts/base.html' %}
-
 {% block content %}
 
 <div class="card border-0 shadow-sm">
-
     <div class="card-body p-5">
-
-        <!-- Header -->
-
-        <div class="d-flex justify-content-between align-items-start mb-4">
-
+        <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
-
-                <h2 class="fw-bold">
-                    Payslip
-                </h2>
-
+                <h2 class="fw-bold">Payslip</h2>
                 <p class="text-muted mb-0">
                     {{ payslip.month }} {{ payslip.year }}
                 </p>
-
             </div>
-
-            <!-- Action Buttons -->
-
             <div class="d-flex gap-2">
-
-                <a href="{% url 'payslip_list' %}"
-                   class="btn btn-secondary">
-
-                    <i class="bi bi-arrow-left me-1"></i>
-
-                    Back
-
+                <a href="{% url 'payslip_list' %}" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left"></i> Back
                 </a>
-
-                <a href="{% url 'download_payslip_pdf' payslip.id %}"
-                   class="btn btn-primary">
-
-                    <i class="bi bi-download me-1"></i>
-
-                    Download PDF
-
+                <a href="{% url 'download_payslip_pdf' payslip.id %}" class="btn btn-primary">
+                    <i class="bi bi-download"></i> Download PDF
                 </a>
-
             </div>
-
         </div>
 
         <hr>
 
-        <!-- Employee Details -->
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">Employee Information</div>
+                    <div class="card-body">
+                        <table class="table">
+                            <tr>
+                                <th>Employee ID</th>
+                                <td>{{ payslip.employee.employee_id|default:"N/A" }}</td>
+                            </tr>
+                            <tr>
+                                <th>Email</th>
+                                <td>{{ payslip.employee.user.email|default:"N/A" }}</td>
+                            </tr>
+                            <tr>
+                                <th>Department</th>
+                                <td>{{ payslip.employee.department|default:"N/A" }}</td>
+                            </tr>
+                            <tr>
+                                <th>Designation</th>
+                                <td>{{ payslip.employee.designation }}</td>
+                            </tr>
+                            <tr>
+                                <th>Joining Date</th>
+                                <td>{{ payslip.employee.joining_date|date:"d M Y" }}</td>
+                            </tr>
+                            <tr>
+                                <th>Location</th>
+                                <td>{{ payslip.employee.location }}</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">Banking Information</div>
+                    <div class="card-body">
+                        <table class="table">
+                            <tr>
+                                <th>Bank Name</th>
+                                <td>{{ payslip.employee.bank_name|default:"N/A" }}</td>
+                            </tr>
+                            <tr>
+                                <th>Account Number</th>
+                                <td>{{ payslip.employee.account_number|default:"N/A" }}</td>
+                            </tr>
+                            <tr>
+                                <th>PAN Number</th>
+                                <td>{{ payslip.employee.pan_number|default:"N/A" }}</td>
+                            </tr>
+                            <tr>
+                                <th>PF Number</th>
+                                <td>{{ payslip.employee.pf_number|default:"N/A" }}</td>
+                            </tr>
+                            <tr>
+                                <th>ESI Number</th>
+                                <td>{{ payslip.employee.esi_number|default:"N/A" }}</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mt-4">
+            <div class="card-header">Attendance Information</div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-md-4">
+                        <h6>Days In Month</h6>
+                        <h4>{{ payslip.days_in_month }}</h4>
+                    </div>
+                    <div class="col-md-4">
+                        <h6>Effective Work Days</h6>
+                        <h4>{{ payslip.effective_work_days }}</h4>
+                    </div>
+                    <div class="col-md-4">
+                        <h6>LOP</h6>
+                        <h4>{{ payslip.lop }}</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <div class="row mt-4">
-
-            <div class="col-md-6 mb-4">
-
-                <h6 class="text-muted">
-                    Employee
-                </h6>
-
-                <h5 class="fw-semibold">
-                    {{ payslip.employee.user.email }}
-                </h5>
-
-            </div>
-
-            <div class="col-md-6 mb-4">
-
-                <h6 class="text-muted">
-                    Employee ID
-                </h6>
-
-                <h5 class="fw-semibold">
-                    {{ payslip.employee.employee_id }}
-                </h5>
-
-            </div>
-
-            <div class="col-md-6 mb-4">
-
-                <h6 class="text-muted">
-                    Department
-                </h6>
-
-                <h5 class="fw-semibold">
-                    {{ payslip.employee.department }}
-                </h5>
-
-            </div>
-
-            <div class="col-md-6 mb-4">
-
-                <h6 class="text-muted">
-                    Designation
-                </h6>
-
-                <h5 class="fw-semibold">
-                    {{ payslip.employee.designation }}
-                </h5>
-
-            </div>
-
-        </div>
-
-        <hr>
-
-        <!-- Salary Breakdown -->
-
-        <div class="row mt-4">
-
-            <div class="col-md-4 mb-4">
-
-                <div class="card border-0 bg-light h-100">
-
-                    <div class="card-body text-center">
-
-                        <h6 class="text-muted mb-3">
-                            Basic Salary
-                        </h6>
-
-                        <h3 class="fw-bold text-primary">
-                            ₹ {{ payslip.basic_salary }}
-                        </h3>
-
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header bg-success text-white">Earnings</div>
+                    <div class="card-body p-0">
+                        <table class="table mb-0">
+                            <tr>
+                                <td>Basic Salary</td>
+                                <td class="text-end">₹ {{ payslip.basic_salary }}</td>
+                            </tr>
+                            <tr>
+                                <td>HRA</td>
+                                <td class="text-end">₹ {{ payslip.hra }}</td>
+                            </tr>
+                            <tr>
+                                <td>Conveyance</td>
+                                <td class="text-end">₹ {{ payslip.conveyance }}</td>
+                            </tr>
+                            <tr>
+                                <td>Special Allowance</td>
+                                <td class="text-end">₹ {{ payslip.special_allowance }}</td>
+                            </tr>
+                            <tr>
+                                <td>Bonus</td>
+                                <td class="text-end">₹ {{ payslip.bonus }}</td>
+                            </tr>
+                            <tr class="fw-bold">
+                                <td>Gross Salary</td>
+                                <td class="text-end">₹ {{ payslip.gross_salary }}</td>
+                            </tr>
+                        </table>
                     </div>
-
                 </div>
-
             </div>
 
-            <div class="col-md-4 mb-4">
-
-                <div class="card border-0 bg-light h-100">
-
-                    <div class="card-body text-center">
-
-                        <h6 class="text-muted mb-3">
-                            Bonus
-                        </h6>
-
-                        <h3 class="fw-bold text-success">
-                            ₹ {{ payslip.bonus }}
-                        </h3>
-
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header bg-danger text-white">Deductions</div>
+                    <div class="card-body p-0">
+                        <table class="table mb-0">
+                            <tr>
+                                <td>PF</td>
+                                <td class="text-end">₹ {{ payslip.pf }}</td>
+                            </tr>
+                            <tr>
+                                <td>ESI</td>
+                                <td class="text-end">₹ {{ payslip.esi }}</td>
+                            </tr>
+                            <tr>
+                                <td>Professional Tax</td>
+                                <td class="text-end">₹ {{ payslip.professional_tax }}</td>
+                            </tr>
+                            <tr>
+                                <td>Income Tax</td>
+                                <td class="text-end">₹ {{ payslip.income_tax }}</td>
+                            </tr>
+                            <tr>
+                                <td>Other Deduction</td>
+                                <td class="text-end">₹ {{ payslip.other_deduction }}</td>
+                            </tr>
+                            <tr class="fw-bold">
+                                <td>Total Deductions</td>
+                                <td class="text-end">₹ {{ payslip.total_deductions }}</td>
+                            </tr>
+                        </table>
                     </div>
-
                 </div>
-
             </div>
-
-            <div class="col-md-4 mb-4">
-
-                <div class="card border-0 bg-light h-100">
-
-                    <div class="card-body text-center">
-
-                        <h6 class="text-muted mb-3">
-                            Deductions
-                        </h6>
-
-                        <h3 class="fw-bold text-danger">
-                            ₹ {{ payslip.deductions }}
-                        </h3>
-
-                    </div>
-
-                </div>
-
-            </div>
-
         </div>
 
-        <hr>
-
-        <!-- Net Salary -->
-
-        <div class="text-end mt-4">
-
-            <h6 class="text-muted mb-2">
-                Final Salary
-            </h6>
-
-            <h2 class="fw-bold text-dark">
-
-                ₹ {{ payslip.net_salary }}
-
-            </h2>
-
+        <div class="mt-5 p-4 bg-light rounded text-center">
+            <h5 class="text-muted">Net Salary Payable</h5>
+            <h1 class="fw-bold text-success">₹ {{ payslip.net_salary }}</h1>
         </div>
 
-        <!-- Footer -->
-
-        <div class="mt-5 pt-3 border-top">
-
-            <small class="text-muted">
-
-                Generated on:
-                {{ payslip.generated_at|date:"d M Y h:i A" }}
-
-            </small>
-
+        <div class="mt-4 text-muted small text-center">
+            Generated on: {{ payslip.generated_at|date:"d M Y h:i A" }}
+            <br>
+            This is a system generated payslip and does not require signature.
         </div>
-
     </div>
-
 </div>
-
 {% endblock %}

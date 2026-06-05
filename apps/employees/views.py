@@ -1,7 +1,10 @@
+import os
 import csv
 
 from datetime import date
 from datetime import datetime
+from django.http import HttpResponse
+from reportlab.pdfgen import canvas
 
 from django.shortcuts import (
     render,
@@ -12,15 +15,20 @@ from django.shortcuts import (
 from django.contrib import messages
 
 from django.contrib.auth.decorators import login_required
-
+from reportlab.lib.enums import TA_CENTER
+from reportlab.lib.styles import ParagraphStyle
 from django.db.models import Count, Q
 
 from django.http import HttpResponse
+from decimal import Decimal, InvalidOperation
 
 from reportlab.pdfgen import canvas
+from django.conf import settings
 
 from apps.leave.models import Leave
 from apps.payslips.models import Payslip
+from reportlab.lib.pagesizes import letter
+from reportlab.lib.pagesizes import A4
 
 from .models import (
     Employee,
@@ -36,6 +44,19 @@ from .forms import (
 )
 
 from apps.accounts.decorators import role_required
+
+from reportlab.lib import colors
+
+from reportlab.platypus import (
+    SimpleDocTemplate,
+    Table,
+    TableStyle,
+    Spacer,
+    Paragraph,
+    Image
+)
+
+from reportlab.lib.styles import getSampleStyleSheet
 
 
 # ==========================================
@@ -550,7 +571,96 @@ def payslip_detail(request, pk):
         'payslips/detail.html',
         context
     )
+@login_required
+def create_payslip(request):
+    if request.user.role != 'SUPERVISOR':
+        messages.error(
+            request,
+            'Access denied.'
+        )
+        return redirect(
+            'payslip_list'
+        )
 
+    employees = Employee.objects.select_related(
+        'user'
+    ).all()
+
+    if request.method == 'POST':
+        employee = get_object_or_404(
+            Employee,
+            id=request.POST.get('employee')
+        )
+
+        # 1. Cleaner parsing: Fallback to string '0' or '30' so Decimal/int conversion never crashes
+        def get_decimal(field_name):
+            val = request.POST.get(field_name, '0').strip()
+            try:
+                return Decimal(val if val != '' else '0')
+            except InvalidOperation:
+                return Decimal('0')
+
+        basic_salary = get_decimal('basic_salary')
+        hra = get_decimal('hra')
+        conveyance = get_decimal('conveyance')
+        special_allowance = get_decimal('special_allowance')
+        bonus = get_decimal('bonus')
+
+        pf = get_decimal('pf')
+        esi = get_decimal('esi')
+        professional_tax = get_decimal('professional_tax')
+        income_tax = get_decimal('income_tax')
+        other_deduction = get_decimal('other_deduction')
+
+        days_in_month = int(request.POST.get('days_in_month') or 30)
+        effective_work_days = int(request.POST.get('effective_work_days') or 30)
+        lop = int(request.POST.get('lop') or 0)
+
+        # 2. Let the Payslip model handle gross_salary, total_deductions, and net_salary calculations!
+        try:
+            Payslip.objects.create(
+                employee=employee,
+                month=request.POST.get('month'),
+                year=request.POST.get('year'),
+                days_in_month=days_in_month,
+                effective_work_days=effective_work_days,
+                lop=lop,
+                basic_salary=basic_salary,
+                hra=hra,
+                conveyance=conveyance,
+                special_allowance=special_allowance,
+                bonus=bonus,
+                pf=pf,
+                esi=esi,
+                professional_tax=professional_tax,
+                income_tax=income_tax,
+                other_deduction=other_deduction
+                # Notice: gross_salary, total_deductions, and net_salary are omitted.
+                # The model's save() method will generate them accurately.
+            )
+            
+            messages.success(
+                request,
+                'Payslip generated successfully.'
+            )
+        except Exception as e:
+            # Catching duplicate records if unique_together constraint is violated
+            messages.error(
+                request,
+                f'Error generating payslip: {e}'
+            )
+
+        return redirect(
+            'payslip_list'
+        )
+
+    return render(
+        request,
+        'payslips/create.html',
+        {
+            'employees': employees
+        }
+    )
 
 # ==========================================
 # ATTENDANCE MANAGEMENT
@@ -811,95 +921,281 @@ def reports_dashboard(request):
         context
     )
 
-
-# ==========================================
-# PAYSLIP PDF DOWNLOAD
-# ==========================================
-
 @login_required
 def download_payslip_pdf(request, pk):
-
     payslip = get_object_or_404(
         Payslip,
         pk=pk
     )
 
+    # Authorization Check
     if (
         request.user.role == 'EMPLOYEE'
         and payslip.employee.user != request.user
     ):
-
         messages.error(
             request,
             'Access denied.'
         )
-
         return redirect(
             'payslip_list'
         )
 
+    # Initialize PDF Response
     response = HttpResponse(
         content_type='application/pdf'
     )
-
     response[
         'Content-Disposition'
-    ] = f'attachment; filename="Payslip_{payslip.id}.pdf"'
+    ] = f'attachment; filename="Payslip_{payslip.month}_{payslip.year}.pdf"'
 
-    pdf = canvas.Canvas(response)
-
-    pdf.setTitle('Employee Payslip')
-
-    pdf.setFont(
-        'Helvetica-Bold',
-        18
+    # Document Setup
+    doc = SimpleDocTemplate(
+        response,
+        pagesize=letter,
+        rightMargin=20,
+        leftMargin=20,
+        topMargin=20,
+        bottomMargin=20
     )
 
-    pdf.drawString(
-        180,
-        800,
-        'SkillChekHub HRMS'
+    styles = getSampleStyleSheet()
+    elements = []
+
+    # Custom Typography Styles
+    center_title = ParagraphStyle(
+        'CenterTitle',
+        parent=styles['Title'],
+        alignment=TA_CENTER
     )
 
-    pdf.setFont(
-        'Helvetica',
-        12
+    center_normal = ParagraphStyle(
+        'CenterNormal',
+        parent=styles['Normal'],
+        alignment=TA_CENTER
     )
 
-    pdf.drawString(
-        50,
-        740,
-        f'Employee: {payslip.employee.user.email}'
+    center_heading = ParagraphStyle(
+        'CenterHeading',
+        parent=styles['Heading2'],
+        alignment=TA_CENTER
     )
 
-    pdf.drawString(
-        50,
-        710,
-        f'Department: {payslip.employee.department}'
+    # ==========================================
+    # COMPANY LOGO
+    # ==========================================
+    logo_path = os.path.join(
+        settings.BASE_DIR,
+        'static',
+        'images',
+        'logo.png'
     )
 
-    pdf.drawString(
-        50,
-        680,
-        f'Month: {payslip.month}'
+    if os.path.exists(logo_path):
+        logo = Image(
+            logo_path,
+            width=120,
+            height=55
+        )
+        logo.hAlign = 'CENTER'
+        elements.append(logo)
+
+    # ==========================================
+    # COMPANY HEADER
+    # ==========================================
+    elements.append(
+        Paragraph(
+            "<b>SKILL CHECK HUB IT SERVICES PVT. LTD.</b>",
+            center_title
+        )
+    )
+    elements.append(
+        Paragraph(
+            "Bengaluru, Karnataka - 560076",
+            center_normal
+        )
+    )
+    elements.append(
+        Paragraph(
+            "Email: hr@skillcheckhub.com | Phone: +91 XXXXX XXXXX",
+            center_normal
+        )
+    )
+    elements.append(
+        Spacer(1, 10)
+    )
+    elements.append(
+        Paragraph(
+            f"<b>Payslip for {payslip.month} {payslip.year}</b>",
+            center_heading
+        )
+    )
+    elements.append(
+        Spacer(1, 20)
     )
 
-    pdf.drawString(
-        50,
-        650,
-        f'Year: {payslip.year}'
+    # ==========================================
+    # EMPLOYEE DETAILS
+    # ==========================================
+    employee_info = [
+        [
+            "Employee ID",
+            payslip.employee.employee_id,
+            "Department",
+            str(payslip.employee.department)
+        ],
+        [
+            "Employee Name",
+            payslip.employee.user.email,
+            "Designation",
+            payslip.employee.designation
+        ],
+        [
+            "Joining Date",
+            str(payslip.employee.joining_date),
+            "Location",
+            payslip.employee.location
+        ],
+        [
+            "Bank Name",
+            payslip.employee.bank_name or "-",
+            "Account Number",
+            payslip.employee.account_number or "-"
+        ],
+        [
+            "PAN Number",
+            payslip.employee.pan_number or "-",
+            "PF Number",
+            payslip.employee.pf_number or "-"
+        ],
+        [
+            "ESI Number",
+            payslip.employee.esi_number or "-",
+            "LOP",
+            str(payslip.lop)
+        ],
+    ]
+
+    # Total width budget = 520 (Letter width 560 - margins)
+    employee_table = Table(
+        employee_info,
+        colWidths=[100, 160, 100, 160]
+    )
+    employee_table.setStyle(
+        TableStyle([
+            ('GRID', (0, 0), (-1, -1), 1, colors.black),
+            ('BACKGROUND', (0, 0), (0, -1), colors.lightgrey),
+            ('BACKGROUND', (2, 0), (2, -1), colors.lightgrey),
+            ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
+            ('FONTNAME', (2, 0), (2, -1), 'Helvetica-Bold'),
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ])
+    )
+    elements.append(employee_table)
+    elements.append(Spacer(1, 20))
+
+    # ==========================================
+    # SALARY BREAKDOWN
+    # ==========================================
+    salary_data = [
+        [
+            "EARNINGS",
+            "AMOUNT",
+            "DEDUCTIONS",
+            "AMOUNT"
+        ],
+        [
+            "Basic Salary",
+            f"Rs. {payslip.basic_salary}",
+            "PF",
+            f"Rs. {payslip.pf}"
+        ],
+        [
+            "HRA",
+            f"Rs. {payslip.hra}",
+            "ESI",
+            f"Rs. {payslip.esi}"
+        ],
+        [
+            "Conveyance",
+            f"Rs. {payslip.conveyance}",
+            "Professional Tax",
+            f"Rs. {payslip.professional_tax}"
+        ],
+        [
+            "Special Allowance",
+            f"Rs. {payslip.special_allowance}",
+            "Income Tax",
+            f"Rs. {payslip.income_tax}"
+        ],
+        [
+            "Bonus",
+            f"Rs. {payslip.bonus}",
+            "Other Deduction",
+            f"Rs. {payslip.other_deduction}"
+        ],
+        [
+            "Gross Salary",
+            f"Rs. {payslip.gross_salary}",
+            "Total Deductions",
+            f"Rs. {payslip.total_deductions}"
+        ],
+    ]
+
+    # Total width budget = 520 (130 + 130 + 130 + 130)
+    salary_table = Table(
+        salary_data,
+        colWidths=[130, 130, 130, 130]
+    )
+    salary_table.setStyle(
+        TableStyle([
+            ('GRID', (0, 0), (-1, -1), 1, colors.black),
+            ('BACKGROUND', (0, 0), (-1, 0), colors.lightgrey),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ])
+    )
+    elements.append(salary_table)
+    elements.append(Spacer(1, 20))
+
+    # ==========================================
+    # NET SALARY
+    # ==========================================
+    net_salary_table = Table(
+        [
+            [
+                "NET SALARY PAYABLE",
+                f"Rs. {payslip.net_salary}"
+            ]
+        ],
+        colWidths=[320, 200]
+    )
+    net_salary_table.setStyle(
+        TableStyle([
+            ('GRID', (0, 0), (-1, -1), 1, colors.black),
+            ('BACKGROUND', (0, 0), (-1, -1), colors.lightgrey),
+            ('FONTNAME', (0, 0), (-1, -1), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, -1), 12),
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ])
+    )
+    elements.append(net_salary_table)
+    elements.append(Spacer(1, 30))
+
+    # ==========================================
+    # FOOTER
+    # ==========================================
+    elements.append(
+        Paragraph(
+            "This is a computer generated payslip and does not require signature.",
+            center_normal
+        )
     )
 
-    pdf.drawString(
-        50,
-        620,
-        f'Net Salary: ₹ {payslip.net_salary}'
-    )
-
-    pdf.save()
+    # Build PDF
+    doc.build(elements)
 
     return response
-
 
 # ==========================================
 # DOCUMENT MANAGEMENT

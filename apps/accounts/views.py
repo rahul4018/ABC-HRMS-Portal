@@ -11,7 +11,14 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.hashers import make_password
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import render, redirect
+
 from .models import CompanySettings
+from apps.employees.models import (
+    Employee,
+    Department,
+    Announcement,
+)
+from apps.leave.models import Leave
 
 
 def login_view(request):
@@ -66,10 +73,7 @@ def forgot_password(request):
             {'temporary_password': temporary_password}
         )
 
-    return render(
-        request, 
-        'accounts/forgot_password.html'
-    )
+    return render(request, 'accounts/forgot_password.html')
 
 
 @login_required
@@ -77,15 +81,31 @@ def dashboard_view(request):
     role = getattr(request.user, 'role', 'EMPLOYEE')
 
     if role == 'SUPERVISOR':
-        return render(request, 'dashboard/supervisor.html')
+        context = {
+            'total_employees': Employee.objects.count(),
+            'pending_leaves': Leave.objects.filter(status='PENDING').count(),
+            'total_departments': Department.objects.count(),
+            'total_announcements': Announcement.objects.count(),
+        }
+        return render(request, 'dashboard/supervisor.html', context)
 
-    return render(request, 'dashboard/employee.html')
+    # Employee dashboard logic execution block
+    employee = Employee.objects.filter(user=request.user).first()
+    employee_leaves = 0
+
+    if employee:
+        employee_leaves = Leave.objects.filter(employee=employee).count()
+
+    context = {
+        'employee_leaves': employee_leaves,
+    }
+    return render(request, 'dashboard/employee.html', context)
 
 
 @login_required
 def company_settings(request):
     if getattr(request.user, 'role', None) != 'SUPERVISOR':
-        raise PermissionDenied("You do not have permission to access company settings.")
+        raise PermissionDenied('You do not have permission to access company settings.')
 
     settings_obj = CompanySettings.objects.first()
 
@@ -103,7 +123,6 @@ def company_settings(request):
         settings_obj.company_email = request.POST.get('company_email')
         settings_obj.company_phone = request.POST.get('company_phone')
 
-        # Files must be pulled from request.FILES, not request.POST
         if request.FILES.get('company_logo'):
             settings_obj.company_logo = request.FILES.get('company_logo')
 

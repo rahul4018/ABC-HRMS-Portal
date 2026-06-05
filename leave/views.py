@@ -1,0 +1,1 @@
+def leave_detail(request, pk):
