@@ -459,7 +459,42 @@ class Asset(models.Model):
     def __str__(self):
         return f"{self.asset_code} - {self.asset_name}"
     
-               
+    
+    class EmployeeLifecycle(models.Model):
+        employee = models.OneToOneField(
+            Employee,
+            on_delete=models.CASCADE
+            )
+        
+        offer_letter_issued = models.BooleanField(default=False)
+        documents_verified = models.BooleanField(default=False)
+        email_created = models.BooleanField(default=False)
+        laptop_assigned = models.BooleanField(default=False)
+        id_card_issued = models.BooleanField(default=False)
+        training_completed = models.BooleanField(default=False)
+
+        exit_initiated = models.BooleanField(default=False)
+        assets_returned = models.BooleanField(default=False)
+        fnf_completed = models.BooleanField(default=False)
+        relieving_letter_issued = models.BooleanField(default=False)
+
+        created_at = models.DateTimeField(auto_now_add=True)
+
+        def onboarding_completion(self):
+            completed = sum([
+                self.offer_letter_issued,
+                self.documents_verified,
+                self.email_created,
+                self.laptop_assigned,
+                self.id_card_issued,
+                self.training_completed
+                ])
+            return int((completed / 6) * 100)
+        
+        
+        def __str__(self):
+            return f"{self.asset_code} - {self.asset_name}"
+        
 class EmployeeLifecycle(models.Model):
 
     employee = models.OneToOneField(

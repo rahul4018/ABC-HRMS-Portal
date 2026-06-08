@@ -2,6 +2,8 @@ from django.contrib import admin
 from .models import Attendance
 from .models import Announcement
 from .models import EmployeeDocument
+from .models import EmployeeLifecycle
+admin.site.register(EmployeeLifecycle)
 
 from .models import (
     Department,

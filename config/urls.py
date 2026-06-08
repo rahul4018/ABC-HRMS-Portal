@@ -7,6 +7,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from apps.accounts.views import login_view, logout_view, forgot_password, company_settings
 from apps.dashboard.views import dashboard
 from apps.employees.views import my_profile
+from apps.employees.views import global_search
 
 urlpatterns = [
     # Admin Interface
@@ -47,6 +48,7 @@ urlpatterns = [
     path("notifications/", include("notifications.urls")),
     path("recruitment/", include("recruitment.urls")),
     path('audit/',include('audit.urls')),
+    path("search/", global_search, name="global_search"),
 ]
 
 # Serve User-Uploaded Media Files During Local Sandbox Development

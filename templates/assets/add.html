@@ -1,0 +1,90 @@
+{% extends 'layouts/base.html' %}
+{% block content %}
+
+<div class="row align-items-center justify-content-between mb-4 gy-3">
+    <div class="col-md-auto">
+        <h2 class="fw-bold mb-1">Add Asset Information</h2>
+        <p class="text-muted mb-0">
+            Register new hardware, machinery, or corporate equipment into the inventory management module
+        </p>
+    </div>
+    <div class="col-md-auto">
+        <a href="{% url 'asset_list' %}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i> Back to Asset List
+        </a>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm max-width-800">
+    <div class="card-header bg-light py-3 border-bottom-0">
+        <h5 class="mb-0 fw-semibold text-dark">Asset Parameters</h5>
+    </div>
+    
+    <div class="card-body p-4">
+        <form method="POST" autocomplete="off">
+            {% csrf_token %}
+            
+            {% if form.non_field_errors %}
+            <div class="alert alert-danger shadow-sm mb-4">
+                {% for error in form.non_field_errors %}
+                    <span class="small d-block fw-medium">{{ error }}</span>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <div class="row g-3">
+                {% for field in form %}
+                <div class="col-md-6 mb-2">
+                    <label for="{{ field.id_for_label }}" class="form-label text-dark fw-semibold small mb-1">
+                        {{ field.label }}
+                        {% if field.field.required %}<span class="text-danger">*</span>{% endif %}
+                    </label>
+                    
+                    <div>
+                        {# Injecting explicit Bootstrap control styles conditionally dynamically #}
+                        {% if field.field.widget.input_type == "checkbox" %}
+                            <div class="form-check pt-1">
+                                {{ field }}
+                                <label class="form-check-label text-muted small" for="{{ field.id_for_label }}">
+                                    Confirm active parameter option
+                                </label>
+                            </div>
+                        {% else %}
+                            {# Appending standard Bootstrap class selectors #}
+                            <input type="{{ field.field.widget.input_type|default:'text' }}" 
+                                   name="{{ field.html_name }}" 
+                                   id="{{ field.id_for_label }}"
+                                   value="{{ field.value|default:'' }}"
+                                   class="form-control {% if field.errors %}is-invalid{% endif %}" 
+                                   placeholder="Enter {{ field.label|lower }}">
+                        {% endif %}
+                        
+                        {% if field.help_text %}
+                        <div class="form-text text-muted small">{{ field.help_text }}</div>
+                        {% endif %}
+                        
+                        {% if field.errors %}
+                        <div class="invalid-feedback fw-medium small">
+                            {{ field.errors.as_text }}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <hr class="my-4 text-muted opacity-25">
+
+            <div class="d-flex align-items-center justify-content-end gap-2">
+                <a href="{% url 'asset_list' %}" class="btn btn-light px-4">
+                    Cancel
+                </a>
+                <button type="submit" class="btn btn-success px-4 fw-medium">
+                    <i class="bi bi-check-lg me-1"></i> Save Asset
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

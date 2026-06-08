@@ -5,6 +5,7 @@ from datetime import date
 from datetime import datetime
 from django.http import HttpResponse
 from reportlab.pdfgen import canvas
+from django.utils import timezone
 
 from django.shortcuts import (
     render,
@@ -17,6 +18,26 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from reportlab.lib.enums import TA_CENTER
 from reportlab.lib.styles import ParagraphStyle
+from apps.leave.models import Leave
+from .models import Asset
+from .forms import AssetForm
+from apps.payslips.models import Payslip
+
+from .models import (
+    Employee,
+    Department,
+    Attendance,
+    Announcement,
+    EmployeeDocument,
+    Asset,
+    EmployeeLifecycle
+)
+
+from apps.employees.models import Attendance
+
+from apps.employees.models import EmployeeDocument
+
+
 from django.db.models import Count, Q
 
 from django.http import HttpResponse
@@ -29,6 +50,7 @@ from apps.leave.models import Leave
 from apps.payslips.models import Payslip
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.pagesizes import A4
+from apps.leave.models import Leave
 
 from .models import (
     Employee,
@@ -54,6 +76,14 @@ from reportlab.platypus import (
     Spacer,
     Paragraph,
     Image
+)
+
+from reportlab.platypus import (
+    SimpleDocTemplate,
+    Paragraph,
+    Spacer,
+    Table,
+    TableStyle
 )
 
 from reportlab.lib.styles import getSampleStyleSheet
@@ -222,16 +252,145 @@ def export_employees_csv(request):
 
 
 @login_required
-@role_required(['SUPERVISOR', 'SUPERVISOR'])
+@role_required(['SUPERVISOR'])  # Cleaned up the duplicate role declaration
 def employee_detail(request, pk):
-
     employee = get_object_or_404(
         Employee,
         pk=pk
     )
 
+    # Profile Completion Logic
+    profile_fields = [
+        employee.phone,
+        employee.address,
+        employee.date_of_birth,
+        employee.gender,
+        employee.bank_name,
+        employee.account_number,
+        employee.pan_number,
+        employee.aadhaar_number,
+        employee.emergency_contact_name,
+        employee.emergency_contact_number,
+    ]
+
+    completed_fields = sum(
+        1 for field in profile_fields
+        if field is not None and str(field).strip() != ""
+    )
+
+    total_fields = len(profile_fields)
+
+    completion_percentage = (
+        int((completed_fields / total_fields) * 100)
+        if total_fields > 0 else 0
+    )
+    attendance_count = Attendance.objects.filter(
+            employee=employee
+            ).count()
+    document_count = EmployeeDocument.objects.filter(
+        employee=employee
+        ).count()
+    payslip_count = Payslip.objects.filter(
+        employee=employee
+        ).count()
+    recent_leaves = Leave.objects.filter(
+        employee=employee
+        ).order_by('-applied_at')[:5]
+    leave_count = Leave.objects.filter(
+        employee=employee
+        ).count()
+    approved_leave_count = Leave.objects.filter(
+        employee=employee,
+        status='APPROVED'
+        ).count()
+    pending_leave_count = Leave.objects.filter(
+        employee=employee,
+        status='PENDING'
+        ).count()
+    
+    asset_count = Asset.objects.filter(
+        assigned_to=employee
+        ).count()
+    lifecycle = EmployeeLifecycle.objects.filter(
+        employee=employee
+        ).first()
+
+    timeline = []
+    for attendance in Attendance.objects.filter(
+        employee=employee
+        ).order_by('-date')[:5]:
+
+        timeline.append({
+            'date': attendance.date,
+            'event': 'Attendance Marked',
+            'description': attendance.status
+            })
+        for document in EmployeeDocument.objects.filter(
+            employee=employee
+            ).order_by('-uploaded_at')[:5]:
+
+            timeline.append({
+                'date': document.uploaded_at,
+                'event': 'Document Uploaded',
+                'description': document.title
+                })
+            
+            for payslip in Payslip.objects.filter(
+                employee=employee
+                ).order_by('-generated_at')[:5]:
+
+                timeline.append({
+                    'date': payslip.generated_at,
+                    'event': 'Payslip Generated',
+                    'description': f"{payslip.month} {payslip.year}"
+                    })
+                
+                for leave in Leave.objects.filter(
+                    employee=employee
+                    ).order_by('-applied_at')[:5]:
+
+                    timeline.append({
+                        'date': leave.applied_at,
+                        'event': 'Leave Applied',
+                        'description': leave.get_leave_type_display()})
+                    
+                    timeline = sorted(
+                        timeline,
+                        key=lambda x: x['date'],
+                        reverse=True
+                        )[:15]
+                       
+
+    # Context Data Fetching (Matches the updated 360 UI Template)
     context = {
-        'employee': employee
+        'employee': employee,
+        'timeline': timeline,
+        'lifecycle': lifecycle,
+        'asset_count': asset_count,
+        'completion_percentage': completion_percentage,
+        'attendance_count': attendance_count,
+        'document_count': document_count,
+        'recent_leaves': recent_leaves,
+        'leave_count': leave_count,
+        'approved_leave_count': approved_leave_count,
+        'pending_leave_count': pending_leave_count,
+        'payslip_count': payslip_count,
+        
+        'recent_attendance': Attendance.objects.filter(
+            employee=employee
+        ).order_by('-date')[:10],  # Added sorting by recent date if applicable
+
+        'recent_documents': EmployeeDocument.objects.filter(
+            employee=employee
+        )[:10],
+
+        'recent_payslips': Payslip.objects.filter(
+            employee=employee
+        ).order_by('-year', '-id')[:5],  # Ensures chronological order for stats
+
+        'recent_leaves': Leave.objects.filter(
+            employee=employee
+        ).order_by('-id')[:5],  # Added Missing Section 3: Leave Summary
     }
 
     return render(
@@ -344,6 +503,189 @@ def employee_delete(request, pk):
     return redirect(
         'employee_list'
     )
+@login_required
+def employee_profile_pdf(request, pk):
+    employee = get_object_or_404(
+        Employee,
+        pk=pk
+    )
+
+    response = HttpResponse(
+        content_type='application/pdf'
+    )
+
+    response[
+        'Content-Disposition'
+    ] = (
+        f'attachment; filename="Employee_{employee.employee_id}.pdf"'
+    )
+
+    doc = SimpleDocTemplate(
+        response,
+        rightMargin=30,
+        leftMargin=30,
+        topMargin=30,
+        bottomMargin=20
+    )
+
+    styles = getSampleStyleSheet()
+    elements = []
+
+    # ==========================================
+    # COMPANY LOGO
+    # ==========================================
+    logo_path = os.path.join(
+        settings.BASE_DIR,
+        'static',
+        'images',
+        'logo.png'
+    )
+
+    if os.path.exists(logo_path):
+        logo = Image(
+            logo_path,
+            width=140,
+            height=70
+        )
+        logo.hAlign = 'CENTER'
+        elements.append(logo)
+
+    # ==========================================
+    # COMPANY HEADER
+    # ==========================================
+    title_style = ParagraphStyle(
+        'CompanyTitle',
+        parent=styles['Title'],
+        alignment=1
+    )
+
+    normal_center = ParagraphStyle(
+        'NormalCenter',
+        parent=styles['Normal'],
+        alignment=1
+    )
+
+    elements.append(
+        Paragraph(
+            "SKILL CHECK HUB IT SERVICES PVT. LTD.",
+            title_style
+        )
+    )
+
+    elements.append(
+        Paragraph(
+            "Bengaluru, Karnataka - 560076",
+            normal_center
+        )
+    )
+
+    elements.append(
+        Paragraph(
+            "hr@skillcheckhub.com",
+            normal_center
+        )
+    )
+
+    elements.append(
+        Spacer(1, 15)
+    )
+
+    elements.append(
+        Paragraph(
+            "<b>EMPLOYEE PROFILE REPORT</b>",
+            title_style
+        )
+    )
+
+    elements.append(
+        Spacer(1, 20)
+    )
+
+    # ==========================================
+    # PRIVACY COMPLIANCE MASKING
+    # ==========================================
+    raw_aadhaar = str(employee.aadhaar_number).strip() if employee.aadhaar_number else ""
+    if raw_aadhaar and raw_aadhaar != "-":
+        # Format display securely (Masking first 8 characters, showing final 4)
+        clean_aadhaar = raw_aadhaar.replace(" ", "").replace("-", "")
+        if len(clean_aadhaar) >= 4:
+            masked_aadhaar = f"XXXX-XXXX-{clean_aadhaar[-4:]}"
+        else:
+            masked_aadhaar = "[Aadhaar Omitted]"
+    else:
+        masked_aadhaar = "-"
+
+    # ==========================================
+    # EMPLOYEE DATA TABLE
+    # ==========================================
+    data = [
+        ["Employee ID", employee.employee_id],
+        ["Email", employee.user.email],
+        ["Department", str(employee.department) if employee.department else "-"],
+        ["Designation", employee.designation],
+        ["Phone", employee.phone or "-"],
+        ["Location", employee.location or "-"],
+        ["Date of Birth", employee.date_of_birth or "-"],
+        ["Gender", employee.gender or "-"],
+        ["Joining Date", str(employee.joining_date)],
+        ["Employment Type", employee.employment_type or "-"],
+        ["Work Mode", employee.work_mode or "-"],
+        ["Reporting Manager", employee.reporting_manager or "-"],
+        ["Salary", f"₹ {employee.salary}"],
+        ["PAN Number", employee.pan_number or "-"],
+        ["Aadhaar Number", masked_aadhaar],
+        ["Passport Number", employee.passport_number or "-"],
+        ["PF Number", employee.pf_number or "-"],
+        ["ESI Number", employee.esi_number or "-"],
+        ["Bank Name", employee.bank_name or "-"],
+        ["Account Number", employee.account_number or "-"],
+        ["Emergency Contact", employee.emergency_contact_name or "-"],
+        ["Emergency Number", employee.emergency_contact_number or "-"],
+        ["Emergency Relation", employee.emergency_contact_relation or "-"],
+        ["Address", employee.address or "-"]
+    ]
+
+    table = Table(
+        data,
+        colWidths=[180, 320]
+    )
+
+    table.setStyle(
+        TableStyle([
+            ('GRID', (0, 0), (-1, -1), 1, colors.black),
+            ('BACKGROUND', (0, 0), (0, -1), colors.lightgrey),
+            ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            ('ROWBACKGROUNDS', (1, 0), (-1, -1), [colors.white, colors.whitesmoke]),
+        ])
+    )
+
+    elements.append(table)
+    elements.append(Spacer(1, 20))
+
+    # ==========================================
+    # FOOTER
+    # ==========================================
+    elements.append(
+        Paragraph(
+            f"Generated On: {timezone.now().strftime('%d-%b-%Y %I:%M %p')}",
+            styles['Italic']
+        )
+    )
+
+    elements.append(
+        Spacer(1, 10)
+    )
+
+    elements.append(
+        Paragraph(
+            "This is a system generated employee profile and does not require signature.",
+            styles['Italic']
+        )
+    )
+
+    doc.build(elements)
+    return response
 
 
 # ==========================================
@@ -1387,3 +1729,112 @@ def send_back_document(request, pk):
     
     messages.success(request, 'Document sent back for correction.')
     return redirect('document_list')
+
+@login_required
+def global_search(request):
+    query = request.GET.get('q', '').strip()
+
+    # Initialize empty QuerySets using .none()
+    employees = Employee.objects.none()
+    payslips = Payslip.objects.none()
+    documents = EmployeeDocument.objects.none()
+    attendance = Attendance.objects.none()
+    leaves = Leave.objects.none()
+
+    if query:
+        # Search employees by ID, user email, or designation
+        employees = Employee.objects.filter(
+            Q(employee_id__icontains=query) |
+            Q(user__email__icontains=query) |
+            Q(designation__icontains=query)
+        )[:10]
+
+        # Search payslips by month name
+        payslips = Payslip.objects.filter(
+            Q(month__icontains=query)
+        )[:10]
+
+        # Search documents by title
+        documents = EmployeeDocument.objects.filter(
+            Q(title__icontains=query)
+        )[:10]
+
+        # Search attendance records by status string (e.g., 'PRESENT')
+        attendance = Attendance.objects.filter(
+            Q(status__icontains=query)
+        )[:10]
+
+        # Search leave requests by status string (e.g., 'APPROVED')
+        leaves = Leave.objects.filter(
+    Q(status__icontains=query)
+)[:10]
+
+    return render(
+        request,
+        'search/results.html',
+        {
+            'query': query,
+            'employees': employees,
+            'payslips': payslips,
+            'documents': documents,
+            'attendance': attendance,
+            'leaves': leaves,
+        }
+    )
+
+@login_required
+def asset_list(request):
+
+    assets = Asset.objects.select_related(
+        'assigned_to'
+    ).all()
+
+    return render(
+        request,
+        'assets/list.html',
+        {'assets': assets}
+    )
+
+
+@login_required
+def asset_add(request):
+
+    form = AssetForm()
+
+    if request.method == 'POST':
+
+        form = AssetForm(request.POST)
+
+        if form.is_valid():
+
+            form.save()
+
+            messages.success(
+                request,
+                'Asset created successfully.'
+            )
+
+            return redirect(
+                'asset_list'
+            )
+
+    return render(
+        request,
+        'assets/add.html',
+        {'form': form}
+    )
+
+
+@login_required
+def asset_detail(request, pk):
+
+    asset = get_object_or_404(
+        Asset,
+        pk=pk
+    )
+
+    return render(
+        request,
+        'assets/detail.html',
+        {'asset': asset}
+    )

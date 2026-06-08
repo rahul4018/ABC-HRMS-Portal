@@ -52,6 +52,9 @@
                 <a href="/documents/" class="list-group-item">
                     <i class="bi bi-folder2-open me-2"></i> Documents
                 </a>
+                <a href="{% url 'asset_list' %}" class="list-group-item">
+                    <i class="bi bi-laptop me-2"></i> Assets
+                </a>
                 <a href="/payslips/" class="list-group-item">
                     <i class="bi bi-wallet2 me-2"></i> Payslips
                 </a>
@@ -92,6 +95,19 @@
                     </div>
 
                     {% if request.user.is_authenticated %}
+                    <form action="{% url 'global_search' %}"
+      method="GET"
+      class="d-flex me-3">
+
+    <input
+        type="search"
+        name="q"
+        class="form-control"
+        placeholder="Search employees, payslips, documents..."
+        style="width:320px;"
+    >
+
+</form>
                     <div class="d-flex align-items-center gap-3">
                         <a href="{% url 'notifications' %}" class="btn btn-light position-relative rounded-circle">
                             <i class="bi bi-bell-fill"></i>

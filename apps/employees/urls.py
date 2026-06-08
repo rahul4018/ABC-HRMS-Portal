@@ -9,6 +9,10 @@ from .views import (
     employee_list,
     employee_detail,
     employee_add,
+    employee_profile_pdf,
+    asset_list,
+    asset_add,
+    asset_detail,
     employee_edit,
     employee_delete,
     my_profile,
@@ -223,5 +227,27 @@ urlpatterns = [
         delete_document,
         name='delete_document'
     ),
+    path(
+        'employee/<int:pk>/profile-pdf/',
+        employee_profile_pdf,
+                name='employee_profile_pdf'
+    ),
+    path(
+    'assets/',
+    asset_list,
+    name='asset_list'
+),
+
+path(
+    'assets/add/',
+    asset_add,
+    name='asset_add'
+),
+
+path(
+    'assets/<int:pk>/',
+    asset_detail,
+    name='asset_detail'
+),
 
 ]
