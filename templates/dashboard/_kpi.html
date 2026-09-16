@@ -1,0 +1,18 @@
+<div class="col-12 col-sm-6 col-xl-3">
+  <div class="sc-kpi-card card h-100">
+    <div class="card-body">
+      <div class="d-flex align-items-start justify-content-between gap-3">
+        <div class="min-w-0">
+          <div class="sc-kpi-label">{{ title }}</div>
+          <div class="sc-kpi-value mt-2">{% if prefix %}{{ prefix }}{% endif %}{{ value }}{% if suffix %}{{ suffix }}{% endif %}</div>
+        </div>
+        <div class="sc-kpi-icon sc-kpi-{{ color|default:'primary' }}">
+          <i class="bi bi-{{ icon }}"></i>
+        </div>
+      </div>
+      {% if helper %}
+        <div class="sc-kpi-helper mt-2">{{ helper }}</div>
+      {% endif %}
+    </div>
+  </div>
+</div>

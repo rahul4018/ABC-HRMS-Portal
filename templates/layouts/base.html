@@ -4,161 +4,265 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SkillCheckHub HRMS</title>
-    
+    <meta name="theme-color" content="#0f172a">
+    <title>{% block title %}ABC HRMS Portal{% endblock %} | ABC HRMS Portal HRMS</title>
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
-    
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/enterprise_shell.css' %}">
+    {% block extra_css %}{% endblock %}
 </head>
 <body>
+<a class="sc-skip-link" href="#main-content">Skip to main content</a>
 
-    <div class="d-flex" id="wrapper">
+<div class="sc-app" id="wrapper">
+    <div class="sc-mobile-overlay" id="mobileSidebarOverlay" aria-hidden="true"></div>
 
-        <aside id="sidebar-wrapper">
-            <div class="sidebar-heading text-center py-4">
-                <h3 class="text-white fw-bold mb-1">SkillCheckHub</h3>
-                <small class="text-secondary">Workforce Management</small>
+    <aside id="sidebar-wrapper" class="sc-sidebar" aria-label="Primary navigation">
+        <div class="sc-sidebar-brand">
+            <a href="/dashboard/" class="sc-brand" aria-label="ABC HRMS Portal dashboard">
+                <span class="sc-brand-mark" aria-hidden="true">SC</span>
+                <span class="sc-brand-copy">
+                    <strong>ABC HRMS Portal</strong>
+                    <small>Workforce Management</small>
+                </span>
+            </a>
+            <button type="button" class="sc-icon-btn sc-sidebar-collapse" id="sidebarCollapseToggle" aria-label="Collapse navigation" title="Collapse navigation">
+                <i class="bi bi-layout-sidebar-inset"></i>
+            </button>
+        </div>
+
+        <nav class="sc-sidebar-nav" id="sidebarNav" tabindex="0" aria-label="ABC HRMS Portal navigation">
+            <div class="sc-nav-primary">
+                <a href="/dashboard/" class="sc-nav-link" data-nav-path="/dashboard/">
+                    <i class="bi bi-grid-1x2"></i><span>Dashboard</span>
+                </a>
             </div>
 
-            <div class="list-group list-group-flush">
-                <a href="{% url 'dashboard' %}" class="list-group-item">
-                    <i class="bi bi-grid-1x2-fill me-2"></i> Dashboard
-                </a>
-
-                {% if request.user.role == 'SUPERVISOR' %}
-                    <div class="sidebar-section">WORKFORCE</div>
-                    <a href="/employees/" class="list-group-item">
-                        <i class="bi bi-people-fill me-2"></i> Employees
-                    </a>
-                    <a href="/departments/" class="list-group-item">
-                        <i class="bi bi-building me-2"></i> Departments
-                    </a>
-                    <a href="{% url 'requirement_list' %}" class="list-group-item">
-                        <i class="bi bi-person-workspace me-2"></i> Recruitment
-                    </a>
-                {% endif %}
-
-                <div class="sidebar-section">HR OPERATIONS</div>
-                <a href="/attendance/" class="list-group-item">
-                    <i class="bi bi-calendar-check me-2"></i> Attendance
-                </a>
-                <a href="/leave/" class="list-group-item">
-                    <i class="bi bi-calendar2-week me-2"></i> Leave
-                </a>
-                <a href="/appraisal/" class="list-group-item">
-                    <i class="bi bi-clipboard-data me-2"></i> PMR
-                </a>
-                <a href="/documents/" class="list-group-item">
-                    <i class="bi bi-folder2-open me-2"></i> Documents
-                </a>
-                <a href="{% url 'asset_list' %}" class="list-group-item">
-                    <i class="bi bi-laptop me-2"></i> Assets
-                </a>
-                <a href="/payslips/" class="list-group-item">
-                    <i class="bi bi-wallet2 me-2"></i> Payslips
-                </a>
-                <a href="{% url 'notifications' %}" class="list-group-item">
-                    <i class="bi bi-bell me-2"></i> Notifications
-                </a>
-
-                {% if request.user.role == 'SUPERVISOR' %}
-                    <a href="/promotions/" class="list-group-item">
-                        <i class="bi bi-arrow-up-circle me-2"></i> Promotions
-                    </a>
-                    <a href="{% url 'resignation_list' %}" class="list-group-item">
-                        <i class="bi bi-box-arrow-left me-2"></i> Resignations
-                    </a>
-
-                    <div class="sidebar-section">ANALYTICS</div>
-                    <a href="/reports/" class="list-group-item">
-                        <i class="bi bi-bar-chart-line me-2"></i> Reports
-                    </a>
-                    <a href="{% url 'audit_list' %}" class="list-group-item">
-                        <i class="bi bi-clock-history me-2"></i> Audit Logs
-                    </a>
-                {% else %}
-                    <a href="/resignation/" class="list-group-item">
-                        <i class="bi bi-box-arrow-left me-2"></i> Resignation
-                    </a>
-                {% endif %}
-            </div>
-        </aside>
-
-        <main id="page-content-wrapper">
-            
-            <nav class="navbar px-4 bg-white border-bottom">
-                <div class="container-fluid">
-                    <div>
-                        <h4 class="mb-0 fw-bold">SkillCheckHub HRMS</h4>
-                        <small class="text-muted">Workforce Management Platform</small>
-                    </div>
-
-                    {% if request.user.is_authenticated %}
-                    <form action="{% url 'global_search' %}"
-      method="GET"
-      class="d-flex me-3">
-
-    <input
-        type="search"
-        name="q"
-        class="form-control"
-        placeholder="Search employees, payslips, documents..."
-        style="width:320px;"
-    >
-
-</form>
-                    <div class="d-flex align-items-center gap-3">
-                        <a href="{% url 'notifications' %}" class="btn btn-light position-relative rounded-circle">
-                            <i class="bi bi-bell-fill"></i>
-                            {% if unread_notifications_count > 0 %}
-                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                                    {{ unread_notifications_count }}
-                                </span>
-                            {% endif %}
+            {% if request.user.is_authenticated %}
+                {% if request.user.access_role == 'EMPLOYEE' or request.user.access_role == 'CONTRACTOR' %}
+                    <details class="sc-nav-section" data-nav-section="my-workspace" open>
+                        <summary>MY WORKSPACE</summary>
+                        <a href="{% url 'my_profile' %}" class="sc-nav-link" data-nav-path="/employees/my-profile/">
+                            <i class="bi bi-person-vcard"></i><span>My Profile</span>
                         </a>
+                        <a href="/attendance/" class="sc-nav-link" data-nav-path="/attendance/">
+                            <i class="bi bi-clock-history"></i><span>My Attendance</span>
+                        </a>
+                        <a href="/leave/" class="sc-nav-link" data-nav-path="/leave/">
+                            <i class="bi bi-calendar2-check"></i><span>My Leave</span>
+                        </a>
+                        <a href="/payslips/" class="sc-nav-link" data-nav-path="/payslips/">
+                            <i class="bi bi-receipt"></i><span>My Payslips</span>
+                        </a>
+                        <a href="/documents/" class="sc-nav-link" data-nav-path="/documents/">
+                            <i class="bi bi-file-earmark-text"></i><span>My Documents</span>
+                        </a>
+                        <a href="/employees/assets/" class="sc-nav-link" data-nav-path="/employees/assets/">
+                            <i class="bi bi-laptop"></i><span>My Assets</span>
+                        </a>
+                        <a href="/workforce/requests/" class="sc-nav-link" data-nav-path="/workforce/requests/">
+                            <i class="bi bi-inbox"></i><span>My Requests</span>
+                        </a>
+                        <a href="/notifications/" class="sc-nav-link" data-nav-path="/notifications/">
+                            <i class="bi bi-bell"></i><span>Notifications</span>
+                        </a>
+                    </details>
+                    <details class="sc-nav-section" data-nav-section="my-exit" open>
+                        <summary>EXIT &amp; SEPARATION</summary>
+                        <a href="/resignation/" class="sc-nav-link" data-nav-path="/resignation/">
+                            <i class="bi bi-door-open"></i><span>My Resignation</span>
+                        </a>
+                        <a href="/workforce/exit/" class="sc-nav-link" data-nav-path="/workforce/exit/">
+                            <i class="bi bi-file-earmark-check"></i><span>My Exit Status</span>
+                        </a>
+                    </details>
+                {% else %}
+                    <details class="sc-nav-section" data-nav-section="workforce" open>
+                        <summary>WORKFORCE</summary>
+                        <a href="/employees/" class="sc-nav-link" data-nav-path="/employees/">
+                            <i class="bi bi-people"></i><span>Employees</span>
+                        </a>
+                        <a href="/workforce/" class="sc-nav-link" data-nav-path="/workforce/">
+                            <i class="bi bi-speedometer2"></i><span>Workforce Center</span>
+                        </a>
+                        <a href="/workforce/organization/" class="sc-nav-link" data-nav-path="/workforce/organization/">
+                            <i class="bi bi-diagram-3"></i><span>Organization</span>
+                        </a>
+                        <a href="/departments/" class="sc-nav-link" data-nav-path="/departments/">
+                            <i class="bi bi-building"></i><span>Departments</span>
+                        </a>
+                    </details>
 
-                        <span class="badge bg-success px-3 py-2">
-                            {{ request.user.role }}
-                        </span>
+                    <details class="sc-nav-section" data-nav-section="talent" open>
+                        <summary>TALENT</summary>
+                        <a href="/recruitment/" class="sc-nav-link" data-nav-path="/recruitment/">
+                            <i class="bi bi-person-plus"></i><span>Recruitment</span>
+                        </a>
+                        <a href="/appraisal/" class="sc-nav-link" data-nav-path="/appraisal/">
+                            <i class="bi bi-clipboard-check"></i><span>Performance</span>
+                        </a>
+                        <a href="/promotions/" class="sc-nav-link" data-nav-path="/promotions/">
+                            <i class="bi bi-graph-up-arrow"></i><span>Promotions &amp; Transfers</span>
+                        </a>
+                    </details>
 
-                        <div class="dropdown">
-                            <button class="btn btn-light dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="bi bi-person-circle me-2"></i> {{ request.user.email }}
-                            </button>
-                            <ul class="dropdown-menu dropdown-menu-end">
-                                <li><a class="dropdown-item" href="{% url 'my_profile' %}">My Profile</a></li>
-                                {% if request.user.role == 'SUPERVISOR' %}
-                                    <li><a class="dropdown-item" href="{% url 'company_settings' %}">Settings</a></li>
-                                {% endif %}
-                                <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item text-danger" href="{% url 'logout' %}">Logout</a></li>
-                            </ul>
-                        </div>
-                    </div>
+                    <details class="sc-nav-section" data-nav-section="attendance" open>
+                        <summary>TIME &amp; ATTENDANCE</summary>
+                        <a href="/attendance/" class="sc-nav-link" data-nav-path="/attendance/">
+                            <i class="bi bi-clock-history"></i><span>Attendance</span>
+                        </a>
+                        <a href="/leave/" class="sc-nav-link" data-nav-path="/leave/">
+                            <i class="bi bi-calendar2-check"></i><span>Leave</span>
+                        </a>
+                        <a href="/payslips/" class="sc-nav-link" data-nav-path="/payslips/">
+                            <i class="bi bi-receipt"></i><span>Payslips</span>
+                        </a>
+                    </details>
+
+                    <details class="sc-nav-section" data-nav-section="people" open>
+                        <summary>PEOPLE OPERATIONS</summary>
+                        <a href="/documents/" class="sc-nav-link" data-nav-path="/documents/">
+                            <i class="bi bi-file-earmark-text"></i><span>Documents</span>
+                        </a>
+                        <a href="/employees/assets/" class="sc-nav-link" data-nav-path="/employees/assets/">
+                            <i class="bi bi-laptop"></i><span>Assets</span>
+                        </a>
+                        <a href="/workforce/requests/" class="sc-nav-link" data-nav-path="/workforce/requests/">
+                            <i class="bi bi-inbox"></i><span>HR Requests</span>
+                        </a>
+                        <a href="/notifications/" class="sc-nav-link" data-nav-path="/notifications/">
+                            <i class="bi bi-bell"></i><span>Notifications</span>
+                        </a>
+                    </details>
+
+                    <details class="sc-nav-section" data-nav-section="performance" open>
+                        <summary>PERFORMANCE &amp; GROWTH</summary>
+                        <a href="/appraisal/" class="sc-nav-link" data-nav-path="/appraisal/">
+                            <i class="bi bi-bullseye"></i><span>Goals &amp; Reviews</span>
+                        </a>
+                        <a href="/promotions/" class="sc-nav-link" data-nav-path="/promotions/">
+                            <i class="bi bi-award"></i><span>Promotions</span>
+                        </a>
+                    </details>
+
+                    <details class="sc-nav-section" data-nav-section="exit" open>
+                        <summary>EXIT &amp; SEPARATION</summary>
+                        <a href="/workforce/exit/" class="sc-nav-link" data-nav-path="/workforce/exit/">
+                            <i class="bi bi-person-x"></i><span>Exit &amp; Separation</span>
+                        </a>
+                        <a href="/resignation/" class="sc-nav-link" data-nav-path="/resignation/">
+                            <i class="bi bi-door-open"></i><span>Resignations</span>
+                        </a>
+                    </details>
+
+                    <details class="sc-nav-section" data-nav-section="reports" open>
+                        <summary>REPORTS &amp; ANALYTICS</summary>
+                        <a href="/reports/" class="sc-nav-link" data-nav-path="/reports/">
+                            <i class="bi bi-bar-chart-line"></i><span>Reports</span>
+                        </a>
+                        <a href="/audit/" class="sc-nav-link" data-nav-path="/audit/">
+                            <i class="bi bi-shield-check"></i><span>Audit Log</span>
+                        </a>
+                    </details>
+
+                    {% if request.user.is_superuser or request.user.access_role == 'MASTER_ADMIN' %}
+                        <details class="sc-nav-section" data-nav-section="admin" open>
+                            <summary>ADMINISTRATION</summary>
+                            <a href="/settings/" class="sc-nav-link" data-nav-path="/settings/">
+                                <i class="bi bi-gear"></i><span>Company Settings</span>
+                            </a>
+                        </details>
+                    {% endif %}
+                {% endif %}
+            {% endif %}
+        </nav>
+
+        <div class="sc-sidebar-footer">
+            <a href="{% url 'logout' %}" class="sc-nav-link sc-nav-footer-link">
+                <i class="bi bi-box-arrow-right"></i><span>Sign out</span>
+            </a>
+        </div>
+    </aside>
+
+    <main id="page-content-wrapper" class="sc-main-shell">
+        <nav class="sc-topbar navbar" aria-label="Workspace navigation">
+            <div class="sc-topbar-left">
+                <button type="button" class="sc-mobile-menu-btn sc-icon-btn" id="sidebarToggleButton" aria-label="Open navigation menu" aria-controls="sidebar-wrapper" aria-expanded="false">
+                    <i class="bi bi-list"></i>
+                </button>
+                <div class="sc-workspace-mark" aria-hidden="true"><i class="bi bi-grid-1x2"></i></div>
+                <div class="sc-workspace-copy">
+                    {% if request.user.portal_role == 'ADMIN' %}
+                        <strong>Administration Workspace</strong><small>System control and platform management</small>
+                    {% elif request.user.portal_role == 'FOUNDER' %}
+                        <strong>Founder Workspace</strong><small>Organization overview and key decisions</small>
+                    {% elif request.user.portal_role == 'CEO' %}
+                        <strong>Executive Workspace</strong><small>Company overview and strategic insights</small>
+                    {% elif request.user.portal_role == 'CFO' %}
+                        <strong>Finance Workspace</strong><small>Payroll, costs and financial operations</small>
+                    {% elif request.user.portal_role == 'HR' %}
+                        <strong>HR Workspace</strong><small>People, payroll and workforce operations</small>
+                    {% else %}
+                        <strong>My Workspace</strong><small>Attendance, leave, payslips and documents</small>
                     {% endif %}
                 </div>
-            </nav>
+            </div>
 
-            {% if messages %}
-            <div class="container-fluid mt-3">
-                {% for message in messages %}
-                    <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show" role="alert">
-                        {{ message }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                {% endfor %}
+            {% if request.user.is_authenticated %}
+            <div class="sc-topbar-right">
+                <form class="sc-search-form" action="{% url 'global_search' %}" method="get" role="search">
+                    <i class="bi bi-search" aria-hidden="true"></i>
+                    <input type="search" name="q" class="sc-search-input" placeholder="Search employees, documents, payslips..." aria-label="Search ABC HRMS Portal">
+                    <span class="sc-search-shortcut">/</span>
+                </form>
+
+                <a href="{% url 'notifications' %}" class="sc-top-icon-link" title="Notifications" aria-label="Notifications">
+                    <i class="bi bi-bell"></i>
+                    {% if unread_notifications_count > 0 %}<span class="sc-notification-dot">{{ unread_notifications_count }}</span>{% endif %}
+                </a>
+
+                <span class="sc-role-badge">{{ request.user.get_portal_role_display }}</span>
+
+                <div class="dropdown">
+                    <button class="sc-user-menu dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <span class="sc-avatar">{{ request.user.first_name|default:request.user.username|slice:':1'|upper }}</span>
+                        <span class="sc-user-menu-text"><strong>{{ request.user.get_full_name|default:request.user.username }}</strong><small>{{ request.user.get_portal_role_display }}</small></span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end sc-user-dropdown">
+                        <li><a class="dropdown-item" href="{% url 'my_profile' %}"><i class="bi bi-person"></i> My Profile</a></li>
+                        {% if request.user.is_superuser or request.user.portal_role == 'ADMIN' or request.user.portal_role == 'HR' or request.user.portal_role == 'FOUNDER' or request.user.portal_role == 'CEO' or request.user.portal_role == 'CFO' or request.user.role == 'SUPERVISOR' %}
+                        <li><a class="dropdown-item" href="{% url 'company_settings' %}"><i class="bi bi-gear"></i> Settings</a></li>
+                        {% endif %}
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item text-danger" href="{% url 'logout' %}"><i class="bi bi-box-arrow-right"></i> Sign out</a></li>
+                    </ul>
+                </div>
             </div>
             {% endif %}
+        </nav>
 
-            <div class="container-fluid p-4">
-                {% block content %}
-                {% endblock %}
+        {% if messages %}
+        <div class="sc-flash-area">
+            {% for message in messages %}
+            <div class="alert sc-alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show" role="alert">
+                <div class="sc-alert-icon"><i class="bi bi-info-circle"></i></div>
+                <div class="flex-grow-1">{{ message }}</div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
+            {% endfor %}
+        </div>
+        {% endif %}
 
-        </main>
-    </div>
+        <div class="sc-main-content" id="main-content">
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+</div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="{% static 'js/enterprise_shell.js' %}"></script>
+{% block extra_js %}{% endblock %}
 </body>
 </html>

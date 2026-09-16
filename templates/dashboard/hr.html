@@ -1,13 +1,381 @@
 {% extends 'layouts/base.html' %}
 
 {% block content %}
-
-<h2 class="fw-bold mb-4">
-    HR Dashboard
-</h2>
-
-<div class="alert alert-primary">
-    Welcome HR Admin {{ request.user.email }}
+<div class="sc-page-head d-flex justify-content-between align-items-start gap-3 mb-4">
+    <div>
+        <div class="text-primary small fw-semibold text-uppercase mb-1" style="letter-spacing:.08em;">HR Workspace</div>
+        <h2 class="fw-bold mb-1">HR Command Center</h2>
+        <p class="text-muted mb-0">A focused overview of workforce operations, approvals and people data.</p>
+    </div>
+    <span class="badge bg-primary px-3 py-2 rounded-pill flex-shrink-0">HR</span>
 </div>
+
+<!-- Workforce KPIs -->
+<div class="row g-3 mb-4">
+    {% include 'dashboard/_kpi.html' with title='Active Workforce' value=active_employees icon='people-fill' color='primary' helper='Currently active employees' %}
+    {% include 'dashboard/_kpi.html' with title='Present Today' value=present_today icon='person-check-fill' color='success' helper='Attendance marked today' %}
+    {% include 'dashboard/_kpi.html' with title='On Leave' value=on_leave_today icon='calendar2-week-fill' color='info' helper='Approved leave today' %}
+    {% include 'dashboard/_kpi.html' with title='New Joiners' value=new_joiners icon='person-plus-fill' color='warning' helper='Joined this month' %}
+</div>
+
+<!-- Approval KPIs -->
+<div class="row g-3 mb-4">
+    {% include 'dashboard/_kpi.html' with title='Pending Leave' value=pending_leaves icon='clock-history' color='danger' %}
+    {% include 'dashboard/_kpi.html' with title='Pending Documents' value=pending_docs icon='file-earmark-check-fill' color='secondary' %}
+    {% include 'dashboard/_kpi.html' with title='Pending PMR' value=pending_pmrs icon='clipboard2-check-fill' color='dark' %}
+    {% include 'dashboard/_kpi.html' with title='Profile Reviews' value=pending_profile_reviews icon='person-lines-fill' color='primary' helper='Employee profiles awaiting HR action' %}
+</div>
+
+<div class="row g-4 mb-4">
+    <!-- Priority queue -->
+    <div class="col-12 col-xl-8">
+        <div class="card h-100">
+            <div class="card-header bg-white d-flex align-items-center justify-content-between gap-3 py-3">
+                <div>
+                    <h5 class="fw-bold mb-1">Needs Your Attention</h5>
+                    <div class="text-muted small">Priority HR actions from across the platform</div>
+                </div>
+                <span class="badge bg-light text-dark border">Live queue</span>
+            </div>
+            <div class="card-body p-0">
+                {% for item in profile_review_employees %}
+                    <div class="sc-action-row">
+                        <div class="sc-action-icon sc-action-primary"><i class="bi bi-person-check-fill"></i></div>
+                        <div class="flex-grow-1 min-w-0">
+                            <div class="fw-semibold">Profile review: {{ item.user.get_full_name|default:item.user.username }}</div>
+                            <div class="text-muted small">{{ item.employee_id }}{% if item.designation %} · {{ item.designation }}{% endif %}</div>
+                        </div>
+                        <a href="{% url 'profile_review' item.pk %}" class="btn btn-sm btn-outline-primary flex-shrink-0">Review</a>
+                    </div>
+                {% endfor %}
+
+                {% for item in pending_leave_items %}
+                    <div class="sc-action-row">
+                        <div class="sc-action-icon sc-action-warning"><i class="bi bi-calendar2-week-fill"></i></div>
+                        <div class="flex-grow-1 min-w-0">
+                            <div class="fw-semibold">Leave request</div>
+                            <div class="text-muted small">{{ item.employee.user.get_full_name|default:item.employee.user.username }} · {{ item.get_leave_type_display }}</div>
+                        </div>
+                        <a href="/leave/" class="btn btn-sm btn-outline-warning flex-shrink-0">Review</a>
+                    </div>
+                {% endfor %}
+
+                {% for item in pending_document_items %}
+                    <div class="sc-action-row">
+                        <div class="sc-action-icon sc-action-info"><i class="bi bi-file-earmark-text-fill"></i></div>
+                        <div class="flex-grow-1 min-w-0">
+                            <div class="fw-semibold">Document review</div>
+                            <div class="text-muted small">{{ item.employee.user.get_full_name|default:item.employee.user.username }} · {{ item.title }}</div>
+                        </div>
+                        <a href="/documents/" class="btn btn-sm btn-outline-info flex-shrink-0">Review</a>
+                    </div>
+                {% endfor %}
+
+                {% for item in pending_pmr_items %}
+                    <div class="sc-action-row">
+                        <div class="sc-action-icon sc-action-secondary"><i class="bi bi-clipboard2-check-fill"></i></div>
+                        <div class="flex-grow-1 min-w-0">
+                            <div class="fw-semibold">Performance review</div>
+                            <div class="text-muted small">{{ item.employee.user.get_full_name|default:item.employee.user.username }}{% if item.title %} · {{ item.title }}{% endif %}</div>
+                        </div>
+                        <a href="/appraisal/" class="btn btn-sm btn-outline-secondary flex-shrink-0">Review</a>
+                    </div>
+                {% endfor %}
+
+                {% if not profile_review_employees and not pending_leave_items and not pending_document_items and not pending_pmr_items %}
+                    <div class="text-center py-5 px-3">
+                        <div class="sc-empty-icon mx-auto mb-3"><i class="bi bi-check2-circle"></i></div>
+                        <div class="fw-semibold">All caught up</div>
+                        <div class="text-muted small">There are no priority HR actions right now.</div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- HR overview -->
+    <div class="col-12 col-xl-4">
+        <div class="card h-100">
+            <div class="card-header bg-white py-3">
+                <h5 class="fw-bold mb-1">Profile Onboarding</h5>
+                <div class="text-muted small">Employee self-service completion pipeline</div>
+            </div>
+            <div class="card-body">
+                <div class="sc-status-line"><span><span class="sc-dot sc-dot-warning"></span>Profile Pending</span><strong>{{ profile_pending }}</strong></div>
+                <div class="sc-status-line"><span><span class="sc-dot sc-dot-info"></span>Submitted</span><strong>{{ profile_submitted }}</strong></div>
+                <div class="sc-status-line"><span><span class="sc-dot sc-dot-primary"></span>HR Review</span><strong>{{ profile_hr_review }}</strong></div>
+                <div class="sc-status-line"><span><span class="sc-dot sc-dot-success"></span>Approved</span><strong>{{ profile_active }}</strong></div>
+
+                <div class="progress mt-3" style="height:8px;">
+                    <div class="progress-bar bg-primary" role="progressbar" style="width:{% widthratio profile_active total_employees 100 %}%"></div>
+                </div>
+                <div class="d-flex justify-content-between text-muted small mt-2">
+                    <span>Approved profiles</span>
+                    <span>{{ profile_active }}/{{ total_employees }}</span>
+                </div>
+
+                <a href="{% url 'profile_review_list' %}" class="btn btn-primary w-100 mt-4">
+                    <i class="bi bi-person-check me-1"></i> Open Profile Reviews
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <!-- Recent employees -->
+    <div class="col-12 col-xl-7">
+        <div class="card h-100">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center gap-3 py-3">
+                <div>
+                    <h5 class="fw-bold mb-1">Recent Employees</h5>
+                    <div class="text-muted small">Latest workforce additions</div>
+                </div>
+                <a href="/employees/" class="small fw-semibold text-primary">View all</a>
+            </div>
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead>
+                        <tr>
+                            <th>Employee</th>
+                            <th>Department</th>
+                            <th>Joining Date</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for employee in recent_employees %}
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="avatar bg-light text-primary">
+                                        {{ employee.user.first_name|first|upper }}{{ employee.user.last_name|first|upper }}
+                                    </div>
+                                    <div class="min-w-0">
+                                        <div class="fw-semibold text-truncate">{{ employee.user.get_full_name|default:employee.user.username }}</div>
+                                        <div class="text-muted small">{{ employee.employee_id }}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>{{ employee.department|default:'—' }}</td>
+                            <td>{{ employee.joining_date|date:'d M Y' }}</td>
+                            <td><span class="badge {% if employee.status == 'ACTIVE' %}bg-success{% else %}bg-secondary{% endif %}">{{ employee.get_status_display }}</span></td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="4" class="text-center text-muted py-4">No employee records found.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Payroll -->
+    <div class="col-12 col-xl-5">
+        <div class="card h-100">
+            <div class="card-header bg-white py-3">
+                <h5 class="fw-bold mb-1">Payroll Status</h5>
+                <div class="text-muted small">{{ payroll_month }} {{ payroll_year }}</div>
+            </div>
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="text-muted">Processed</span>
+                    <strong>{{ payroll_processed }}/{{ payroll_total }}</strong>
+                </div>
+                <div class="progress mb-4" style="height:10px;">
+                    <div class="progress-bar bg-primary" role="progressbar" style="width:{% widthratio payroll_processed payroll_total 100 %}%"></div>
+                </div>
+                <div class="row g-3">
+                    <div class="col-4"><div class="small text-muted">Gross</div><div class="fw-bold">₹{{ payroll_gross|floatformat:0 }}</div></div>
+                    <div class="col-4"><div class="small text-muted">Deductions</div><div class="fw-bold">₹{{ payroll_deductions|floatformat:0 }}</div></div>
+                    <div class="col-4"><div class="small text-muted">Net</div><div class="fw-bold">₹{{ payroll_net|floatformat:0 }}</div></div>
+                </div>
+                <hr>
+                <div class="d-flex justify-content-between align-items-center">
+                    <span class="text-muted small">Pending payroll</span>
+                    <span class="badge bg-warning text-dark">{{ payroll_pending }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <!-- Probation -->
+    <div class="col-12 col-lg-6">
+        <div class="card h-100">
+            <div class="card-header bg-white py-3">
+                <h5 class="fw-bold mb-1">Probation Due</h5>
+                <div class="text-muted small">Employees whose probation ends within 30 days</div>
+            </div>
+            <div class="card-body">
+                {% for employee in probation_ending %}
+                <div class="d-flex align-items-center justify-content-between gap-3 py-2 border-bottom">
+                    <div class="min-w-0">
+                        <div class="fw-semibold text-truncate">{{ employee.user.get_full_name|default:employee.user.username }}</div>
+                        <div class="text-muted small">{{ employee.designation }} · {{ employee.employee_id }}</div>
+                    </div>
+                    <span class="badge bg-warning text-dark flex-shrink-0">{{ employee.probation_end_date|date:'d M' }}</span>
+                </div>
+                {% empty %}
+                <div class="text-muted small py-3">No probation milestones due in the next 30 days.</div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Birthdays -->
+    <div class="col-12 col-lg-6">
+        <div class="card h-100">
+            <div class="card-header bg-white py-3">
+                <h5 class="fw-bold mb-1">Upcoming Birthdays</h5>
+                <div class="text-muted small">People data for the coming weeks</div>
+            </div>
+            <div class="card-body">
+                {% for employee in upcoming_birthdays %}
+                <div class="d-flex align-items-center justify-content-between gap-3 py-2 border-bottom">
+                    <div class="d-flex align-items-center gap-2 min-w-0">
+                        <div class="avatar bg-light text-primary">🎂</div>
+                        <div class="min-w-0">
+                            <div class="fw-semibold text-truncate">{{ employee.user.get_full_name|default:employee.user.username }}</div>
+                            <div class="text-muted small">{{ employee.date_of_birth|date:'d M' }}</div>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="text-muted small py-3">No upcoming birthdays are available.</div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick actions -->
+<div class="card">
+    <div class="card-header bg-white py-3">
+        <h5 class="fw-bold mb-1">Quick Actions</h5>
+        <div class="text-muted small">Frequently used HR operations</div>
+    </div>
+    <div class="card-body">
+        <div class="row g-2">
+            <div class="col-12 col-sm-6 col-lg-3"><a class="btn btn-primary w-100" href="/employees/"><i class="bi bi-people me-1"></i> Manage Employees</a></div>
+            <div class="col-12 col-sm-6 col-lg-3"><a class="btn btn-outline-primary w-100" href="{% url 'profile_review_list' %}"><i class="bi bi-person-check me-1"></i> Profile Reviews</a></div>
+            <div class="col-12 col-sm-6 col-lg-3"><a class="btn btn-outline-success w-100" href="/leave/"><i class="bi bi-calendar-check me-1"></i> Review Leave</a></div>
+            <div class="col-12 col-sm-6 col-lg-3"><a class="btn btn-outline-dark w-100" href="/documents/"><i class="bi bi-folder2-open me-1"></i> Documents</a></div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .sc-kpi-card {
+        transition: transform .18s ease, box-shadow .18s ease;
+    }
+    .sc-kpi-card:hover {
+        transform: translateY(-2px);
+    }
+    .sc-kpi-label {
+        font-size: .72rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .06em;
+        color: #64748b;
+    }
+    .sc-kpi-value {
+        font-size: 1.85rem;
+        font-weight: 750;
+        line-height: 1;
+        letter-spacing: -.04em;
+    }
+    .sc-kpi-helper {
+        font-size: .74rem;
+        color: #94a3b8;
+    }
+    .sc-kpi-icon {
+        width: 42px;
+        height: 42px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 11px;
+        font-size: 1.1rem;
+        flex-shrink: 0;
+    }
+    .sc-kpi-primary { background: #eff6ff; color: #2563eb; }
+    .sc-kpi-success { background: #ecfdf3; color: #16a34a; }
+    .sc-kpi-info { background: #ecfeff; color: #0891b2; }
+    .sc-kpi-warning { background: #fffbeb; color: #d97706; }
+    .sc-kpi-danger { background: #fef2f2; color: #dc2626; }
+    .sc-kpi-secondary { background: #f1f5f9; color: #475569; }
+    .sc-kpi-dark { background: #e2e8f0; color: #334155; }
+
+    .sc-action-row {
+        display: flex;
+        align-items: center;
+        gap: .75rem;
+        padding: .85rem 1rem;
+        border-bottom: 1px solid #eef2f7;
+    }
+    .sc-action-row:last-child {
+        border-bottom: 0;
+    }
+    .sc-action-icon {
+        width: 36px;
+        height: 36px;
+        flex: 0 0 36px;
+        border-radius: 9px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .sc-action-primary { background: #eff6ff; color: #2563eb; }
+    .sc-action-warning { background: #fffbeb; color: #d97706; }
+    .sc-action-info { background: #ecfeff; color: #0891b2; }
+    .sc-action-secondary { background: #f1f5f9; color: #475569; }
+
+    .sc-status-line {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        padding: .75rem 0;
+        border-bottom: 1px solid #eef2f7;
+    }
+    .sc-status-line:last-of-type {
+        border-bottom: 0;
+    }
+    .sc-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        display: inline-block;
+        margin-right: .5rem;
+    }
+    .sc-dot-warning { background: #f59e0b; }
+    .sc-dot-info { background: #06b6d4; }
+    .sc-dot-primary { background: #2563eb; }
+    .sc-dot-success { background: #16a34a; }
+
+    .sc-empty-icon {
+        width: 46px;
+        height: 46px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #ecfdf3;
+        color: #16a34a;
+        font-size: 1.25rem;
+    }
+
+    @media (max-width: 575.98px) {
+        .sc-action-row {
+            align-items: flex-start;
+            flex-wrap: wrap;
+        }
+        .sc-action-row .btn {
+            margin-left: calc(36px + .75rem);
+        }
+    }
+</style>
 
 {% endblock %}

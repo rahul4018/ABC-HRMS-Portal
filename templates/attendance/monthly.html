@@ -1,0 +1,75 @@
+{% extends 'layouts/base.html' %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-1">Monthly Attendance</h2>
+        <p class="text-muted mb-0">{{ month_name }}</p>
+    </div>
+    <a href="{% url 'attendance_list' %}" class="btn btn-secondary">Back to Records</a>
+</div>
+
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-3 align-items-end">
+            {% if is_manager %}
+            <div class="col-md-5">
+                <label class="form-label fw-semibold">Employee</label>
+                <select name="employee" class="form-select">
+                    {% for item in employees %}
+                    <option value="{{ item.id }}" {% if employee.id == item.id %}selected{% endif %}>{{ item.user.get_full_name|default:item.user.email }} — {{ item.employee_id }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            {% endif %}
+            <div class="col-md-3">
+                <label class="form-label fw-semibold">Month</label>
+                <input type="month" name="month" value="{{ year }}-{{ month|stringformat:'02d' }}" class="form-control">
+            </div>
+            <div class="col-md-2"><button class="btn btn-primary w-100" type="submit">View</button></div>
+        </form>
+    </div>
+</div>
+
+{% if employee %}
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div><h4 class="fw-bold mb-1">{{ employee.user.get_full_name|default:employee.user.email }}</h4><div class="text-muted">{{ employee.employee_id }} · {{ employee.department|default:'-' }} · {{ employee.designation }}</div></div>
+        </div>
+        <div class="row g-3">
+            <div class="col-md-3"><small class="text-muted">Present</small><h4 class="fw-bold text-success">{{ summary.present }}</h4></div>
+            <div class="col-md-3"><small class="text-muted">Half Day</small><h4 class="fw-bold text-warning">{{ summary.half_day }}</h4></div>
+            <div class="col-md-3"><small class="text-muted">Late Days</small><h4 class="fw-bold text-info">{{ summary.late }}</h4></div>
+            <div class="col-md-3"><small class="text-muted">Overtime</small><h4 class="fw-bold">{{ summary.overtime_minutes }} min</h4></div>
+        </div>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered align-middle text-center mb-0">
+                <thead class="table-light"><tr><th style="width:130px">Date</th><th>Day</th><th>Check In</th><th>Check Out</th><th>Hours</th><th>Late</th><th>Overtime</th><th>Status</th></tr></thead>
+                <tbody>
+                {% for item in days %}
+                    <tr>
+                        <td>{{ item.date|date:'d M Y' }}</td>
+                        <td>{{ item.date|date:'D' }}</td>
+                        {% if item.record %}
+                            <td>{{ item.record.check_in|default:'--' }}</td><td>{{ item.record.check_out|default:'--' }}</td><td>{{ item.record.hours_display }}</td><td>{{ item.record.late_display }}</td><td>{{ item.record.overtime_display }}</td>
+                            <td>{% if item.record.status == 'PRESENT' %}<span class="badge bg-success">Present</span>{% elif item.record.status == 'ABSENT' %}<span class="badge bg-danger">Absent</span>{% else %}<span class="badge bg-warning text-dark">Half Day</span>{% endif %}</td>
+                        {% else %}
+                            <td colspan="5" class="text-muted">No attendance record</td><td><span class="badge bg-secondary">Not Recorded</span></td>
+                        {% endif %}
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% else %}
+<div class="alert alert-info">No employee selected.</div>
+{% endif %}
+{% endblock %}

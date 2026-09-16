@@ -1,0 +1,21 @@
+{% extends 'layouts/base.html' %}
+{% block title %}Organization{% endblock %}
+{% block content %}
+<div class="sc-page-head">
+  <div><div class="sc-eyebrow">WORKFORCE</div><h1>Organization</h1><p>Manage the structural master data used across employees, reporting and workforce planning.</p></div>
+</div>
+
+<div class="row g-3 mb-3">
+  <div class="col-6 col-xl-3"><div class="sc-kpi-card"><span>Locations</span><strong>{{ locations|length }}</strong><i class="bi bi-geo-alt"></i></div></div>
+  <div class="col-6 col-xl-3"><div class="sc-kpi-card"><span>Teams</span><strong>{{ teams|length }}</strong><i class="bi bi-people"></i></div></div>
+  <div class="col-6 col-xl-3"><div class="sc-kpi-card"><span>Designations</span><strong>{{ designations|length }}</strong><i class="bi bi-person-badge"></i></div></div>
+  <div class="col-6 col-xl-3"><div class="sc-kpi-card"><span>Job Grades</span><strong>{{ grades|length }}</strong><i class="bi bi-bar-chart"></i></div></div>
+</div>
+
+<div class="row g-4">
+  <div class="col-xl-6"><div class="sc-card"><div class="sc-card-head"><div><h2>Locations</h2><p>Worksites and business locations.</p></div></div>{% for x in locations %}<div class="sc-list-row"><span><i class="bi bi-geo-alt"></i>{{ x.name }}</span><span class="text-muted">{{ x.city|default:'—' }}{% if x.state %}, {{ x.state }}{% endif %}</span></div>{% empty %}<div class="sc-empty"><i class="bi bi-geo-alt"></i><strong>No locations configured</strong><span>Add locations to support workforce planning.</span></div>{% endfor %}</div></div>
+  <div class="col-xl-6"><div class="sc-card"><div class="sc-card-head"><div><h2>Teams</h2><p>Operational team structure.</p></div></div>{% for x in teams %}<div class="sc-list-row"><span><i class="bi bi-people"></i>{{ x.name }}</span><span class="text-muted">{{ x.department.name|default:'Unassigned' }}</span></div>{% empty %}<div class="sc-empty"><i class="bi bi-people"></i><strong>No teams configured</strong><span>Create teams when the organization structure is ready.</span></div>{% endfor %}</div></div>
+  <div class="col-xl-6"><div class="sc-card"><div class="sc-card-head"><div><h2>Designations</h2><p>Job titles used throughout the employee lifecycle.</p></div></div>{% for x in designations %}<div class="sc-list-row"><span>{{ x.name }}</span><span class="sc-badge">{{ x.level|default:'Not graded' }}</span></div>{% empty %}<div class="sc-empty"><i class="bi bi-person-badge"></i><strong>No designations configured</strong><span>Designations can later be linked to job grades.</span></div>{% endfor %}</div></div>
+  <div class="col-xl-6"><div class="sc-card"><div class="sc-card-head"><div><h2>Job Grades</h2><p>Structured career and compensation bands.</p></div></div>{% for x in grades %}<div class="sc-list-row"><span><strong>{{ x.code }}</strong>&nbsp; {{ x.name }}</span><span class="text-muted">{% if x.minimum_salary %}₹{{ x.minimum_salary|floatformat:0 }}{% else %}—{% endif %}{% if x.maximum_salary %} – ₹{{ x.maximum_salary|floatformat:0 }}{% endif %}</span></div>{% empty %}<div class="sc-empty"><i class="bi bi-bar-chart"></i><strong>No job grades configured</strong><span>Define grades to standardize career levels.</span></div>{% endfor %}</div></div>
+</div>
+{% endblock %}

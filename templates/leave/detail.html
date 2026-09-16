@@ -1,190 +1,57 @@
 {% extends 'layouts/base.html' %}
-
 {% block content %}
-
 <div class="d-flex justify-content-between align-items-center mb-4">
-
     <div>
-
-        <h2 class="fw-bold">
-            Leave Request Details
-        </h2>
-
-        <p class="text-muted mb-0">
-            Review and manage leave request.
-        </p>
-
+        <h2 class="fw-bold mb-1">Leave Request</h2>
+        <p class="text-muted mb-0">{{ leave.get_leave_type_display }} · {{ leave.total_days }} day(s)</p>
     </div>
-
-    <a href="/leave/"
-       class="btn btn-secondary">
-
-        <i class="bi bi-arrow-left me-1"></i>
-
-        Back
-
-    </a>
-
+    <a href="{% url 'leave_list' %}" class="btn btn-outline-secondary">Back</a>
 </div>
 
-<div class="card border-0 shadow-sm">
-
+<div class="card border-0 shadow-sm mb-4">
     <div class="card-body p-4">
-
         <div class="row g-4">
-
             <div class="col-md-6">
-
-                <label class="fw-semibold text-muted">
-                    Employee
-                </label>
-
-                <p class="fs-5">
-                    {{ leave.employee.user.email }}
-                </p>
-
+                <small class="text-muted">Employee</small>
+                <div class="fw-semibold fs-5">{{ leave.employee.user.get_full_name|default:leave.employee.user.email }}</div>
+                <div class="text-muted">{{ leave.employee.employee_id }} · {{ leave.employee.department|default:"-" }}</div>
             </div>
-
-            <div class="col-md-6">
-
-                <label class="fw-semibold text-muted">
-                    Leave Type
-                </label>
-
-                <p class="fs-5">
-                    {{ leave.leave_type }}
-                </p>
-
-            </div>
-
-            <div class="col-md-6">
-
-                <label class="fw-semibold text-muted">
-                    Start Date
-                </label>
-
-                <p class="fs-5">
-                    {{ leave.start_date }}
-                </p>
-
-            </div>
-
-            <div class="col-md-6">
-
-                <label class="fw-semibold text-muted">
-                    End Date
-                </label>
-
-                <p class="fs-5">
-                    {{ leave.end_date }}
-                </p>
-
-            </div>
-
-            <div class="col-12">
-
-                <label class="fw-semibold text-muted">
-                    Reason
-                </label>
-
-                <div class="p-3 bg-light rounded">
-
-                    {{ leave.reason }}
-
-                </div>
-
-            </div>
-
-            <div class="col-12">
-
-                <label class="fw-semibold text-muted">
-                    Current Status
-                </label>
-
-                <div class="mt-2">
-
-                    {% if leave.status == 'APPROVED' %}
-
-                        <span class="badge bg-success fs-6">
-                            Approved
-                        </span>
-
-                    {% elif leave.status == 'REJECTED' %}
-
-                        <span class="badge bg-danger fs-6">
-                            Rejected
-                        </span>
-
-                    {% else %}
-
-                        <span class="badge bg-warning text-dark fs-6">
-                            Pending
-                        </span>
-
-                    {% endif %}
-
-                </div>
-
-            </div>
-
+            <div class="col-md-3"><small class="text-muted d-block">Status</small><strong>{{ leave.get_status_display }}</strong></div>
+            <div class="col-md-3"><small class="text-muted d-block">Applied</small><strong>{{ leave.applied_at|date:"d M Y, h:i A" }}</strong></div>
+            <div class="col-md-3"><small class="text-muted d-block">From</small><strong>{{ leave.start_date }}</strong></div>
+            <div class="col-md-3"><small class="text-muted d-block">To</small><strong>{{ leave.end_date }}</strong></div>
+            <div class="col-md-3"><small class="text-muted d-block">Days</small><strong>{{ leave.total_days }}</strong></div>
+            <div class="col-md-3"><small class="text-muted d-block">Duration</small><strong>{{ leave.get_duration_type_display }}</strong></div>
+            <div class="col-12"><small class="text-muted d-block">Reason</small><p class="mb-0">{{ leave.reason }}</p></div>
+            {% if leave.review_comment %}
+            <div class="col-12"><small class="text-muted d-block">HR Comment</small><p class="mb-0">{{ leave.review_comment }}</p></div>
+            {% endif %}
         </div>
-
-        {% if request.user.role == 'SUPERVISOR' or request.user.role == 'SUPERVISOR' %}
-
-        <hr class="my-4">
-
-        <form method="POST">
-
-            {% csrf_token %}
-
-            <div class="row align-items-end">
-
-                <div class="col-md-4">
-
-                    <label class="form-label fw-semibold">
-                        Update Status
-                    </label>
-
-                    <select name="status"
-                            class="form-select">
-
-                        <option value="PENDING">
-                            Pending
-                        </option>
-
-                        <option value="APPROVED">
-                            Approved
-                        </option>
-
-                        <option value="REJECTED">
-                            Rejected
-                        </option>
-
-                    </select>
-
-                </div>
-
-                <div class="col-md-3">
-
-                    <button type="submit"
-                            class="btn btn-primary">
-
-                        <i class="bi bi-check-circle me-1"></i>
-
-                        Update Status
-
-                    </button>
-
-                </div>
-
-            </div>
-
-        </form>
-
-        {% endif %}
-
     </div>
-
 </div>
 
+{% if is_hr and leave.status == 'PENDING' %}
+<div class="card border-0 shadow-sm">
+    <div class="card-body">
+        <h5 class="fw-bold">HR Review</h5>
+        <form method="post" class="mb-3">{% csrf_token %}
+            <label class="form-label">Comment</label>
+            <textarea name="review_comment" class="form-control mb-3" rows="3" placeholder="Optional review comment"></textarea>
+            <div class="d-flex gap-2">
+                <button formaction="{% url 'approve_leave' leave.pk %}" class="btn btn-success">Approve</button>
+                <button formaction="{% url 'reject_leave' leave.pk %}" class="btn btn-danger">Reject</button>
+                <button formaction="{% url 'request_leave_changes' leave.pk %}" class="btn btn-outline-primary">Request Changes</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% elif not is_hr and leave.status == 'PENDING' %}
+<div class="card border-0 shadow-sm">
+    <div class="card-body">
+        <form action="{% url 'cancel_leave' leave.pk %}" method="post">{% csrf_token %}
+            <button class="btn btn-outline-danger">Cancel Request</button>
+        </form>
+    </div>
+</div>
+{% endif %}
 {% endblock %}

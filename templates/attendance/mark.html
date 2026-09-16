@@ -1,67 +1,33 @@
 {% extends 'layouts/base.html' %}
 
 {% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-7">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-5 text-center">
+                <div class="mb-3"><i class="bi bi-fingerprint fs-1 text-primary"></i></div>
+                <h2 class="fw-bold mb-1">My Attendance</h2>
+                <p class="text-muted mb-4">{{ today|date:'l, d M Y' }}</p>
 
-<div class="card border-0 shadow-sm">
+                {% if attendance %}
+                    <div class="row g-3 text-start mb-4">
+                        <div class="col-6"><div class="border rounded p-3"><small class="text-muted d-block">Check In</small><strong>{{ attendance.check_in|default:'--' }}</strong></div></div>
+                        <div class="col-6"><div class="border rounded p-3"><small class="text-muted d-block">Check Out</small><strong>{{ attendance.check_out|default:'--' }}</strong></div></div>
+                        <div class="col-6"><div class="border rounded p-3"><small class="text-muted d-block">Hours</small><strong>{{ attendance.hours_display }}</strong></div></div>
+                        <div class="col-6"><div class="border rounded p-3"><small class="text-muted d-block">Late</small><strong>{{ attendance.late_display }}</strong></div></div>
+                    </div>
 
-    <div class="card-body p-5 text-center">
-
-        <h2 class="fw-bold mb-4">
-            Mark Attendance
-        </h2>
-
-        {% if attendance %}
-
-            {% if attendance.check_out %}
-
-                <div class="alert alert-success">
-
-                    Attendance completed for today.
-
-                </div>
-
-            {% else %}
-
-                <div class="alert alert-info">
-
-                    Checked in successfully.
-
-                </div>
-
-                <form method="POST">
-
-                    {% csrf_token %}
-
-                    <button type="submit"
-                            class="btn btn-danger btn-lg">
-
-                        Check Out
-
-                    </button>
-
-                </form>
-
-            {% endif %}
-
-        {% else %}
-
-            <form method="POST">
-
-                {% csrf_token %}
-
-                <button type="submit"
-                        class="btn btn-primary btn-lg">
-
-                    Check In
-
-                </button>
-
-            </form>
-
-        {% endif %}
-
+                    {% if attendance.check_out %}
+                        <div class="alert alert-success">Attendance completed for today.</div>
+                    {% else %}
+                        <form method="post">{% csrf_token %}<button type="submit" class="btn btn-danger btn-lg px-5">Check Out</button></form>
+                    {% endif %}
+                {% else %}
+                    <div class="alert alert-info">You have not checked in today.</div>
+                    <form method="post">{% csrf_token %}<button type="submit" class="btn btn-primary btn-lg px-5">Check In</button></form>
+                {% endif %}
+            </div>
+        </div>
     </div>
-
 </div>
-
 {% endblock %}

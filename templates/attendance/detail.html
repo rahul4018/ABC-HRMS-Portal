@@ -1,90 +1,39 @@
 {% extends 'layouts/base.html' %}
 
 {% block content %}
-
-<div class="card border-0 shadow-sm">
-
-    <div class="card-body p-5">
-
-        <div class="d-flex justify-content-between mb-4">
-
-            <div>
-
-                <h2 class="fw-bold">
-                    Attendance Detail
-                </h2>
-
-                <p class="text-muted">
-                    {{ attendance.date }}
-                </p>
-
-            </div>
-
-            <a href="{% url 'attendance_list' %}"
-               class="btn btn-secondary">
-
-                Back
-
-            </a>
-
-        </div>
-
-        <hr>
-
-        <div class="row mt-4">
-
-            <div class="col-md-6 mb-4">
-
-                <h6 class="text-muted">
-                    Employee
-                </h6>
-
-                <h5>
-                    {{ attendance.employee.user.email }}
-                </h5>
-
-            </div>
-
-            <div class="col-md-6 mb-4">
-
-                <h6 class="text-muted">
-                    Status
-                </h6>
-
-                <h5>
-                    {{ attendance.status }}
-                </h5>
-
-            </div>
-
-            <div class="col-md-6 mb-4">
-
-                <h6 class="text-muted">
-                    Check In
-                </h6>
-
-                <h5>
-                    {{ attendance.check_in }}
-                </h5>
-
-            </div>
-
-            <div class="col-md-6 mb-4">
-
-                <h6 class="text-muted">
-                    Check Out
-                </h6>
-
-                <h5>
-                    {{ attendance.check_out|default:"--" }}
-                </h5>
-
-            </div>
-
-        </div>
-
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-1">Attendance Detail</h2>
+        <p class="text-muted mb-0">{{ attendance.date|date:'d M Y' }}</p>
     </div>
-
+    <a href="{% url 'attendance_list' %}" class="btn btn-secondary">Back</a>
 </div>
 
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body p-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h4 class="fw-bold mb-1">{{ attendance.employee.user.get_full_name|default:attendance.employee.user.email }}</h4>
+                <div class="text-muted">{{ attendance.employee.employee_id }} · {{ attendance.employee.department|default:'-' }} · {{ attendance.employee.designation }}</div>
+            </div>
+            {% if attendance.status == 'PRESENT' %}<span class="badge bg-success fs-6">Present</span>
+            {% elif attendance.status == 'ABSENT' %}<span class="badge bg-danger fs-6">Absent</span>
+            {% else %}<span class="badge bg-warning text-dark fs-6">Half Day</span>{% endif %}
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-3"><small class="text-muted d-block">ABCeduled Shift</small><strong>{{ attendance.get_shift_name_display }}</strong><div class="small text-muted">{{ attendance.ABCeduled_check_in|time:'h:i A' }} – {{ attendance.ABCeduled_check_out|time:'h:i A' }}</div></div>
+            <div class="col-md-3"><small class="text-muted d-block">Check In</small><strong>{{ attendance.check_in|default:'--' }}</strong></div>
+            <div class="col-md-3"><small class="text-muted d-block">Check Out</small><strong>{{ attendance.check_out|default:'--' }}</strong></div>
+            <div class="col-md-3"><small class="text-muted d-block">Hours Worked</small><strong>{{ attendance.hours_display }}</strong></div>
+            <div class="col-md-3"><small class="text-muted d-block">Late</small><strong>{{ attendance.late_display }}</strong></div>
+            <div class="col-md-3"><small class="text-muted d-block">Overtime</small><strong>{{ attendance.overtime_display }}</strong></div>
+            <div class="col-md-3"><small class="text-muted d-block">Attendance Source</small><strong>{{ attendance.get_attendance_source_display }}</strong></div>
+            <div class="col-md-3"><small class="text-muted d-block">Location</small><strong>{{ attendance.employee.location|default:'-' }}</strong></div>
+        </div>
+
+        <hr class="my-4">
+        <div><small class="text-muted d-block mb-1">Remarks</small><div>{{ attendance.remarks|default:'No remarks recorded.' }}</div></div>
+    </div>
+</div>
 {% endblock %}

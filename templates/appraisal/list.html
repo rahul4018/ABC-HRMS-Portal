@@ -3,88 +3,175 @@
 
 <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
-        <h2 class="fw-bold mb-1">Performance Management Reports</h2>
-        <p class="text-muted mb-0">Track employee performance reviews and approvals.</p>
+        <h2 class="fw-bold mb-1">Performance Management</h2>
+        <p class="text-muted mb-0">Manage employee performance reviews, goals and development.</p>
     </div>
-    {% if request.user.role != 'SUPERVISOR' %}
-        <a href="{% url 'pmr_create' %}" class="btn btn-primary">
-            Create PMR
-        </a>
+    <a href="{% url 'pmr_create' %}" class="btn btn-primary">
+        <i class="bi bi-plus-circle me-1"></i> Create Review
+    </a>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm"><div class="card-body">
+            <small class="text-muted">Total Reviews</small>
+            <h3 class="fw-bold mb-0">{{ pmrs|length|default:"0" }}</h3>
+        </div></div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm"><div class="card-body">
+            <small class="text-muted">Pending</small>
+            <h3 class="fw-bold text-warning mb-0">{{ pending_count|default:"0" }}</h3>
+        </div></div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm"><div class="card-body">
+            <small class="text-muted">Completed</small>
+            <h3 class="fw-bold text-success mb-0">{{ completed_count|default:"0" }}</h3>
+        </div></div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm"><div class="card-body">
+            <small class="text-muted">Average Rating</small>
+            <h3 class="fw-bold mb-0">{{ average_rating|default:"—" }}{% if average_rating %}/5{% endif %}</h3>
+        </div></div>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+        <form method="get">
+            <div class="row g-2">
+                <div class="col-md-4">
+                    <input type="text" name="search" value="{{ request.GET.search }}"
+                           class="form-control" placeholder="Employee name, ID, title...">
+                </div>
+                <div class="col-md-2">
+                    <select name="status" class="form-select">
+                        <option value="">All Status</option>
+                        <option value="PENDING" {% if request.GET.status == "PENDING" %}selected{% endif %}>Pending</option>
+                        <option value="APPROVED" {% if request.GET.status == "APPROVED" %}selected{% endif %}>Approved</option>
+                        <option value="REJECTED" {% if request.GET.status == "REJECTED" %}selected{% endif %}>Rejected</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select name="review_type" class="form-select">
+                        <option value="">All Review Types</option>
+                        <option value="QUARTERLY">Quarterly</option>
+                        <option value="HALF_YEARLY">Half-Yearly</option>
+                        <option value="ANNUAL">Annual</option>
+                        <option value="PROBATION">Probation</option>
+                        <option value="PROMOTION">Promotion</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select name="page_size" class="form-select">
+                        <option value="10" selected>10 per page</option>
+                        <option value="20">20 per page</option>
+                        <option value="50">50 per page</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button class="btn btn-dark w-100">Filter</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="d-flex gap-2 mb-3 flex-wrap">
+    <button class="btn btn-primary btn-sm">Reviews</button>
+    <button class="btn btn-outline-secondary btn-sm" type="button">Goals</button>
+    <button class="btn btn-outline-secondary btn-sm" type="button">Analytics</button>
+    <button class="btn btn-outline-secondary btn-sm" type="button">Development</button>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Employee</th>
+                    <th>Department</th>
+                    <th>Review</th>
+                    <th>Review Period</th>
+                    <th>Rating</th>
+                    <th>Submitted</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for pmr in pmrs %}
+                <tr>
+                    <td>
+                        <div class="fw-semibold">
+                            {{ pmr.employee.user.get_full_name|default:pmr.employee.user.email }}
+                        </div>
+                        <small class="text-muted">{{ pmr.employee.employee_id }}</small>
+                    </td>
+                    <td>{{ pmr.employee.department|default:"-" }}</td>
+                    <td>
+                        <div class="fw-semibold">{{ pmr.title }}</div>
+                        <small class="text-muted">{{ pmr.review_type|default:"Performance Review" }}</small>
+                    </td>
+                    <td>
+                        {{ pmr.review_period|default:"—" }}
+                    </td>
+                    <td>
+                        {% if pmr.overall_rating %}
+                            <span class="fw-bold">{{ pmr.overall_rating }}/5</span>
+                        {% elif pmr.rating %}
+                            <span class="fw-bold">{{ pmr.rating }}/5</span>
+                        {% else %}
+                            <span class="text-muted">—</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {{ pmr.created_at|date:"d M Y"|default:pmr.submitted_at|date:"d M Y" }}
+                    </td>
+                    <td>
+                        {% if pmr.status == 'APPROVED' or pmr.status == 'COMPLETED' %}
+                            <span class="badge bg-success-subtle text-success">Completed</span>
+                        {% elif pmr.status == 'REJECTED' %}
+                            <span class="badge bg-danger-subtle text-danger">Rejected</span>
+                        {% else %}
+                            <span class="badge bg-warning-subtle text-warning-emphasis">{{ pmr.status|default:"Pending" }}</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{% url 'pmr_detail' pmr.pk %}" class="btn btn-sm btn-outline-secondary">View</a>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="8" class="text-center text-muted py-5">
+                        <i class="bi bi-clipboard2-x fs-2 d-block mb-2"></i>
+                        No performance reviews found.
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% if page_obj %}
+<div class="d-flex justify-content-between align-items-center mt-4">
+    {% if page_obj.has_previous %}
+    <a href="?page={{ page_obj.previous_page_number }}&page_size={{ request.GET.page_size|default:10 }}&search={{ request.GET.search }}&status={{ request.GET.status }}"
+       class="btn btn-outline-secondary">← Previous</a>
+    {% else %}
+    <button class="btn btn-outline-secondary" disabled>← Previous</button>
+    {% endif %}
+    <span class="text-muted small">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+    {% if page_obj.has_next %}
+    <a href="?page={{ page_obj.next_page_number }}&page_size={{ request.GET.page_size|default:10 }}&search={{ request.GET.search }}&status={{ request.GET.status }}"
+       class="btn btn-outline-secondary">Next →</a>
+    {% else %}
+    <button class="btn btn-outline-secondary" disabled>Next →</button>
     {% endif %}
 </div>
-
-<div class="card">
-    <div class="card-body">
-        <div class="table-responsive">
-            <table class="table align-middle">
-                <thead>
-                    <tr>
-                        <th>Title</th>
-                        <th>Employee</th>
-                        <th>Submitted On</th>
-                        <th>Status</th>
-                        <th class="text-end">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for pmr in pmrs %}
-                        <tr>
-                            <td><strong>{{ pmr.title }}</strong></td>
-                            <td>{{ pmr.employee.user.email }}</td>
-                            <td>{{ pmr.submitted_date|date:"d M Y" }}</td>
-                            <td>
-                                {% if pmr.status == 'APPROVED' %}
-                                    <span class="badge bg-success">Approved</span>
-                                {% elif pmr.status == 'REJECTED' %}
-                                    <span class="badge bg-danger">Rejected</span>
-                                {% elif pmr.status == 'RESUBMIT' %}
-                                    <span class="badge bg-warning text-dark">Resubmit</span>
-                                {% else %}
-                                    <span class="badge bg-secondary">Pending</span>
-                                {% endif %}
-                            </td>
-                            <td>
-                                <div class="d-flex justify-content-end gap-1">
-                                    <a href="{% url 'pmr_detail' pmr.pk %}" class="btn btn-sm btn-dark">
-                                        View
-                                    </a>
-
-                                    {% if request.user.role == 'SUPERVISOR' and pmr.status == 'PENDING' %}
-                                        <form action="{% url 'pmr_approve' pmr.pk %}" method="post" class="d-inline">
-                                            {% csrf_token %}
-                                            <button type="submit" class="btn btn-sm btn-success">Approve</button>
-                                        </form>
-
-                                        <form action="{% url 'pmr_reject' pmr.pk %}" method="post" class="d-inline">
-                                            {% csrf_token %}
-                                            <button type="submit" class="btn btn-sm btn-danger">Reject</button>
-                                        </form>
-
-                                        <form action="{% url 'pmr_send_back' pmr.pk %}" method="post" class="d-inline">
-                                            {% csrf_token %}
-                                            <button type="submit" class="btn btn-sm btn-warning">Send Back</button>
-                                        </form>
-                                    {% endif %}
-
-                                    {% if request.user.role == 'EMPLOYEE' and pmr.status == 'RESUBMIT' %}
-                                        <a href="{% url 'pmr_create' %}" class="btn btn-sm btn-primary">
-                                            Resubmit
-                                        </a>
-                                    {% endif %}
-                                </div>
-                            </td>
-                        </tr>
-                    {% empty %}
-                        <tr>
-                            <td colspan="5" class="text-center text-muted py-5">
-                                No PMRs found.
-                            </td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </div>
-</div>
+{% endif %}
 
 {% endblock %}

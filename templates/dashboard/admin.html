@@ -1,0 +1,19 @@
+{% extends 'layouts/base.html' %}
+{% block content %}
+<div class="py-2">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div><h2 class="fw-bold mb-1">Admin Dashboard</h2><p class="text-muted mb-0">System control, access and platform health.</p></div>
+    <span class="badge bg-dark px-3 py-2">ADMIN</span>
+  </div>
+  <div class="row g-3 mb-4">
+    {% include 'dashboard/_kpi.html' with title='Total Users' value=total_users icon='people' color='primary' %}
+    {% include 'dashboard/_kpi.html' with title='Employees' value=total_employees icon='person-badge' color='success' %}
+    {% include 'dashboard/_kpi.html' with title='Staff Accounts' value=staff_users icon='shield-check' color='warning' %}
+    {% include 'dashboard/_kpi.html' with title='Audit Entries' value=audit_entries icon='journal-text' color='danger' %}
+  </div>
+  <div class="row g-4">
+    <div class="col-lg-7"><div class="card border-0 shadow-sm h-100"><div class="card-header bg-white border-0 pt-3"><h5 class="fw-bold mb-0">Recent Audit Activity</h5></div><div class="card-body p-0"><div class="list-group list-group-flush">{% for item in recent_audit %}<div class="list-group-item py-3"><div class="d-flex justify-content-between"><strong>{{ item.module }}</strong><small class="text-muted">{{ item.created_at|date:'d M H:i' }}</small></div><div class="text-muted small">{{ item.action }}{% if item.user %} · {{ item.user.email }}{% endif %}</div></div>{% empty %}<div class="p-4 text-muted">No audit activity found.</div>{% endfor %}</div></div></div></div>
+    <div class="col-lg-5"><div class="card border-0 shadow-sm h-100"><div class="card-header bg-white border-0 pt-3"><h5 class="fw-bold mb-0">Administration</h5></div><div class="card-body"><div class="d-grid gap-2"><a class="btn btn-outline-primary" href="/employees/">Manage Employees</a><a class="btn btn-outline-secondary" href="/reports/">Reports</a><a class="btn btn-outline-dark" href="{% url 'company_settings' %}">Company Settings</a><a class="btn btn-outline-danger" href="{% url 'audit_list' %}">Audit Logs</a></div></div></div></div>
+  </div>
+</div>
+{% endblock %}

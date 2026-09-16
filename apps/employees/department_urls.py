@@ -5,6 +5,7 @@ from apps.employees.views import (
     department_add,
     department_edit,
     department_delete,
+    department_detail,
 )
 
 urlpatterns = [
@@ -30,6 +31,16 @@ urlpatterns = [
     ),
 
     # ==========================================
+    # Department Detail
+    # ==========================================
+
+    path(
+        '<int:pk>/',
+        department_detail,
+        name='department_detail'
+    ),
+
+    # ==========================================
     # Edit Department
     # ==========================================
 
@@ -40,7 +51,7 @@ urlpatterns = [
     ),
 
     # ==========================================
-    # Delete Department
+    # Delete / Deactivate Department
     # ==========================================
 
     path(
@@ -48,5 +59,4 @@ urlpatterns = [
         department_delete,
         name='department_delete'
     ),
-
 ]

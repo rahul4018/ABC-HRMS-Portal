@@ -1,0 +1,9 @@
+{% extends 'layouts/base.html' %}
+{% block title %}HR Requests{% endblock %}
+{% block content %}
+<div class="sc-page-head">
+  <div><div class="sc-eyebrow">PEOPLE OPERATIONS</div><h1>HR Requests</h1><p>Centralized employee support and service requests with clear ownership and status.</p></div>
+  <div class="sc-page-actions"><a class="btn btn-primary" href="{% url 'workforce:request_create' %}"><i class="bi bi-plus-lg"></i> New Request</a></div>
+</div>
+<div class="sc-card"><div class="table-responsive"><table class="table sc-table align-middle"><thead><tr><th>Subject</th><th>Employee</th><th>Category</th><th>Priority</th><th>Status</th><th>Created</th></tr></thead><tbody>{% for row in requests %}<tr><td><strong>{{ row.subject }}</strong><div class="small text-muted">{{ row.description|truncatechars:90 }}</div></td><td>{{ row.employee.user.get_full_name|default:row.employee.employee_id }}</td><td>{{ row.category }}</td><td>{{ row.get_priority_display }}</td><td><span class="sc-badge">{{ row.get_status_display }}</span></td><td>{{ row.created_at|date:'d M Y' }}</td></tr>{% empty %}<tr><td colspan="6"><div class="sc-empty"><i class="bi bi-inbox"></i><strong>No HR requests</strong><span>Employee service requests will appear here.</span></div></td></tr>{% endfor %}</tbody></table></div></div>
+{% endblock %}

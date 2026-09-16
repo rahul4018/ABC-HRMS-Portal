@@ -1,0 +1,61 @@
+{% extends 'layouts/base.html' %}
+{% block content %}
+{% include 'recruitment/_styles.html' %}
+<div class="sc-ats-page">
+  <div class="sc-ats-header">
+    <div>
+      <span class="sc-eyebrow">RECRUITMENT</span>
+      <h1>Talent Acquisition</h1>
+      <p>Manage hiring requirements, candidates, interviews, offers and onboarding from one workspace.</p>
+    </div>
+    <div class="sc-ats-header-actions">
+      <a class="btn btn-outline-primary" href="{% url 'hiring_request_list' %}">Hiring Requests</a>
+      <a class="btn btn-primary" href="{% url 'requirement_create' %}"><i class="bi bi-plus-lg"></i> New Requirement</a>
+    </div>
+  </div>
+
+  <div class="row g-3 mb-3">
+    {% include 'dashboard/_kpi.html' with title='Open Positions' value=open_positions icon='briefcase' color='primary' helper='Currently recruiting' %}
+    {% include 'dashboard/_kpi.html' with title='Candidates' value=total_applicants icon='people' color='info' helper='Across all requirements' %}
+    {% include 'dashboard/_kpi.html' with title='Interviews' value=interview_count icon='calendar-event' color='warning' helper='Candidates in interview stage' %}
+    {% include 'dashboard/_kpi.html' with title='Offers' value=offer_pending_count icon='file-earmark-text' color='success' helper='Active offer pipeline' %}
+  </div>
+
+  <div class="sc-card mb-3">
+    <div class="sc-card-head"><div><h2>Hiring Pipeline</h2><p>Live candidate distribution by stage.</p></div><a href="{% url 'candidate_list' %}" class="btn btn-sm btn-outline-primary">View Candidates</a></div>
+    <div class="sc-pipeline">
+      {% for label, count in stage_cards %}
+      <div class="sc-pipeline-item"><span>{{ label }}</span><strong>{{ count }}</strong></div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="row g-3">
+    <div class="col-12 col-xl-7">
+      <div class="sc-card h-100">
+        <div class="sc-card-head"><div><h2>Recent Requirements</h2><p>Latest hiring activity.</p></div><a href="{% url 'requirement_list' %}" class="btn btn-sm btn-outline-primary">All Requirements</a></div>
+        <div class="table-responsive">
+          <table class="table sc-table align-middle mb-0">
+            <thead><tr><th>Position</th><th>Department</th><th>Applications</th><th>Status</th><th></th></tr></thead>
+            <tbody>
+            {% for req in recent_requirements %}
+              <tr><td><strong>{{ req.title }}</strong><small class="d-block text-muted">{{ req.experience }}</small></td><td>{{ req.department }}</td><td>{{ req.application_count }}</td><td><span class="sc-status sc-status-{% if req.status == 'OPEN' %}success{% else %}muted{% endif %}">{{ req.get_status_display }}</span></td><td class="text-end"><a href="{% url 'requirement_detail' req.pk %}" class="btn btn-sm btn-outline-primary">Open</a></td></tr>
+            {% empty %}<tr><td colspan="5" class="text-center py-5 text-muted">No job requirements yet.</td></tr>{% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="col-12 col-xl-5">
+      <div class="sc-card h-100">
+        <div class="sc-card-head"><div><h2>Recent Candidates</h2><p>Latest people added to the pipeline.</p></div><a href="{% url 'candidate_list' %}" class="btn btn-sm btn-outline-primary">All Candidates</a></div>
+        <div class="sc-list">
+          {% for profile in recent_candidates %}
+          <a class="sc-list-item" href="{% url 'candidate_detail' profile.applicant.pk %}"><div class="sc-avatar">{{ profile.applicant.full_name|slice:':1'|upper }}</div><div class="min-w-0 flex-grow-1"><strong class="d-block text-truncate">{{ profile.applicant.full_name }}</strong><small>{{ profile.applicant.requirement.title }}</small></div><span class="sc-status sc-status-primary">{{ profile.get_stage_display }}</span></a>
+          {% empty %}<div class="text-center py-5 text-muted">No candidates yet.</div>{% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

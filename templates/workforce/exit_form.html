@@ -1,0 +1,38 @@
+{% extends 'layouts/base.html' %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+<div class="sc-page-head">
+  <div>
+    <div class="sc-eyebrow">EXIT &amp; SEPARATION</div>
+    <h1>{{ title }}</h1>
+    <p>Create a controlled employee separation case with approval, notice and clearance tracking.</p>
+  </div>
+  <div class="sc-page-actions">
+    <a class="btn btn-outline-secondary" href="{% url 'workforce:exit_list' %}"><i class="bi bi-arrow-left"></i> Back to Exit Cases</a>
+  </div>
+</div>
+
+<div class="sc-card">
+  <form method="post" novalidate>
+    {% csrf_token %}
+    {% if form.non_field_errors %}<div class="alert alert-danger">{{ form.non_field_errors }}</div>{% endif %}
+
+    <div class="sc-form-section-title"><i class="bi bi-person-x"></i><div><strong>Separation Details</strong><small>Identify the employee and separation type.</small></div></div>
+    <div class="sc-form-grid">
+      {% for field in form %}
+        <div class="sc-field {% if field.name == 'detailed_reason' or field.name == 'manager_comments' or field.name == 'hr_comments' %}sc-form-full{% endif %}">
+          <label for="{{ field.id_for_label }}">{{ field.label }}{% if field.field.required %} <span class="text-danger">*</span>{% endif %}</label>
+          {{ field }}
+          {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}
+          {% for e in field.errors %}<div class="text-danger small mt-1">{{ e }}</div>{% endfor %}
+        </div>
+      {% endfor %}
+    </div>
+
+    <div class="sc-form-actions">
+      <a class="btn btn-outline-secondary" href="{% url 'workforce:exit_list' %}">Cancel</a>
+      <button type="submit" class="btn btn-primary"><i class="bi bi-check2-circle"></i> Create Exit Case</button>
+    </div>
+  </form>
+</div>
+{% endblock %}

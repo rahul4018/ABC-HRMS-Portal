@@ -1,4 +1,5 @@
 from django.urls import path
+
 from .views import (
     resignation_list,
     apply_resignation,
@@ -6,6 +7,8 @@ from .views import (
     approve_resignation,
     reject_resignation,
     send_back_resignation,
+    withdraw_resignation,
+    update_offboarding,
 )
 
 urlpatterns = [
@@ -15,4 +18,6 @@ urlpatterns = [
     path('<int:pk>/approve/', approve_resignation, name='approve_resignation'),
     path('<int:pk>/reject/', reject_resignation, name='reject_resignation'),
     path('<int:pk>/send-back/', send_back_resignation, name='send_back_resignation'),
+    path('<int:pk>/withdraw/', withdraw_resignation, name='withdraw_resignation'),
+    path('<int:pk>/offboarding/', update_offboarding, name='update_offboarding'),
 ]

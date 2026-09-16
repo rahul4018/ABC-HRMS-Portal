@@ -1,0 +1,17 @@
+{% extends 'layouts/base.html' %}
+{% block title %}Exit &amp; Separation{% endblock %}
+{% block content %}
+<div class="sc-page-head">
+  <div><div class="sc-eyebrow">PEOPLE OPERATIONS</div><h1>Exit &amp; Separation</h1><p>Resignation, termination, clearance, full &amp; final and exit documents.</p></div>
+  <div class="sc-page-actions"><a class="btn btn-primary" href="{% url 'workforce:exit_create' %}"><i class="bi bi-plus-lg"></i> New Exit Case</a></div>
+</div>
+<div class="sc-card mb-3">
+  <form class="sc-filter-bar" method="get">
+    <div class="sc-filter-field sc-filter-wide"><label>Search</label><input class="form-control" name="q" value="{{ q }}" placeholder="Employee name or employee ID"></div>
+    <div class="sc-filter-field"><label>Status</label><select name="status" class="form-select"><option value="">All statuses</option>{% for k,v in statuses %}<option value="{{ k }}" {% if status == k %}selected{% endif %}>{{ v }}</option>{% endfor %}</select></div>
+    <div class="sc-filter-field"><label>Exit type</label><select name="exit_type" class="form-select"><option value="">All exit types</option>{% for k,v in types %}<option value="{{ k }}" {% if exit_type == k %}selected{% endif %}>{{ v }}</option>{% endfor %}</select></div>
+    <div class="sc-filter-actions"><button class="btn btn-primary" type="submit"><i class="bi bi-search"></i> Apply</button><a class="btn btn-outline-secondary" href="{% url 'workforce:exit_list' %}">Reset</a></div>
+  </form>
+</div>
+<div class="sc-card"><div class="table-responsive"><table class="table sc-table align-middle"><thead><tr><th>Employee</th><th>Type</th><th>Reason</th><th>Last Working Day</th><th>Status</th><th>Action</th></tr></thead><tbody>{% for row in exits %}<tr><td><strong>{{ row.employee.user.get_full_name|default:row.employee.employee_id }}</strong><div class="small text-muted">{{ row.employee.employee_id }}</div></td><td>{{ row.get_exit_type_display }}</td><td>{{ row.reason }}</td><td>{{ row.actual_last_working_day|date:'d M Y'|default:'—' }}</td><td><span class="sc-badge">{{ row.get_status_display }}</span></td><td><a class="btn btn-sm btn-outline-primary" href="{% url 'workforce:exit_detail' row.pk %}">Open</a></td></tr>{% empty %}<tr><td colspan="6"><div class="sc-empty"><i class="bi bi-file-earmark-check"></i><strong>No exit cases found</strong><span>Try adjusting your filters or create a new case.</span></div></td></tr>{% endfor %}</tbody></table></div></div>
+{% endblock %}

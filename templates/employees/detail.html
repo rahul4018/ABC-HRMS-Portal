@@ -234,8 +234,10 @@
                 {% endif %}
 
                 <h4 class="fw-bold text-break mb-1">
-                    {{ employee.user.email }}
+                    {{ employee.user.get_full_name|default:employee.user.email }}
                 </h4>
+
+                <p class="text-muted small mb-2">{{ employee.user.email }}</p>
 
                 <p class="text-muted mb-3">
                     {{ employee.designation }}
@@ -384,26 +386,12 @@
             </div>
             <div class="card-body">
                 <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <strong>PAN Number</strong><br>
-                        <span class="text-secondary">{{ employee.pan_number|default:"-" }}</span>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <strong>Aadhaar Number</strong><br>
-                        <span class="text-secondary">{{ employee.aadhaar_number|default:"-" }}</span>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <strong>Passport Number</strong><br>
-                        <span class="text-secondary">{{ employee.passport_number|default:"-" }}</span>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <strong>PF Number</strong><br>
-                        <span class="text-secondary">{{ employee.pf_number|default:"-" }}</span>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <strong>ESI Number</strong><br>
-                        <span class="text-secondary">{{ employee.esi_number|default:"-" }}</span>
-                    </div>
+                    <div class="col-md-6 mb-3"><strong>PAN Number</strong><br><span class="text-secondary">{{ employee.pan_number|default:"-" }}</span></div>
+                    <div class="col-md-6 mb-3"><strong>Aadhaar Number</strong><br><span class="text-secondary">{{ employee.aadhaar_number|default:"-" }}</span></div>
+                    <div class="col-md-6 mb-3"><strong>Passport Number</strong><br><span class="text-secondary">{{ employee.passport_number|default:"-" }}</span></div>
+                    <div class="col-md-6 mb-3"><strong>PF Number</strong><br><span class="text-secondary">{{ employee.pf_number|default:"-" }}</span></div>
+                    <div class="col-md-6 mb-3"><strong>ESI Number</strong><br><span class="text-secondary">{{ employee.esi_number|default:"-" }}</span></div>
+                    <div class="col-md-6 mb-3"><strong>UAN Number</strong><br><span class="text-secondary">{{ employee.uan_number|default:"-" }}</span></div>
                 </div>
             </div>
         </div>
@@ -414,14 +402,10 @@
             </div>
             <div class="card-body">
                 <div class="row">
-                    <div class="col-md-6 mb-3 mb-md-0">
-                        <strong>Bank Name</strong><br>
-                        <span class="text-secondary">{{ employee.bank_name|default:"-" }}</span>
-                    </div>
-                    <div class="col-md-6">
-                        <strong>Account Number</strong><br>
-                        <span class="text-secondary">{{ employee.account_number|default:"-" }}</span>
-                    </div>
+                    <div class="col-md-6 mb-3"><strong>Bank Name</strong><br><span class="text-secondary">{{ employee.bank_name|default:"-" }}</span></div>
+                    <div class="col-md-6 mb-3"><strong>Account Holder Name</strong><br><span class="text-secondary">{{ employee.account_holder_name|default:employee.user.get_full_name }}</span></div>
+                    <div class="col-md-6 mb-3"><strong>Account Number</strong><br><span class="text-secondary">{{ employee.account_number|default:"-" }}</span></div>
+                    <div class="col-md-6 mb-3"><strong>IFSC Code</strong><br><span class="text-secondary">{{ employee.ifsc_code|default:"-" }}</span></div>
                 </div>
             </div>
         </div>

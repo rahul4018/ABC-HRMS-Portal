@@ -4,6 +4,7 @@ from apps.employees.views import (
     attendance_list,
     mark_attendance,
     attendance_detail,
+    attendance_monthly,
 )
 
 urlpatterns = [
@@ -18,6 +19,12 @@ urlpatterns = [
         'mark/',
         mark_attendance,
         name='mark_attendance'
+    ),
+
+    path(
+        'monthly/',
+        attendance_monthly,
+        name='attendance_monthly'
     ),
 
     path(

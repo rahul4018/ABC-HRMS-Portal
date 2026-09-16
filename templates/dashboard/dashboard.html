@@ -1,188 +1,200 @@
 {% extends 'layouts/base.html' %}
 
 {% block content %}
+<style>
+    .hr-kpi { border: 0; border-radius: 16px; box-shadow: 0 6px 24px rgba(15, 23, 42, .07); height: 100%; }
+    .hr-kpi .metric { font-size: 1.9rem; line-height: 1; font-weight: 800; }
+    .hr-kpi .subtle { font-size: .78rem; }
+    .dashboard-section { border: 0; border-radius: 16px; box-shadow: 0 6px 24px rgba(15, 23, 42, .06); }
+    .section-title { font-weight: 750; }
+    .attention-item { padding: .7rem 0; border-bottom: 1px solid #eef2f7; }
+    .attention-item:last-child { border-bottom: 0; }
+    .progress-thin { height: 7px; border-radius: 999px; }
+    .mini-stat { border: 1px solid #eef2f7; border-radius: 12px; }
+    .activity-row { padding: .8rem 0; border-bottom: 1px solid #eef2f7; }
+    .activity-row:last-child { border-bottom: 0; }
+    .dashboard-link { text-decoration: none; }
+    .dashboard-link:hover { text-decoration: underline; }
+</style>
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-
+<div class="d-flex justify-content-between align-items-start mb-4">
     <div>
-
-        <h2 class="fw-bold mb-1">
-            Dashboard
-        </h2>
-
-        <p class="text-muted mb-0">
-            Welcome to the Employee Management Portal
-        </p>
-
+        <h2 class="fw-bold mb-1">HR Dashboard</h2>
+        <p class="text-muted mb-0">Workforce overview and HR action center for {{ today|date:"d M Y" }}.</p>
     </div>
+    <div class="d-flex gap-2">
+        <a href="/employees/add/" class="btn btn-primary"><i class="bi bi-person-plus me-1"></i>Add Employee</a>
+        <a href="/payslips/" class="btn btn-outline-primary"><i class="bi bi-wallet2 me-1"></i>Payroll</a>
+    </div>
+</div>
 
+<!-- KPI CARDS -->
+<div class="row g-3 mb-4">
+    <div class="col-6 col-xl-3"><div class="card hr-kpi"><div class="card-body p-4"><div class="text-muted small text-uppercase fw-bold">Total Employees</div><div class="metric text-primary mt-2">{{ total_employees }}</div><div class="subtle text-muted mt-2">{{ incomplete_profiles }} incomplete profiles</div></div></div></div>
+    <div class="col-6 col-xl-3"><div class="card hr-kpi"><div class="card-body p-4"><div class="text-muted small text-uppercase fw-bold">Present Today</div><div class="metric text-success mt-2">{{ present_today }}</div><div class="subtle text-muted mt-2">{{ late_today }} late check-ins</div></div></div></div>
+    <div class="col-6 col-xl-3"><div class="card hr-kpi"><div class="card-body p-4"><div class="text-muted small text-uppercase fw-bold">On Leave Today</div><div class="metric text-warning mt-2">{{ on_leave_today }}</div><div class="subtle text-muted mt-2">{{ pending_leaves }} requests pending</div></div></div></div>
+    <div class="col-6 col-xl-3"><div class="card hr-kpi"><div class="card-body p-4"><div class="text-muted small text-uppercase fw-bold">New Joiners</div><div class="metric text-info mt-2">{{ new_joiners_this_month }}</div><div class="subtle text-muted mt-2">this month</div></div></div></div>
+    <div class="col-6 col-xl-3"><div class="card hr-kpi"><div class="card-body p-4"><div class="text-muted small text-uppercase fw-bold">Absent Today</div><div class="metric text-danger mt-2">{{ absent_today }}</div><div class="subtle text-muted mt-2">{{ half_day_today }} half-day records</div></div></div></div>
+    <div class="col-6 col-xl-3"><div class="card hr-kpi"><div class="card-body p-4"><div class="text-muted small text-uppercase fw-bold">Pending Documents</div><div class="metric text-warning mt-2">{{ pending_documents }}</div><div class="subtle text-muted mt-2">verification required</div></div></div></div>
+    <div class="col-6 col-xl-3"><div class="card hr-kpi"><div class="card-body p-4"><div class="text-muted small text-uppercase fw-bold">Pending PMR</div><div class="metric text-primary mt-2">{{ pending_pmrs }}</div><div class="subtle text-muted mt-2">reviews awaiting action</div></div></div></div>
+    <div class="col-6 col-xl-3"><div class="card hr-kpi"><div class="card-body p-4"><div class="text-muted small text-uppercase fw-bold">Resignations</div><div class="metric text-danger mt-2">{{ pending_resignations }}</div><div class="subtle text-muted mt-2">pending approval</div></div></div></div>
 </div>
 
 <div class="row g-4 mb-4">
-
-    <div class="col-xl-3 col-md-6">
-
-        <div class="stat-card">
-
-            <div>
-
-                <span class="stat-label">
-                    Employees
-                </span>
-
-                <h2 class="stat-value">
-                    {{ total_employees }}
-                </h2>
-
+    <!-- ATTENDANCE -->
+    <div class="col-xl-7">
+        <div class="card dashboard-section h-100">
+            <div class="card-header bg-white border-0 p-4 pb-2 d-flex justify-content-between align-items-center">
+                <div><h5 class="section-title mb-1">Attendance Overview</h5><p class="text-muted small mb-0">Today and the last 7 days.</p></div>
+                <a href="/attendance/" class="small dashboard-link">View attendance</a>
             </div>
-
-            <i class="bi bi-people stat-icon"></i>
-
+            <div class="card-body p-4">
+                <div class="row g-3 mb-4">
+                    <div class="col-6 col-md-3"><div class="mini-stat p-3"><div class="small text-muted">Present</div><div class="fs-4 fw-bold text-success">{{ present_today }}</div></div></div>
+                    <div class="col-6 col-md-3"><div class="mini-stat p-3"><div class="small text-muted">Absent</div><div class="fs-4 fw-bold text-danger">{{ absent_today }}</div></div></div>
+                    <div class="col-6 col-md-3"><div class="mini-stat p-3"><div class="small text-muted">On Leave</div><div class="fs-4 fw-bold text-warning">{{ on_leave_today }}</div></div></div>
+                    <div class="col-6 col-md-3"><div class="mini-stat p-3"><div class="small text-muted">Late</div><div class="fs-4 fw-bold text-primary">{{ late_today }}</div></div></div>
+                </div>
+                {% for item in attendance_trend %}
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <div class="small text-muted" style="width:38px;">{{ item.label }}</div>
+                        <div class="flex-grow-1"><div class="progress progress-thin bg-light"><div class="progress-bar bg-primary" style="width: {{ item.percentage }}%"></div></div></div>
+                        <div class="small fw-semibold" style="width:52px;text-align:right;">{{ item.count }}/{{ total_employees }}</div>
+                    </div>
+                {% endfor %}
+            </div>
         </div>
-
     </div>
 
-    <div class="col-xl-3 col-md-6">
-
-        <div class="stat-card">
-
-            <div>
-
-                <span class="stat-label">
-                    Departments
-                </span>
-
-                <h2 class="stat-value">
-                    {{ total_departments }}
-                </h2>
-
+    <!-- NEEDS ATTENTION -->
+    <div class="col-xl-5">
+        <div class="card dashboard-section h-100">
+            <div class="card-header bg-white border-0 p-4 pb-2"><h5 class="section-title mb-1">Needs Your Attention</h5><p class="text-muted small mb-0">HR actions that should be reviewed.</p></div>
+            <div class="card-body p-4 pt-2">
+                {% if pending_leaves %}<div class="attention-item d-flex justify-content-between align-items-center"><span><i class="bi bi-calendar-check text-warning me-2"></i>{{ pending_leaves }} leave requests</span><a href="/leave/" class="small">Review</a></div>{% endif %}
+                {% if pending_documents %}<div class="attention-item d-flex justify-content-between align-items-center"><span><i class="bi bi-file-earmark-check text-info me-2"></i>{{ pending_documents }} documents</span><a href="/documents/" class="small">Verify</a></div>{% endif %}
+                {% if pending_pmrs %}<div class="attention-item d-flex justify-content-between align-items-center"><span><i class="bi bi-clipboard-data text-primary me-2"></i>{{ pending_pmrs }} PMRs</span><a href="/appraisal/" class="small">Review</a></div>{% endif %}
+                {% if pending_promotions %}<div class="attention-item d-flex justify-content-between align-items-center"><span><i class="bi bi-award text-success me-2"></i>{{ pending_promotions }} promotions</span><a href="/promotions/" class="small">Review</a></div>{% endif %}
+                {% if pending_resignations %}<div class="attention-item d-flex justify-content-between align-items-center"><span><i class="bi bi-box-arrow-left text-danger me-2"></i>{{ pending_resignations }} resignations</span><a href="/resignation/" class="small">Review</a></div>{% endif %}
+                {% if incomplete_profiles %}<div class="attention-item d-flex justify-content-between align-items-center"><span><i class="bi bi-person-x text-warning me-2"></i>{{ incomplete_profiles }} incomplete profiles</span><a href="/employees/" class="small">Complete</a></div>{% endif %}
+                {% if not pending_leaves and not pending_documents and not pending_pmrs and not pending_promotions and not pending_resignations and not incomplete_profiles %}<div class="text-center py-4 text-muted"><i class="bi bi-check2-circle fs-2 d-block mb-2"></i>Nothing urgent right now.</div>{% endif %}
             </div>
-
-            <i class="bi bi-building stat-icon"></i>
-
         </div>
+    </div>
+</div>
 
+<div class="row g-4 mb-4">
+    <!-- DEPARTMENTS -->
+    <div class="col-lg-6">
+        <div class="card dashboard-section h-100">
+            <div class="card-header bg-white border-0 p-4 pb-2"><h5 class="section-title mb-1">Employees by Department</h5><p class="text-muted small mb-0">Current workforce distribution.</p></div>
+            <div class="card-body p-4">
+                {% for department in department_distribution %}
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between small mb-1"><span>{{ department.name }}</span><strong>{{ department.employee_total }}</strong></div>
+                        <div class="progress progress-thin bg-light"><div class="progress-bar bg-primary" style="width: {{ department.bar_width }}%"></div></div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
     </div>
 
-    <div class="col-xl-3 col-md-6">
-
-        <div class="stat-card">
-
-            <div>
-
-                <span class="stat-label">
-                    Leave Requests
-                </span>
-
-                <h2 class="stat-value">
-                    {{ pending_leave }}
-                </h2>
-
+    <!-- DATA COMPLETENESS -->
+    <div class="col-lg-6">
+        <div class="card dashboard-section h-100">
+            <div class="card-header bg-white border-0 p-4 pb-2"><h5 class="section-title mb-1">Employee Data Quality</h5><p class="text-muted small mb-0">Find missing payroll and statutory information.</p></div>
+            <div class="card-body p-4">
+                <div class="row g-3">
+                    <div class="col-6"><div class="mini-stat p-3"><div class="small text-muted">Missing PAN</div><div class="fs-4 fw-bold">{{ missing_pan }}</div></div></div>
+                    <div class="col-6"><div class="mini-stat p-3"><div class="small text-muted">Missing Bank</div><div class="fs-4 fw-bold">{{ missing_bank }}</div></div></div>
+                    <div class="col-6"><div class="mini-stat p-3"><div class="small text-muted">Missing IFSC</div><div class="fs-4 fw-bold">{{ missing_ifsc }}</div></div></div>
+                    <div class="col-6"><div class="mini-stat p-3"><div class="small text-muted">Missing PF</div><div class="fs-4 fw-bold">{{ missing_pf }}</div></div></div>
+                    <div class="col-6"><div class="mini-stat p-3"><div class="small text-muted">Missing ESI</div><div class="fs-4 fw-bold">{{ missing_esi }}</div></div></div>
+                    <div class="col-6"><div class="mini-stat p-3"><div class="small text-muted">Incomplete Profiles</div><div class="fs-4 fw-bold text-warning">{{ incomplete_profiles }}</div></div></div>
+                </div>
+                <div class="mt-3"><a href="/employees/" class="btn btn-outline-primary btn-sm">Complete Employee Records</a></div>
             </div>
-
-            <i class="bi bi-calendar-check stat-icon"></i>
-
         </div>
+    </div>
+</div>
 
+<div class="row g-4 mb-4">
+    <!-- PAYROLL -->
+    <div class="col-xl-8">
+        <div class="card dashboard-section h-100">
+            <div class="card-header bg-white border-0 p-4 pb-2 d-flex justify-content-between align-items-center"><div><h5 class="section-title mb-1">Payroll Summary</h5><p class="text-muted small mb-0">{{ payroll_month }} {{ today|date:"Y" }}</p></div><a href="/payslips/" class="small dashboard-link">Open payroll</a></div>
+            <div class="card-body p-4">
+                <div class="row g-3">
+                    <div class="col-6 col-md-3"><div class="small text-muted">Processed</div><div class="fs-4 fw-bold">{{ payroll_employees }}/{{ total_employees }}</div></div>
+                    <div class="col-6 col-md-3"><div class="small text-muted">Gross Payroll</div><div class="fs-4 fw-bold">₹ {{ gross_payroll|floatformat:2 }}</div></div>
+                    <div class="col-6 col-md-3"><div class="small text-muted">Deductions</div><div class="fs-4 fw-bold">₹ {{ total_deductions|floatformat:2 }}</div></div>
+                    <div class="col-6 col-md-3"><div class="small text-muted">Net Payroll</div><div class="fs-4 fw-bold text-success">₹ {{ net_payroll|floatformat:2 }}</div></div>
+                </div>
+                <div class="row g-3 mt-2">
+                    <div class="col-md-6"><div class="mini-stat p-3"><div class="small text-muted">Employer Contributions</div><strong>₹ {{ employer_contribution|floatformat:2 }}</strong></div></div>
+                    <div class="col-md-6"><div class="mini-stat p-3"><div class="small text-muted">Payroll Pending</div><strong class="text-warning">{{ payroll_pending }}</strong></div></div>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <div class="col-xl-3 col-md-6">
-
-        <div class="stat-card">
-
-            <div>
-
-                <span class="stat-label">
-                    Resignations
-                </span>
-
-                <h2 class="stat-value">
-                    {{ pending_resignation }}
-                </h2>
-
+    <!-- RECRUITMENT -->
+    <div class="col-xl-4">
+        <div class="card dashboard-section h-100">
+            <div class="card-header bg-white border-0 p-4 pb-2"><h5 class="section-title mb-1">Recruitment</h5><p class="text-muted small mb-0">Live hiring pipeline.</p></div>
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between mb-2"><span>Open Roles</span><strong>{{ open_roles }}</strong></div>
+                <div class="d-flex justify-content-between mb-2"><span>Applications</span><strong>{{ total_applications }}</strong></div>
+                <div class="d-flex justify-content-between mb-2"><span>Interviews</span><strong>{{ interviews }}</strong></div>
+                <div class="d-flex justify-content-between mb-2"><span>Selected</span><strong>{{ selected }}</strong></div>
+                <div class="d-flex justify-content-between mb-3"><span>Offers Pending</span><strong>{{ offers_pending }}</strong></div>
+                <a href="/recruitment/" class="btn btn-outline-primary btn-sm w-100">Manage Recruitment</a>
             </div>
-
-            <i class="bi bi-box-arrow-left stat-icon"></i>
-
         </div>
+    </div>
+</div>
 
+<div class="row g-4 mb-4">
+    <!-- NEW JOINERS -->
+    <div class="col-lg-4">
+        <div class="card dashboard-section h-100"><div class="card-header bg-white border-0 p-4 pb-2"><h5 class="section-title mb-1">New Joiners</h5><p class="text-muted small mb-0">This month's onboarding.</p></div><div class="card-body p-4 pt-2">
+            {% for employee in new_joiners %}<div class="d-flex justify-content-between align-items-center py-2 border-bottom"><div><a href="/employees/{{ employee.pk }}/" class="fw-semibold dashboard-link">{{ employee.user.get_full_name|default:employee.user.email }}</a><div class="small text-muted">{{ employee.designation }}</div></div><small class="text-muted">{{ employee.joining_date|date:"d M" }}</small></div>{% empty %}<div class="text-muted py-3">No new joiners this month.</div>{% endfor %}
+        </div></div>
     </div>
 
+    <!-- PROBATION -->
+    <div class="col-lg-4">
+        <div class="card dashboard-section h-100"><div class="card-header bg-white border-0 p-4 pb-2"><h5 class="section-title mb-1">Probation Ending Soon</h5><p class="text-muted small mb-0">Next 30 days.</p></div><div class="card-body p-4 pt-2">
+            {% for employee in probation_ending %}<div class="d-flex justify-content-between align-items-center py-2 border-bottom"><div><a href="/employees/{{ employee.pk }}/" class="fw-semibold dashboard-link">{{ employee.user.get_full_name|default:employee.user.email }}</a><div class="small text-muted">{{ employee.designation }}</div></div><span class="badge bg-warning-subtle text-warning-emphasis">{{ employee.probation_end_date|date:"d M" }}</span></div>{% empty %}<div class="text-muted py-3">No probation deadlines in the next 30 days.</div>{% endfor %}
+        </div></div>
+    </div>
+
+    <!-- BIRTHDAYS -->
+    <div class="col-lg-4">
+        <div class="card dashboard-section h-100"><div class="card-header bg-white border-0 p-4 pb-2"><h5 class="section-title mb-1">Upcoming Birthdays</h5><p class="text-muted small mb-0">Next 30 days.</p></div><div class="card-body p-4 pt-2">
+            {% for employee in birthdays %}<div class="d-flex justify-content-between align-items-center py-2 border-bottom"><div><span class="fw-semibold">{{ employee.user.get_full_name|default:employee.user.email }}</span><div class="small text-muted">{{ employee.designation }}</div></div><small class="text-muted">{{ employee.next_birthday|date:"d M" }}</small></div>{% empty %}<div class="text-muted py-3">No birthdays coming up.</div>{% endfor %}
+        </div></div>
+    </div>
 </div>
 
 <div class="row g-4">
-
+    <!-- RECENT ACTIVITY -->
     <div class="col-lg-8">
-
-        <div class="card">
-
-            <div class="card-header">
-
-                Recent Activities
-
-            </div>
-
-            <div class="card-body">
-
-                <div class="activity-item">
-                    Employee Joined
-                    <span>Today</span>
-                </div>
-
-                <div class="activity-item">
-                    Promotion Approved
-                    <span>Today</span>
-                </div>
-
-                <div class="activity-item">
-                    Leave Request Submitted
-                    <span>Today</span>
-                </div>
-
-            </div>
-
-        </div>
-
+        <div class="card dashboard-section h-100"><div class="card-header bg-white border-0 p-4 pb-2 d-flex justify-content-between align-items-center"><h5 class="section-title mb-0">Recent HR Activity</h5><a href="/audit/" class="small dashboard-link">Audit logs</a></div><div class="card-body p-4 pt-2">
+            {% for activity in activity_feed %}<div class="activity-row d-flex align-items-center gap-3"><div class="rounded-circle bg-light p-2"><i class="bi {{ activity.icon }} text-primary"></i></div><div class="flex-grow-1"><div class="fw-semibold">{{ activity.kind }}</div><div class="small text-muted">{{ activity.text }}</div></div><small class="text-muted">{{ activity.timestamp|timesince }} ago</small></div>{% empty %}<div class="text-muted py-4">No recent HR activity found.</div>{% endfor %}
+        </div></div>
     </div>
 
+    <!-- QUICK ACTIONS -->
     <div class="col-lg-4">
-
-        <div class="card">
-
-            <div class="card-header">
-
-                Quick Actions
-
-            </div>
-
-            <div class="card-body">
-
-                <div class="quick-grid">
-
-                    <a href="/employees/" class="quick-action">
-                        Employees
-                    </a>
-
-                    <a href="/leave/" class="quick-action">
-                        Leave
-                    </a>
-
-                    <a href="/promotions/" class="quick-action">
-                        Promotion
-                    </a>
-
-                    <a href="/payslips/" class="quick-action">
-                        Payslip
-                    </a>
-
-                </div>
-
-            </div>
-
-        </div>
-
+        <div class="card dashboard-section h-100"><div class="card-header bg-white border-0 p-4 pb-2"><h5 class="section-title mb-0">Quick Actions</h5></div><div class="card-body p-4"><div class="row g-2">
+            <div class="col-6"><a href="/employees/add/" class="btn btn-outline-primary w-100 py-3"><i class="bi bi-person-plus d-block mb-1"></i>Add Employee</a></div>
+            <div class="col-6"><a href="/leave/" class="btn btn-outline-success w-100 py-3"><i class="bi bi-calendar-check d-block mb-1"></i>Review Leave</a></div>
+            <div class="col-6"><a href="/payslips/" class="btn btn-outline-danger w-100 py-3"><i class="bi bi-wallet2 d-block mb-1"></i>Payslips</a></div>
+            <div class="col-6"><a href="/documents/" class="btn btn-outline-warning w-100 py-3"><i class="bi bi-file-earmark-check d-block mb-1"></i>Documents</a></div>
+            <div class="col-6"><a href="/promotions/" class="btn btn-outline-primary w-100 py-3"><i class="bi bi-award d-block mb-1"></i>Promotions</a></div>
+            <div class="col-6"><a href="/recruitment/" class="btn btn-outline-secondary w-100 py-3"><i class="bi bi-person-workspace d-block mb-1"></i>Recruitment</a></div>
+        </div></div></div>
     </div>
-
 </div>
-
 {% endblock %}

@@ -1,0 +1,18 @@
+{% extends 'layouts/base.html' %}
+{% block title %}Workforce Command Center{% endblock %}
+{% block content %}
+<div class="sc-page-head">
+  <div><div class="sc-eyebrow">WORKFORCE</div><h1>Workforce Command Center</h1><p>Employee lifecycle, organization, HR requests and separation operations in one workspace.</p></div>
+  <div class="sc-page-actions"><a class="btn btn-primary" href="{% url 'workforce:exit_create' %}"><i class="bi bi-plus-lg"></i> New Exit Case</a></div>
+</div>
+<div class="row g-3 mb-4">
+  <div class="col-6 col-xl-3"><div class="sc-kpi-card"><span>Total Employees</span><strong>{{ total_employees }}</strong><i class="bi bi-people"></i></div></div>
+  <div class="col-6 col-xl-3"><div class="sc-kpi-card"><span>Active Employees</span><strong>{{ active_employees }}</strong><i class="bi bi-person-check"></i></div></div>
+  <div class="col-6 col-xl-3"><div class="sc-kpi-card"><span>Open Exit Cases</span><strong>{{ exit_in_progress }}</strong><i class="bi bi-person-x"></i></div></div>
+  <div class="col-6 col-xl-3"><div class="sc-kpi-card"><span>Pending Clearance</span><strong>{{ pending_clearance }}</strong><i class="bi bi-clipboard-check"></i></div></div>
+</div>
+<div class="row g-4">
+  <div class="col-xl-8"><div class="sc-card"><div class="sc-card-head"><div><h2>Recent Exit Cases</h2><p>Track resignations, terminations and separation workflows.</p></div><a class="sc-link" href="{% url 'workforce:exit_list' %}">View all</a></div><div class="table-responsive"><table class="table sc-table align-middle"><thead><tr><th>Employee</th><th>Type</th><th>Status</th><th>Last Working Day</th></tr></thead><tbody>{% for item in recent_exits %}<tr><td><strong>{{ item.employee.user.get_full_name|default:item.employee.employee_id }}</strong><div class="small text-muted">{{ item.employee.employee_id }}</div></td><td>{{ item.get_exit_type_display }}</td><td><span class="sc-badge">{{ item.get_status_display }}</span></td><td>{{ item.actual_last_working_day|date:'d M Y'|default:'—' }}</td></tr>{% empty %}<tr><td colspan="4"><div class="sc-empty"><i class="bi bi-check2-circle"></i><strong>No active exit cases</strong><span>New separation workflows will appear here.</span></div></td></tr>{% endfor %}</tbody></table></div></div></div>
+  <div class="col-xl-4"><div class="sc-card"><div class="sc-card-head"><div><h2>Quick Actions</h2><p>Common workforce operations.</p></div></div><div class="sc-action-grid"><a href="{% url 'workforce:organization' %}"><i class="bi bi-diagram-3"></i><span>Organization</span><em><i class="bi bi-chevron-right"></i></em></a><a href="{% url 'workforce:request_list' %}"><i class="bi bi-inbox"></i><span>HR Requests</span><em><i class="bi bi-chevron-right"></i></em></a><a href="{% url 'workforce:exit_list' %}"><i class="bi bi-person-x"></i><span>Exit &amp; Separation</span><em><i class="bi bi-chevron-right"></i></em></a><a href="/employees/"><i class="bi bi-people"></i><span>Employees</span><em><i class="bi bi-chevron-right"></i></em></a></div></div></div>
+</div>
+{% endblock %}

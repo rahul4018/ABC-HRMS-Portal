@@ -1,0 +1,16 @@
+{% extends 'layouts/base.html' %}
+{% block content %}
+<div class="py-2">
+  <div class="mb-4"><h2 class="fw-bold mb-1">Founder Dashboard</h2><p class="text-muted mb-0">Company-level people, cost and growth snapshot.</p></div>
+  <div class="row g-3 mb-4">
+    {% include 'dashboard/_kpi.html' with title='Workforce' value=active_employees icon='people' color='primary' %}
+    {% include 'dashboard/_kpi.html' with title='Hiring Openings' value=recruitment_openings icon='person-plus' color='success' %}
+    {% include 'dashboard/_kpi.html' with title='Pending Leaves' value=pending_leaves icon='calendar2-week' color='warning' %}
+    {% include 'dashboard/_kpi.html' with title='Total Cost to Company' value=total_compensation_cost icon='cash-stack' color='danger' prefix='₹ ' %}
+  </div>
+  <div class="row g-4">
+    <div class="col-lg-7"><div class="card border-0 shadow-sm h-100"><div class="card-header bg-white border-0 pt-3"><h5 class="fw-bold mb-0">Company People Mix</h5></div><div class="card-body">{% for dept in department_distribution %}<div class="d-flex justify-content-between mb-2"><span>{{ dept.name }}</span><span class="fw-bold">{{ dept.employee_total }}</span></div>{% endfor %}</div></div></div>
+    <div class="col-lg-5"><div class="card border-0 shadow-sm h-100"><div class="card-header bg-white border-0 pt-3"><h5 class="fw-bold mb-0">Executive Snapshot</h5></div><div class="card-body"><div class="d-flex justify-content-between mb-2"><span>Payroll Net</span><strong>₹ {{ payroll_net|floatformat:2 }}</strong></div><div class="d-flex justify-content-between mb-2"><span>Employer Contribution</span><strong>₹ {{ payroll_employer|floatformat:2 }}</strong></div><div class="d-flex justify-content-between mb-2"><span>Selected Candidates</span><strong>{{ selected_candidates }}</strong></div><div class="d-flex justify-content-between mb-3"><span>Approved Exits</span><strong>{{ approved_resignations }}</strong></div><a href="/reports/" class="btn btn-outline-dark w-100">Executive Reports</a></div></div></div>
+  </div>
+</div>
+{% endblock %}

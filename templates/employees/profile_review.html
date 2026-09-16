@@ -1,0 +1,135 @@
+{% extends "layouts/base.html" %}
+
+{% block content %}
+<div class="container-fluid px-0">
+    <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-4">
+        <div>
+            <a href="{% url 'profile_review_list' %}" class="text-decoration-none small">
+                <i class="bi bi-arrow-left me-1"></i> Back to Profile Review Queue
+            </a>
+            <h1 class="h3 fw-bold mt-2 mb-1">Review Employee Profile</h1>
+            <p class="text-muted mb-0">Verify the submitted profile, complete statutory identifiers, and approve the employee for normal access.</p>
+        </div>
+        {% if profile_status == 'ACTIVE' %}
+            <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2">Active</span>
+        {% else %}
+            <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle px-3 py-2">HR Review</span>
+        {% endif %}
+    </div>
+
+    <div class="row g-4">
+        <div class="col-12 col-xl-8">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body p-4">
+                    <div class="d-flex flex-wrap align-items-center gap-3">
+                        {% if employee.profile_picture %}
+                            <img src="{{ employee.profile_picture.url }}" alt="Profile photo" class="rounded-3" style="width:84px;height:84px;object-fit:cover;">
+                        {% else %}
+                            <div class="rounded-3 bg-primary-subtle text-primary d-flex align-items-center justify-content-center fw-bold fs-3" style="width:84px;height:84px;">
+                                {{ employee.user.first_name|first|default:employee.employee_id|first|upper }}
+                            </div>
+                        {% endif %}
+                        <div class="flex-grow-1">
+                            <div class="small text-muted">Employee ID</div>
+                            <div class="fw-bold fs-5">{{ employee.employee_id }}</div>
+                            <div class="text-muted">{{ employee.user.get_full_name|default:"Unnamed employee" }}</div>
+                        </div>
+                        <div class="text-md-end">
+                            <div class="small text-muted">Submitted</div>
+                            <div class="fw-semibold">{{ profile_submitted_at|date:"d M Y, h:i A"|default:"—" }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white border-bottom py-3">
+                    <h2 class="h5 fw-bold mb-1"><i class="bi bi-person-vcard me-2"></i>Employee Information</h2>
+                    <div class="small text-muted">Details submitted by the employee.</div>
+                </div>
+                <div class="card-body p-4">
+                    <div class="row g-4">
+                        <div class="col-md-6"><div class="small text-muted">Email</div><div class="fw-semibold">{{ employee.user.email|default:"Not provided" }}</div></div>
+                        <div class="col-md-6"><div class="small text-muted">Phone</div><div class="fw-semibold">{{ employee.phone|default:"Not provided" }}</div></div>
+                        <div class="col-md-6"><div class="small text-muted">Date of Birth</div><div class="fw-semibold">{{ employee.date_of_birth|date:"d M Y"|default:"Not provided" }}</div></div>
+                        <div class="col-md-3"><div class="small text-muted">Gender</div><div class="fw-semibold">{{ employee.get_gender_display|default:"Not provided" }}</div></div>
+                        <div class="col-md-3"><div class="small text-muted">Marital Status</div><div class="fw-semibold">{{ employee.get_marital_status_display|default:"Not provided" }}</div></div>
+                        <div class="col-md-4"><div class="small text-muted">Blood Group</div><div class="fw-semibold">{{ employee.blood_group|default:"Not provided" }}</div></div>
+                        <div class="col-md-4"><div class="small text-muted">Nationality</div><div class="fw-semibold">{{ employee.nationality|default:"Not provided" }}</div></div>
+                        <div class="col-md-4"><div class="small text-muted">Location</div><div class="fw-semibold">{{ employee.location|default:"Not provided" }}</div></div>
+                        <div class="col-12"><div class="small text-muted">Address</div><div class="fw-semibold">{{ employee.address|default:"Not provided" }}</div></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white border-bottom py-3">
+                    <h2 class="h5 fw-bold mb-1"><i class="bi bi-card-text me-2"></i>Identity & Banking</h2>
+                    <div class="small text-muted">Review sensitive information carefully before approval.</div>
+                </div>
+                <div class="card-body p-4">
+                    <div class="row g-4">
+                        <div class="col-md-4"><div class="small text-muted">PAN</div><div class="fw-semibold">{{ employee.pan_number|default:"Not provided" }}</div></div>
+                        <div class="col-md-4"><div class="small text-muted">Aadhaar</div><div class="fw-semibold">{{ employee.aadhaar_number|default:"Not provided" }}</div></div>
+                        <div class="col-md-4"><div class="small text-muted">Passport</div><div class="fw-semibold">{{ employee.passport_number|default:"Not provided" }}</div></div>
+                        <div class="col-md-6"><div class="small text-muted">Bank</div><div class="fw-semibold">{{ employee.bank_name|default:"Not provided" }}</div></div>
+                        <div class="col-md-6"><div class="small text-muted">Account Holder</div><div class="fw-semibold">{{ employee.account_holder_name|default:"Not provided" }}</div></div>
+                        <div class="col-md-6"><div class="small text-muted">Account Number</div><div class="fw-semibold">{{ employee.account_number|default:"Not provided" }}</div></div>
+                        <div class="col-md-6"><div class="small text-muted">IFSC</div><div class="fw-semibold">{{ employee.ifsc_code|default:"Not provided" }}</div></div>
+                        <div class="col-12"><div class="small text-muted">Emergency Contact</div><div class="fw-semibold">{% if employee.emergency_contact_name %}{{ employee.emergency_contact_name }}{% else %}Not provided{% endif %}{% if employee.emergency_contact_relation %} · {{ employee.emergency_contact_relation }}{% endif %}{% if employee.emergency_contact_number %} · {{ employee.emergency_contact_number }}{% endif %}</div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-xl-4">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white border-bottom py-3">
+                    <h2 class="h5 fw-bold mb-1"><i class="bi bi-briefcase me-2"></i>Employment Assignment</h2>
+                    <div class="small text-muted">HR-controlled employment information.</div>
+                </div>
+                <div class="card-body p-4">
+                    <div class="mb-3"><div class="small text-muted">Department</div><div class="fw-semibold">{{ employee.department.name|default:"—" }}</div></div>
+                    <div class="mb-3"><div class="small text-muted">Designation</div><div class="fw-semibold">{{ employee.designation|default:"—" }}</div></div>
+                    <div class="mb-3"><div class="small text-muted">Reporting Manager</div><div class="fw-semibold">{{ employee.reporting_manager.user.get_full_name|default:"—" }}</div></div>
+                    <div class="mb-3"><div class="small text-muted">Employment Type</div><div class="fw-semibold">{{ employee.get_employment_type_display|default:"—" }}</div></div>
+                    <div class="mb-3"><div class="small text-muted">Work Mode</div><div class="fw-semibold">{{ employee.get_work_mode_display|default:"—" }}</div></div>
+                    <div><div class="small text-muted">Joining Date</div><div class="fw-semibold">{{ employee.joining_date|date:"d M Y"|default:"—" }}</div></div>
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-bottom py-3">
+                    <h2 class="h5 fw-bold mb-1"><i class="bi bi-shield-check me-2"></i>Statutory Information</h2>
+                    <div class="small text-muted">Enter PF, UAN and ESI before approval.</div>
+                </div>
+                <div class="card-body p-4">
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">PF Number</label>
+                            <input type="text" name="pf_number" value="{{ employee.pf_number|default_if_none:'' }}" class="form-control" placeholder="Enter PF number">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">UAN Number</label>
+                            <input type="text" name="uan_number" value="{{ employee.uan_number|default_if_none:'' }}" class="form-control" placeholder="Enter UAN number">
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold">ESI Number</label>
+                            <input type="text" name="esi_number" value="{{ employee.esi_number|default_if_none:'' }}" class="form-control" placeholder="Enter ESI number">
+                        </div>
+                        <button type="submit" name="action" value="save" class="btn btn-light border w-100 mb-2">
+                            <i class="bi bi-save me-1"></i> Save Statutory Details
+                        </button>
+                        {% if profile_status != 'ACTIVE' %}
+                            <button type="submit" name="action" value="approve" class="btn btn-success w-100" onclick="return confirm('Approve this employee profile and activate normal dashboard access?');">
+                                <i class="bi bi-check2-circle me-1"></i> Approve & Activate
+                            </button>
+                        {% endif %}
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

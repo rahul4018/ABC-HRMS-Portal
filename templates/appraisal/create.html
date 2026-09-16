@@ -1,85 +1,372 @@
 {% extends 'layouts/base.html' %}
+
 {% block content %}
 
-<div class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center mb-4 gap-3">
+<div class="d-flex justify-content-between align-items-center mb-4">
+
     <div>
         <h2 class="fw-bold mb-1">
-            Create Performance Management Report
+            Create Performance Review
         </h2>
+
         <p class="text-muted mb-0">
-            Submit your achievements and goals for review.
+            Create a performance review for an employee.
         </p>
     </div>
-    <a href="{% url 'pmr_list' %}" class="btn btn-outline-secondary">
-        <i class="bi bi-arrow-left me-1"></i> Back to List
+
+    <a
+        href="{% url 'pmr_list' %}"
+        class="btn btn-outline-secondary"
+    >
+        ← Back
     </a>
+
 </div>
 
+
 <div class="card border-0 shadow-sm">
+
     <div class="card-body p-4">
 
-        <form method="POST">
+        <form method="post">
+
             {% csrf_token %}
 
-            <div class="mb-4">
-                <label class="form-label fw-semibold" for="id_title">
-                    PMR Title
-                </label>
-                <input
-                    type="text"
-                    id="id_title"
-                    name="title"
-                    class="form-control"
-                    placeholder="Example: Q2 2026 Performance Review"
-                    required
+            <div class="row g-4">
+
+
+                <!-- Employee -->
+
+                <div class="col-md-12">
+
+                    <label class="form-label fw-semibold">
+                        Employee *
+                    </label>
+
+                    {% if is_manager %}
+
+                        <select
+                            name="employee"
+                            class="form-select"
+                            required
+                        >
+
+                            <option value="">
+                                Select employee
+                            </option>
+
+                            {% for employee in employees %}
+
+                                <option
+                                    value="{{ employee.id }}"
+                                    {% if selected_employee == employee.id %}
+                                        selected
+                                    {% endif %}
+                                >
+
+                                    {{ employee.user.get_full_name|default:employee.user.email }}
+                                    —
+                                    {{ employee.employee_id }}
+
+                                    {% if employee.department %}
+                                        ({{ employee.department.name }})
+                                    {% endif %}
+
+                                </option>
+
+                            {% endfor %}
+
+                        </select>
+
+                        <div class="form-text">
+                            HR/Management can select the employee being reviewed.
+                        </div>
+
+                    {% else %}
+
+                        {% for employee in employees %}
+
+                            <input
+                                type="hidden"
+                                name="employee"
+                                value="{{ employee.id }}"
+                            >
+
+                            <div class="form-control bg-light">
+
+                                <strong>
+                                    {{ employee.user.get_full_name|default:employee.user.email }}
+                                </strong>
+
+                                <span class="text-muted">
+                                    — {{ employee.employee_id }}
+                                </span>
+
+                            </div>
+
+                        {% endfor %}
+
+                    {% endif %}
+
+                </div>
+
+
+                <!-- Review Title -->
+
+                <div class="col-md-12">
+
+                    <label class="form-label fw-semibold">
+                        Review Title *
+                    </label>
+
+                    <input
+                        type="text"
+                        name="title"
+                        value="{{ title|default:'' }}"
+                        class="form-control"
+                        placeholder="Quarterly Performance Review"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- Review Period -->
+
+                <div class="col-md-6">
+
+                    <label class="form-label fw-semibold">
+                        Review Period
+                    </label>
+
+                    <select
+                        name="review_period"
+                        class="form-select"
+                    >
+
+                        <option value="">
+                            Select period
+                        </option>
+
+                        <option>
+                            Q1 2026
+                        </option>
+
+                        <option>
+                            Q2 2026
+                        </option>
+
+                        <option>
+                            Q3 2026
+                        </option>
+
+                        <option>
+                            Q4 2026
+                        </option>
+
+                        <option>
+                            Annual 2026
+                        </option>
+
+                    </select>
+
+                    <div class="form-text">
+                        For display/planning. It is not stored in the current PMR model.
+                    </div>
+
+                </div>
+
+
+                <!-- Review Type -->
+
+                <div class="col-md-6">
+
+                    <label class="form-label fw-semibold">
+                        Review Type
+                    </label>
+
+                    <select
+                        name="review_type"
+                        class="form-select"
+                    >
+
+                        <option>
+                            Quarterly
+                        </option>
+
+                        <option>
+                            Half-Yearly
+                        </option>
+
+                        <option>
+                            Annual
+                        </option>
+
+                        <option>
+                            Probation
+                        </option>
+
+                        <option>
+                            Promotion
+                        </option>
+
+                    </select>
+
+                    <div class="form-text">
+                        We can persist this after adding PMR database fields.
+                    </div>
+
+                </div>
+
+
+                <!-- Achievements -->
+
+                <div class="col-md-6">
+
+                    <label class="form-label fw-semibold">
+                        Achievements *
+                    </label>
+
+                    <textarea
+                        name="achievements"
+                        rows="7"
+                        class="form-control"
+                        placeholder="Enter key achievements..."
+                        required
+                    >{{ achievements|default:'' }}</textarea>
+
+                </div>
+
+
+                <!-- Goals -->
+
+                <div class="col-md-6">
+
+                    <label class="form-label fw-semibold">
+                        Goals *
+                    </label>
+
+                    <textarea
+                        name="goals"
+                        rows="7"
+                        class="form-control"
+                        placeholder="Enter goals and KPIs..."
+                        required
+                    >{{ goals|default:'' }}</textarea>
+
+                </div>
+
+
+                <!-- Future fields -->
+
+                <div class="col-md-6">
+
+                    <label class="form-label fw-semibold">
+                        Strengths
+                    </label>
+
+                    <textarea
+                        name="strengths"
+                        rows="5"
+                        class="form-control"
+                        placeholder="Strengths demonstrated by the employee..."
+                    ></textarea>
+
+                </div>
+
+
+                <div class="col-md-6">
+
+                    <label class="form-label fw-semibold">
+                        Areas for Improvement
+                    </label>
+
+                    <textarea
+                        name="improvement_areas"
+                        rows="5"
+                        class="form-control"
+                        placeholder="Areas that need improvement..."
+                    ></textarea>
+
+                </div>
+
+
+                <div class="col-md-6">
+
+                    <label class="form-label fw-semibold">
+                        Development Plan
+                    </label>
+
+                    <textarea
+                        name="development_plan"
+                        rows="5"
+                        class="form-control"
+                        placeholder="Training, skills and development plan..."
+                    ></textarea>
+
+                </div>
+
+
+                <div class="col-md-6">
+
+                    <label class="form-label fw-semibold">
+                        Promotion Recommendation
+                    </label>
+
+                    <select
+                        name="promotion_recommendation"
+                        class="form-select"
+                    >
+
+                        <option value="NOT_ASSESSED">
+                            Not Assessed
+                        </option>
+
+                        <option value="RECOMMENDED">
+                            Recommended
+                        </option>
+
+                        <option value="NOT_RECOMMENDED">
+                            Not Recommended
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+            </div>
+
+
+            <hr class="my-4">
+
+
+            <div class="d-flex justify-content-end gap-2">
+
+                <a
+                    href="{% url 'pmr_list' %}"
+                    class="btn btn-light"
                 >
-            </div>
-
-            <div class="mb-4">
-                <label class="form-label fw-semibold" for="id_achievements">
-                    Key Achievements
-                </label>
-                <textarea
-                    id="id_achievements"
-                    name="achievements"
-                    class="form-control"
-                    rows="6"
-                    placeholder="Describe your achievements, completed tasks, successful projects, contributions, and improvements..."
-                    required
-                ></textarea>
-            </div>
-
-            <div class="mb-4">
-                <label class="form-label fw-semibold" for="id_goals">
-                    Goals & Objectives
-                </label>
-                <textarea
-                    id="id_goals"
-                    name="goals"
-                    class="form-control"
-                    rows="6"
-                    placeholder="Describe your goals, learning plans, certifications, projects, and targets for the next review period..."
-                    required
-                ></textarea>
-            </div>
-
-            <div class="alert alert-info border-0 bg-light-subtle shadow-sm mb-4">
-                <i class="bi bi-info-circle-fill text-info me-2"></i>
-                <strong>Note:</strong> After submission, your PMR will be securely transmitted and reviewed by your Supervisor. You may track whether it receives approval, rejection, or a modification request from your dashboard.
-            </div>
-
-            <div class="d-flex gap-2">
-                <button type="submit" class="btn btn-success px-4">
-                    Submit PMR
-                </button>
-                <a href="{% url 'pmr_list' %}" class="btn btn-secondary px-4">
                     Cancel
                 </a>
+
+                <button
+                    type="submit"
+                    class="btn btn-primary"
+                >
+
+                    <i class="bi bi-check-circle me-1"></i>
+
+                    Create Review
+
+                </button>
+
             </div>
 
         </form>
 
     </div>
+
 </div>
 
 {% endblock %}

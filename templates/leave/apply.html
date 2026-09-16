@@ -1,139 +1,85 @@
 {% extends 'layouts/base.html' %}
-
 {% block content %}
-
 <div class="d-flex justify-content-between align-items-center mb-4">
-
     <div>
-
-        <h2 class="fw-bold">
-            Apply Leave
-        </h2>
-
-        <p class="text-muted mb-0">
-            Submit leave request for approval.
-        </p>
-
+        <h2 class="fw-bold mb-1">Apply Leave</h2>
+        <p class="text-muted mb-0">Submit a leave request for approval.</p>
     </div>
-
-    <a href="/leave/"
-       class="btn btn-secondary">
-
-        <i class="bi bi-arrow-left me-1"></i>
-
-        Back
-
-    </a>
-
+    <a href="{% url 'leave_list' %}" class="btn btn-outline-secondary">Back</a>
 </div>
 
-<div class="card border-0 shadow-sm">
-
-    <div class="card-body p-4">
-
-        <form method="POST">
-
-            {% csrf_token %}
-
-            <div class="row g-4">
-
-                <!-- Leave Type -->
-                <div class="col-md-6">
-
-                    <label class="form-label fw-semibold">
-                        Leave Type
-                    </label>
-
-                    <select name="leave_type"
-                            class="form-select"
-                            required>
-
-                        <option value="">
-                            Select Leave Type
-                        </option>
-
-                        <option value="SICK">
-                            Sick Leave
-                        </option>
-
-                        <option value="CASUAL">
-                            Casual Leave
-                        </option>
-
-                        <option value="PAID">
-                            Paid Leave
-                        </option>
-
-                        <option value="UNPAID">
-                            Unpaid Leave
-                        </option>
-
-                    </select>
-
-                </div>
-
-                <!-- Start Date -->
-                <div class="col-md-3">
-
-                    <label class="form-label fw-semibold">
-                        Start Date
-                    </label>
-
-                    <input type="date"
-                           name="start_date"
-                           class="form-control"
-                           required>
-
-                </div>
-
-                <!-- End Date -->
-                <div class="col-md-3">
-
-                    <label class="form-label fw-semibold">
-                        End Date
-                    </label>
-
-                    <input type="date"
-                           name="end_date"
-                           class="form-control"
-                           required>
-
-                </div>
-
-                <!-- Reason -->
-                <div class="col-12">
-
-                    <label class="form-label fw-semibold">
-                        Reason
-                    </label>
-
-                    <textarea name="reason"
-                              rows="5"
-                              class="form-control"
-                              placeholder="Explain your leave reason..."
-                              required></textarea>
-
-                </div>
-
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-4">
+                <form method="post">{% csrf_token %}
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Leave Type *</label>
+                            <select name="leave_type" class="form-select" required>
+                                <option value="">Select leave type</option>
+                                {% for value,label in leave_types %}
+                                <option value="{{ value }}" {% if leave_type == value %}selected{% endif %}>{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Duration *</label>
+                            <select name="duration_type" id="durationType" class="form-select" required>
+                                <option value="FULL_DAY" {% if duration_type == 'FULL_DAY' or not duration_type %}selected{% endif %}>Full Day</option>
+                                <option value="HALF_DAY" {% if duration_type == 'HALF_DAY' %}selected{% endif %}>Half Day</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">From *</label>
+                            <input type="date" name="start_date" value="{{ start_date }}" class="form-control" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">To *</label>
+                            <input type="date" name="end_date" value="{{ end_date }}" class="form-control" required>
+                        </div>
+                        <div class="col-md-6" id="halfDayBox" style="display:none;">
+                            <label class="form-label fw-semibold">Half Day Period</label>
+                            <select name="half_day_period" class="form-select">
+                                <option value="">Select</option>
+                                <option value="MORNING" {% if half_day_period == 'MORNING' %}selected{% endif %}>Morning</option>
+                                <option value="AFTERNOON" {% if half_day_period == 'AFTERNOON' %}selected{% endif %}>Afternoon</option>
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">Reason *</label>
+                            <textarea name="reason" rows="5" class="form-control" required placeholder="Explain the reason for your leave">{{ reason }}</textarea>
+                        </div>
+                        <div class="col-12 d-flex justify-content-end gap-2">
+                            <a href="{% url 'leave_list' %}" class="btn btn-light">Cancel</a>
+                            <button class="btn btn-primary">Submit Request</button>
+                        </div>
+                    </div>
+                </form>
             </div>
-
-            <div class="mt-4">
-
-                <button type="submit"
-                        class="btn btn-primary px-4">
-
-                    <i class="bi bi-send-check me-1"></i>
-
-                    Submit Leave Request
-
-                </button>
-
-            </div>
-
-        </form>
-
+        </div>
     </div>
-
+    <div class="col-lg-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <h5 class="fw-bold">Available Balance</h5>
+                <div class="d-flex justify-content-between border-bottom py-3"><span>Casual</span><strong>{{ balance.remaining_casual_leave }}</strong></div>
+                <div class="d-flex justify-content-between border-bottom py-3"><span>Sick</span><strong>{{ balance.remaining_sick_leave }}</strong></div>
+                <div class="d-flex justify-content-between py-3"><span>Earned</span><strong>{{ balance.remaining_earned_leave }}</strong></div>
+            </div>
+        </div>
+    </div>
 </div>
 
+<script>
+(function() {
+    const duration = document.getElementById('durationType');
+    const box = document.getElementById('halfDayBox');
+    function toggle() {
+        box.style.display = duration.value === 'HALF_DAY' ? 'block' : 'none';
+    }
+    duration.addEventListener('change', toggle);
+    toggle();
+})();
+</script>
 {% endblock %}

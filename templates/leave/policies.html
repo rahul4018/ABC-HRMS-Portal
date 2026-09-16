@@ -1,0 +1,31 @@
+{% extends 'layouts/base.html' %}
+{% block content %}
+<div class="mb-4">
+    <h2 class="fw-bold mb-1">Leave Policies</h2>
+    <p class="text-muted mb-0">Configure annual entitlement and carry-forward rules.</p>
+</div>
+
+<div class="card border-0 shadow-sm">
+<div class="table-responsive">
+<table class="table align-middle mb-0">
+<thead class="table-light"><tr><th>Leave Type</th><th>Annual Allocation</th><th>Paid</th><th>Carry Forward</th><th>Max Carry Forward</th><th>Active</th><th></th></tr></thead>
+<tbody>
+{% for policy in policies %}
+<tr>
+<form method="post" action="{% url 'leave_policy_update' policy.pk %}">
+{% csrf_token %}
+<td class="fw-semibold">{{ policy.get_leave_type_display }}</td>
+<td><input class="form-control" type="number" min="0" name="annual_allocation" value="{{ policy.annual_allocation }}" style="width:110px"></td>
+<td><input type="checkbox" name="is_paid" {% if policy.is_paid %}checked{% endif %}></td>
+<td><input type="checkbox" name="carry_forward" {% if policy.carry_forward %}checked{% endif %}></td>
+<td><input class="form-control" type="number" min="0" name="max_carry_forward" value="{{ policy.max_carry_forward }}" style="width:110px"></td>
+<td><input type="checkbox" name="is_active" {% if policy.is_active %}checked{% endif %}></td>
+<td><button class="btn btn-sm btn-primary">Save</button></td>
+</form>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+</div>
+</div>
+{% endblock %}

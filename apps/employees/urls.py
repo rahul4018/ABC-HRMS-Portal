@@ -1,11 +1,10 @@
+from apps.employees import views as employee_document_views
 from django.urls import path
 
 from .views import (
-
     # ==========================================
     # EMPLOYEE
     # ==========================================
-
     employee_list,
     employee_detail,
     employee_add,
@@ -15,12 +14,18 @@ from .views import (
     asset_detail,
     employee_edit,
     employee_delete,
+
+    # ==========================================
+    # PROFILE
+    # ==========================================
     my_profile,
+    my_profile_edit,
+    profile_review_list,
+    profile_review,
 
     # ==========================================
     # DEPARTMENTS
     # ==========================================
-
     department_list,
     department_add,
     department_edit,
@@ -29,7 +34,6 @@ from .views import (
     # ==========================================
     # PAYSLIPS
     # ==========================================
-
     payslip_list,
     payslip_detail,
     download_payslip_pdf,
@@ -37,26 +41,22 @@ from .views import (
     # ==========================================
     # ATTENDANCE
     # ==========================================
-
     attendance_list,
     mark_attendance,
 
     # ==========================================
     # ANNOUNCEMENTS
     # ==========================================
-
     announcement_list,
 
     # ==========================================
     # REPORTS
     # ==========================================
-
     reports_dashboard,
 
     # ==========================================
     # DOCUMENTS
     # ==========================================
-
     document_list,
     upload_document,
     delete_document,
@@ -64,9 +64,9 @@ from .views import (
     # ==========================================
     # EXPORTS
     # ==========================================
-
     export_employees_csv,
 )
+
 
 urlpatterns = [
 
@@ -118,6 +118,28 @@ urlpatterns = [
         'my-profile/',
         my_profile,
         name='my_profile'
+    ),
+
+    path(
+        'my-profile/edit/',
+        my_profile_edit,
+        name='my_profile_edit'
+    ),
+
+    # ==========================================
+    # HR PROFILE REVIEW
+    # ==========================================
+
+    path(
+        'profile-review/',
+        profile_review_list,
+        name='profile_review_list'
+    ),
+
+    path(
+        'profile-review/<int:pk>/',
+        profile_review,
+        name='profile_review'
     ),
 
     # ==========================================
@@ -224,30 +246,61 @@ urlpatterns = [
 
     path(
         'documents/<int:pk>/delete/',
-        delete_document,
+        employee_document_views.delete_document,
         name='delete_document'
     ),
+
+    # ==========================================
+    # EMPLOYEE PROFILE PDF
+    # ==========================================
+
     path(
         'employee/<int:pk>/profile-pdf/',
         employee_profile_pdf,
-                name='employee_profile_pdf'
+        name='employee_profile_pdf'
     ),
+
+    # ==========================================
+    # ASSET URLS
+    # ==========================================
+
     path(
-    'assets/',
-    asset_list,
-    name='asset_list'
-),
+        'assets/',
+        asset_list,
+        name='asset_list'
+    ),
 
-path(
-    'assets/add/',
-    asset_add,
-    name='asset_add'
-),
+    path(
+        'assets/add/',
+        asset_add,
+        name='asset_add'
+    ),
 
-path(
-    'assets/<int:pk>/',
-    asset_detail,
-    name='asset_detail'
-),
+    path(
+        'assets/<int:pk>/',
+        asset_detail,
+        name='asset_detail'
+    ),
 
+    # ==========================================
+    # ENHANCED DOCUMENT MANAGEMENT
+    # ==========================================
+
+    path(
+        'documents/<int:pk>/',
+        employee_document_views.document_detail,
+        name='document_detail'
+    ),
+
+    path(
+        'documents/<int:pk>/download/',
+        employee_document_views.download_document,
+        name='download_document'
+    ),
+
+    path(
+        'documents/<int:pk>/replace/',
+        employee_document_views.replace_document,
+        name='replace_document'
+    ),
 ]

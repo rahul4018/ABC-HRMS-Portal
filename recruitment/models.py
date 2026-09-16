@@ -51,3 +51,10 @@ class Applicant(models.Model):
 
     def __str__(self):
         return self.full_name
+
+# Complete ATS workflow models
+from .workflow_models import (
+    HiringRequest, JobRequirementExtra, CandidateProfile, JobPosting, Assessment,
+    Interview, InterviewFeedback, Offer, BackgroundVerification,
+    OnboardingTask, RecruitmentActivity,
+)

@@ -2,38 +2,56 @@
 
 {% block content %}
 
-<div class="container py-4">
+<div class="d-flex justify-content-between align-items-center mb-4">
 
-    <div class="card border-0 shadow-sm">
+    <div>
+        <h2 class="fw-bold mb-1">
+            Upload Employee Document
+        </h2>
 
-        <div class="card-body p-5">
+        <p class="text-muted mb-0">
+            Upload and classify an employee document for HR verification.
+        </p>
+    </div>
 
-            <div class="d-flex justify-content-between align-items-center mb-4">
+    <a
+        href="{% url 'document_list' %}"
+        class="btn btn-outline-secondary"
+    >
+        ← Back
+    </a>
 
-                <h2 class="fw-bold mb-0">
-                    Upload Employee Document
-                </h2>
+</div>
 
-            </div>
 
-            <form method="POST"
-                  enctype="multipart/form-data">
+<div class="card border-0 shadow-sm">
 
-                {% csrf_token %}
+    <div class="card-body p-4">
 
-                <!-- Employee Selection -->
+        <form
+            method="post"
+            enctype="multipart/form-data"
+        >
 
-                <div class="mb-4">
+            {% csrf_token %}
+
+            <div class="row g-4">
+
+
+                <!-- EMPLOYEE -->
+
+                <div class="col-md-6">
 
                     <label class="form-label fw-semibold">
-
-                        Employee
-
+                        Employee *
                     </label>
 
-                    <select name="employee"
-                            class="form-select"
-                            required>
+                    <select
+                        name="employee"
+                        class="form-select"
+                        required
+                        style="appearance:auto;"
+                    >
 
                         <option value="">
                             Select Employee
@@ -41,11 +59,20 @@
 
                         {% for employee in employees %}
 
-                        <option value="{{ employee.id }}">
+                        <option
+                            value="{{ employee.id }}"
+                            {% if selected_employee == employee.id|stringformat:"s" %}
+                                selected
+                            {% endif %}
+                        >
 
-                            {{ employee.user.first_name }}
-                            {{ employee.user.last_name }}
-                            ({{ employee.user.email }})
+                            {{ employee.user.get_full_name|default:employee.user.email }}
+                            —
+                            {{ employee.employee_id }}
+
+                            {% if employee.department %}
+                                ({{ employee.department.name }})
+                            {% endif %}
 
                         </option>
 
@@ -55,60 +82,41 @@
 
                 </div>
 
-                <!-- Document Title -->
 
-                <div class="mb-4">
+                <!-- CATEGORY -->
 
-                    <label class="form-label fw-semibold">
-
-                        Document Title
-
-                    </label>
-
-                    <input type="text"
-                           name="title"
-                           class="form-control"
-                           placeholder="Enter document title"
-                           required>
-
-                </div>
-
-                <!-- Document Type -->
-
-                <div class="mb-4">
+                <div class="col-md-6">
 
                     <label class="form-label fw-semibold">
-
-                        Document Type
-
+                        Category *
                     </label>
 
-                    <select name="document_type"
-                            class="form-select"
-                            required>
+                    <select
+                        name="category"
+                        id="documentCategory"
+                        class="form-select"
+                        required
+                        style="appearance:auto;"
+                    >
 
                         <option value="">
-                            Select Type
+                            Select Category
                         </option>
 
-                        <option value="AADHAAR">
-                            Aadhaar
+                        <option value="IDENTITY">
+                            Identity
                         </option>
 
-                        <option value="PAN">
-                            PAN
+                        <option value="EMPLOYMENT">
+                            Employment
                         </option>
 
-                        <option value="RESUME">
-                            Resume
+                        <option value="PAYROLL">
+                            Payroll / Compliance
                         </option>
 
-                        <option value="CERTIFICATE">
-                            Certificate
-                        </option>
-
-                        <option value="CONTRACT">
-                            Contract
+                        <option value="EDUCATION">
+                            Education
                         </option>
 
                         <option value="OTHER">
@@ -119,52 +127,303 @@
 
                 </div>
 
-                <!-- File Upload -->
 
-                <div class="mb-4">
+                <!-- DOCUMENT TYPE -->
+
+                <div class="col-md-6">
 
                     <label class="form-label fw-semibold">
-
-                        Upload File
-
+                        Document Type *
                     </label>
 
-                    <input type="file"
-                           name="file"
-                           class="form-control"
-                           required>
+                    <select
+                        name="document_type"
+                        id="documentType"
+                        class="form-select"
+                        required
+                        style="appearance:auto;"
+                    >
 
-                    <small class="text-muted">
+                        <option value="">
+                            Select Document Type
+                        </option>
 
-                        Supported formats: PDF, DOC, DOCX, JPG, PNG
+                        <optgroup label="Identity">
 
-                    </small>
+                            <option value="AADHAAR">
+                                Aadhaar
+                            </option>
+
+                            <option value="PAN">
+                                PAN
+                            </option>
+
+                            <option value="PASSPORT">
+                                Passport
+                            </option>
+
+                            <option value="VOTER_ID">
+                                Voter ID
+                            </option>
+
+                        </optgroup>
+
+
+                        <optgroup label="Employment">
+
+                            <option value="RESUME">
+                                Resume
+                            </option>
+
+                            <option value="OFFER_LETTER">
+                                Offer Letter
+                            </option>
+
+                            <option value="APPOINTMENT_LETTER">
+                                Appointment Letter
+                            </option>
+
+                            <option value="CONTRACT">
+                                Employment Contract
+                            </option>
+
+                            <option value="NDA">
+                                NDA
+                            </option>
+
+                            <option value="EXPERIENCE_LETTER">
+                                Experience Letter
+                            </option>
+
+                            <option value="RELIEVING_LETTER">
+                                Relieving Letter
+                            </option>
+
+                        </optgroup>
+
+
+                        <optgroup label="Payroll / Compliance">
+
+                            <option value="BANK_PROOF">
+                                Bank Proof
+                            </option>
+
+                            <option value="PF">
+                                PF
+                            </option>
+
+                            <option value="ESI">
+                                ESI
+                            </option>
+
+                            <option value="UAN">
+                                UAN
+                            </option>
+
+                        </optgroup>
+
+
+                        <optgroup label="Education">
+
+                            <option value="DEGREE">
+                                Degree Certificate
+                            </option>
+
+                            <option value="MARKSHEET">
+                                Marksheet
+                            </option>
+
+                            <option value="CERTIFICATE">
+                                Professional Certificate
+                            </option>
+
+                        </optgroup>
+
+
+                        <optgroup label="Other">
+
+                            <option value="OTHER">
+                                Other
+                            </option>
+
+                        </optgroup>
+
+                    </select>
 
                 </div>
 
-                <!-- Buttons -->
 
-                <div class="d-flex gap-2">
+                <!-- DOCUMENT TITLE -->
 
-                    <button type="submit"
-                            class="btn btn-primary">
+                <div class="col-md-6">
 
-                        Upload Document
+                    <label class="form-label fw-semibold">
+                        Document Title *
+                    </label>
 
-                    </button>
-
-                    <a href="{% url 'document_list' %}"
-                       class="btn btn-outline-secondary">
-
-                        Cancel
-
-                    </a>
+                    <input
+                        type="text"
+                        name="title"
+                        class="form-control"
+                        placeholder="PAN Card, Appointment Letter..."
+                        required
+                    >
 
                 </div>
 
-            </form>
 
-        </div>
+                <!-- DOCUMENT NUMBER -->
+
+                <div class="col-md-6">
+
+                    <label class="form-label fw-semibold">
+                        Document Number
+                    </label>
+
+                    <input
+                        type="text"
+                        name="document_number"
+                        class="form-control"
+                        placeholder="PAN / Passport / Certificate number"
+                    >
+
+                </div>
+
+
+                <!-- ISSUE DATE -->
+
+                <div class="col-md-3">
+
+                    <label class="form-label fw-semibold">
+                        Issue Date
+                    </label>
+
+                    <input
+                        type="date"
+                        name="issue_date"
+                        class="form-control"
+                    >
+
+                </div>
+
+
+                <!-- EXPIRY DATE -->
+
+                <div class="col-md-3">
+
+                    <label class="form-label fw-semibold">
+                        Expiry Date
+                    </label>
+
+                    <input
+                        type="date"
+                        name="expiry_date"
+                        class="form-control"
+                    >
+
+                </div>
+
+
+                <!-- CONFIDENTIALITY -->
+
+                <div class="col-md-6">
+
+                    <label class="form-label fw-semibold">
+                        Confidentiality
+                    </label>
+
+                    <select
+                        name="confidentiality"
+                        class="form-select"
+                        style="appearance:auto;"
+                    >
+
+                        <option value="NORMAL">
+                            Normal
+                        </option>
+
+                        <option value="CONFIDENTIAL">
+                            Confidential
+                        </option>
+
+                        <option value="HIGHLY_CONFIDENTIAL">
+                            Highly Confidential
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <!-- FILE -->
+
+                <div class="col-md-6">
+
+                    <label class="form-label fw-semibold">
+                        Upload File *
+                    </label>
+
+                    <input
+                        type="file"
+                        name="file"
+                        class="form-control"
+                        required
+                        accept=".pdf,.jpg,.jpeg,.png"
+                    >
+
+                    <div class="form-text">
+                        PDF/JPG/JPEG/PNG only, maximum 10 MB.
+                    </div>
+
+                </div>
+
+
+                <!-- NOTES -->
+
+                <div class="col-12">
+
+                    <label class="form-label fw-semibold">
+                        Notes
+                    </label>
+
+                    <textarea
+                        name="remarks"
+                        rows="4"
+                        class="form-control"
+                        placeholder="Optional notes or verification information..."
+                    ></textarea>
+
+                </div>
+
+            </div>
+
+
+            <hr class="my-4">
+
+
+            <div class="d-flex justify-content-end gap-2">
+
+                <a
+                    href="{% url 'document_list' %}"
+                    class="btn btn-light"
+                >
+                    Cancel
+                </a>
+
+                <button
+                    type="submit"
+                    class="btn btn-primary"
+                >
+
+                    <i class="bi bi-cloud-upload me-1"></i>
+
+                    Upload Document
+
+                </button>
+
+            </div>
+
+        </form>
 
     </div>
 

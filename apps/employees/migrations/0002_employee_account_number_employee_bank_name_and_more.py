@@ -28,7 +28,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="employee",
             name="location",
-            field=models.CharField(default="Bangalore", max_length=100),
+            field=models.CharField(default="Demo City", max_length=100),
         ),
         migrations.AddField(
             model_name="employee",

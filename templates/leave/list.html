@@ -3,105 +3,146 @@
 
 <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
-        <h2 class="fw-bold mb-1">
-            Leave Management
-        </h2>
-        <p class="text-muted mb-0">
-            Track and manage employee leave requests.
-        </p>
+        <h2 class="fw-bold mb-1">Leave Management</h2>
+        <p class="text-muted mb-0">Track, approve and manage employee leave.</p>
     </div>
-
-    {% if request.user.role != 'SUPERVISOR' %}
-    <a href="{% url 'apply_leave' %}" class="btn btn-primary px-4">
-        <i class="bi bi-plus-lg me-1"></i> Apply Leave
+    {% if not is_hr %}
+    <a href="{% url 'apply_leave' %}" class="btn btn-primary">
+        <i class="bi bi-plus-circle me-1"></i> Apply Leave
     </a>
     {% endif %}
 </div>
 
-<div class="card border-0 shadow-sm">
-    <div class="card-body p-0"> <div class="table-responsive">
-            <table class="table align-middle mb-0">
-                <thead class="table-light text-secondary">
-                    <tr>
-                        <th class="ps-4">Employee</th>
-                        <th>Leave Type</th>
-                        <th>Duration</th>
-                        <th>Status</th>
-                        <th class="pe-4 text-end">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for leave in leaves %}
-                    <tr>
-                        <td class="ps-4">
-                            <span class="fw-medium text-dark">
-                                {{ leave.employee.user.email }}
-                            </span>
-                        </td>
+<div class="row g-3 mb-4">
+    <div class="col-md-2"><div class="card border-0 shadow-sm"><div class="card-body"><small class="text-muted">Requests</small><h3 class="fw-bold mb-0">{{ total_requests }}</h3></div></div></div>
+    <div class="col-md-2"><div class="card border-0 shadow-sm"><div class="card-body"><small class="text-muted">Pending</small><h3 class="fw-bold text-warning mb-0">{{ pending_requests }}</h3></div></div></div>
+    <div class="col-md-2"><div class="card border-0 shadow-sm"><div class="card-body"><small class="text-muted">On Leave Today</small><h3 class="fw-bold text-primary mb-0">{{ on_leave_today }}</h3></div></div></div>
+    <div class="col-md-2"><div class="card border-0 shadow-sm"><div class="card-body"><small class="text-muted">Approved</small><h3 class="fw-bold text-success mb-0">{{ approved_requests }}</h3></div></div></div>
+    <div class="col-md-2"><div class="card border-0 shadow-sm"><div class="card-body"><small class="text-muted">Rejected</small><h3 class="fw-bold text-danger mb-0">{{ rejected_requests }}</h3></div></div></div>
+    <div class="col-md-2"><div class="card border-0 shadow-sm"><div class="card-body"><small class="text-muted">Approved This Month</small><h3 class="fw-bold mb-0">{{ approved_this_month }}</h3></div></div></div>
+</div>
 
-                        <td>
-                            {{ leave.get_leave_type_display }}
-                        </td>
+<div class="d-flex gap-2 mb-3 flex-wrap">
+    <a href="{% url 'leave_list' %}" class="btn btn-primary btn-sm">Requests</a>
+    <a href="{% url 'leave_calendar' %}" class="btn btn-outline-secondary btn-sm">Calendar</a>
+    <a href="{% url 'leave_balance' %}" class="btn btn-outline-secondary btn-sm">My Balance</a>
+    {% if is_hr %}
+    <a href="{% url 'leave_policy_list' %}" class="btn btn-outline-secondary btn-sm">Policies</a>
+    {% endif %}
+</div>
 
-                        <td class="text-secondary small">
-                            {{ leave.start_date }} <span class="mx-1 text-muted">→</span> {{ leave.end_date }}
-                        </td>
-
-                        <td>
-                            {% if leave.status == 'APPROVED' %}
-                                <span class="badge rounded-pill bg-success-subtle text-success px-2 py-1.5">
-                                    Approved
-                                </span>
-                            {% elif leave.status == 'REJECTED' %}
-                                <span class="badge rounded-pill bg-danger-subtle text-danger px-2 py-1.5">
-                                    Rejected
-                                </span>
-                            {% else %}
-                                <span class="badge rounded-pill bg-warning-subtle text-warning-emphasis px-2 py-1.5">
-                                    Pending
-                                </span>
-                            {% endif %}
-                        </td>
-
-                        <td class="pe-4 text-end">
-                            <div class="d-inline-flex gap-1">
-                                <a href="{% url 'leave_detail' leave.id %}" class="btn btn-sm btn-dark px-2.5">
-                                    View
-                                </a>
-
-                                {% if request.user.role == 'SUPERVISOR' and leave.status == 'PENDING' %}
-                                <form method="POST" action="{% url 'approve_leave' leave.id %}" class="d-inline m-0">
-                                    {% csrf_token %}
-                                    <button type="submit" class="btn btn-sm btn-success px-2.5">
-                                        Approve
-                                    </button>
-                                </form>
-
-                                <form method="POST" action="{% url 'reject_leave' leave.id %}" class="d-inline m-0">
-                                    {% csrf_token %}
-                                    <button type="submit" class="btn btn-sm btn-danger px-2.5">
-                                        Reject
-                                    </button>
-                                </form>
-                                {% endif %}
-                            </div>
-                        </td>
-                    </tr>
-                    {% empty %}
-                    <tr>
-                        <td colspan="5" class="text-center text-muted py-5">
-                            <div class="my-2">
-                                <i class="bi bi-calendar-x fs-2 text-muted"></i>
-                            </div>
-                            <span>No leave requests found.</span>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+        <form method="get">
+            <div class="row g-2">
+                <div class="col-md-3">
+                    <input type="text" name="search" value="{{ search }}" class="form-control" placeholder="Employee name, ID, email">
+                </div>
+                {% if is_hr %}
+                <div class="col-md-2">
+                    <select name="department" class="form-select">
+                        <option value="">All Departments</option>
+                        {% for department in departments %}
+                        <option value="{{ department.id }}" {% if selected_department == department.id|stringformat:"s" %}selected{% endif %}>{{ department.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                {% endif %}
+                <div class="col-md-2">
+                    <select name="leave_type" class="form-select">
+                        <option value="">All Leave Types</option>
+                        {% for value,label in leave_types %}
+                        <option value="{{ value }}" {% if selected_leave_type == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select name="status" class="form-select">
+                        <option value="">All Status</option>
+                        {% for value,label in status_choices %}
+                        <option value="{{ value }}" {% if selected_status == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <input type="date" name="start_date" value="{{ selected_start_date }}" class="form-control">
+                </div>
+                <div class="col-md-1">
+                    <button class="btn btn-dark w-100">Filter</button>
+                </div>
+            </div>
+        </form>
     </div>
 </div>
+
+<div class="card border-0 shadow-sm">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Employee</th>
+                    <th>Department</th>
+                    <th>Leave Type</th>
+                    <th>From</th>
+                    <th>To</th>
+                    <th>Days</th>
+                    <th>Applied</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for leave in leaves %}
+                <tr>
+                    <td>
+                        <div class="fw-semibold">{{ leave.employee.user.get_full_name|default:leave.employee.user.email }}</div>
+                        <small class="text-muted">{{ leave.employee.employee_id }}</small>
+                    </td>
+                    <td>{{ leave.employee.department|default:"-" }}</td>
+                    <td>{{ leave.get_leave_type_display }}</td>
+                    <td>{{ leave.start_date|date:"d M Y" }}</td>
+                    <td>{{ leave.end_date|date:"d M Y" }}</td>
+                    <td>{{ leave.total_days }}</td>
+                    <td>{{ leave.applied_at|date:"d M Y" }}</td>
+                    <td>
+                        {% if leave.status == 'APPROVED' %}
+                        <span class="badge bg-success-subtle text-success">Approved</span>
+                        {% elif leave.status == 'REJECTED' %}
+                        <span class="badge bg-danger-subtle text-danger">Rejected</span>
+                        {% elif leave.status == 'CANCELLED' %}
+                        <span class="badge bg-secondary-subtle text-secondary">Cancelled</span>
+                        {% else %}
+                        <span class="badge bg-warning-subtle text-warning-emphasis">Pending</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{% url 'leave_detail' leave.pk %}" class="btn btn-sm btn-outline-secondary">View</a>
+                        {% if is_hr and leave.status == 'PENDING' %}
+                        <form action="{% url 'approve_leave' leave.pk %}" method="post" class="d-inline">{% csrf_token %}<button class="btn btn-sm btn-success">Approve</button></form>
+                        <form action="{% url 'reject_leave' leave.pk %}" method="post" class="d-inline">{% csrf_token %}<button class="btn btn-sm btn-danger">Reject</button></form>
+                        {% elif not is_hr and leave.status == 'PENDING' %}
+                        <form action="{% url 'cancel_leave' leave.pk %}" method="post" class="d-inline">{% csrf_token %}<button class="btn btn-sm btn-outline-danger">Cancel</button></form>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="9" class="text-center text-muted py-5">No leave requests found.</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% if page_obj.paginator.num_pages > 1 %}
+<div class="d-flex justify-content-between align-items-center mt-4">
+    {% if page_obj.has_previous %}
+    <a class="btn btn-outline-secondary" href="?page={{ page_obj.previous_page_number }}&search={{ search }}&department={{ selected_department }}&leave_type={{ selected_leave_type }}&status={{ selected_status }}&start_date={{ selected_start_date }}">← Previous</a>
+    {% else %}<button class="btn btn-outline-secondary" disabled>← Previous</button>{% endif %}
+    <span class="text-muted small">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+    {% if page_obj.has_next %}
+    <a class="btn btn-outline-secondary" href="?page={{ page_obj.next_page_number }}&search={{ search }}&department={{ selected_department }}&leave_type={{ selected_leave_type }}&status={{ selected_status }}&start_date={{ selected_start_date }}">Next →</a>
+    {% else %}<button class="btn btn-outline-secondary" disabled>Next →</button>{% endif %}
+</div>
+{% endif %}
 
 {% endblock %}

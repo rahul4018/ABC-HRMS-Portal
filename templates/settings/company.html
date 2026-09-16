@@ -1,82 +1,243 @@
-{% extends 'layouts/base.html' %}
-
+{% extends "layouts/base.html" %}
 {% block content %}
 
-<h2 class="mb-4">
-    Company Settings
-</h2>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-1">Settings</h2>
+        <p class="text-muted mb-0">Company, HR, payroll and security configuration.</p>
+    </div>
+    <span class="badge bg-light text-dark border px-3 py-2">{{ role }}</span>
+</div>
 
-<div class="card">
+<div class="row g-4">
 
-    <div class="card-body">
+    <div class="col-lg-3">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-2">
+                <div class="small text-uppercase text-muted fw-semibold px-3 pt-3 pb-2">Settings</div>
+                <div class="nav nav-pills flex-column">
 
-        <form method="post"
-              enctype="multipart/form-data">
+                    <button class="nav-link active text-start" data-bs-toggle="pill" data-bs-target="#company" type="button">
+                        <i class="bi bi-building me-2"></i>Company
+                    </button>
 
-            {% csrf_token %}
+                    {% if can_edit_hr or role == 'FOUNDER' or role == 'CEO' %}
+                    <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#hr-policy" type="button">
+                        <i class="bi bi-people me-2"></i>HR Policies
+                    </button>
+                    {% endif %}
 
-            <div class="mb-3">
+                    {% if can_edit_payroll or role == 'FOUNDER' or role == 'CEO' %}
+                    <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#payroll" type="button">
+                        <i class="bi bi-wallet2 me-2"></i>Payroll
+                    </button>
+                    {% endif %}
 
-                <label>Company Name</label>
+                    <a class="nav-link text-start" href="{% url 'change_password' %}">
+                        <i class="bi bi-shield-lock me-2"></i>Security
+                    </a>
 
-                <input type="text"
-                       name="company_name"
-                       class="form-control"
-                       value="{{ settings_obj.company_name }}">
-
+                </div>
             </div>
-
-            <div class="mb-3">
-
-                <label>Address</label>
-
-                <textarea name="company_address"
-                          class="form-control">{{ settings_obj.company_address }}</textarea>
-
-            </div>
-
-            <div class="mb-3">
-
-                <label>Email</label>
-
-                <input type="email"
-                       name="company_email"
-                       class="form-control"
-                       value="{{ settings_obj.company_email }}">
-
-            </div>
-
-            <div class="mb-3">
-
-                <label>Phone</label>
-
-                <input type="text"
-                       name="company_phone"
-                       class="form-control"
-                       value="{{ settings_obj.company_phone }}">
-
-            </div>
-
-            <div class="mb-3">
-
-                <label>Logo</label>
-
-                <input type="file"
-                       name="company_logo"
-                       class="form-control">
-            </div>
-
-            <button type="submit"
-                    class="btn btn-dark">
-
-                Save Settings
-
-            </button>
-
-        </form>
-
+        </div>
     </div>
 
+    <div class="col-lg-9">
+        <div class="tab-content">
+
+            <!-- COMPANY -->
+            <div class="tab-pane fade show active" id="company">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="fw-bold mb-1">Company Profile</h5>
+                        <small class="text-muted">Organization identity and contact information.</small>
+                    </div>
+
+                    <div class="card-body p-4">
+                        <form method="post" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            <input type="hidden" name="section" value="company">
+
+                            <div class="row g-3">
+                                <div class="col-md-8">
+                                    <label class="form-label fw-semibold">Company Name</label>
+                                    <input name="company_name" value="{{ settings_obj.company_name }}" class="form-control" {% if not can_edit_company %}readonly{% endif %}>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <label class="form-label fw-semibold">Phone</label>
+                                    <input name="company_phone" value="{{ settings_obj.company_phone }}" class="form-control" {% if not can_edit_company %}readonly{% endif %}>
+                                </div>
+
+                                <div class="col-md-8">
+                                    <label class="form-label fw-semibold">Email</label>
+                                    <input type="email" name="company_email" value="{{ settings_obj.company_email }}" class="form-control" {% if not can_edit_company %}readonly{% endif %}>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <label class="form-label fw-semibold">Logo</label>
+                                    {% if settings_obj.company_logo %}
+                                        <div class="mb-2">
+                                            <img src="{{ settings_obj.company_logo.url }}" alt="Company logo" style="height:48px;max-width:160px;object-fit:contain;">
+                                        </div>
+                                    {% endif %}
+                                    <input type="file" name="company_logo" class="form-control" accept="image/*" {% if not can_edit_company %}disabled{% endif %}>
+                                </div>
+
+                                <div class="col-12">
+                                    <label class="form-label fw-semibold">Company Address</label>
+                                    <textarea name="company_address" rows="4" class="form-control" {% if not can_edit_company %}readonly{% endif %}>{{ settings_obj.company_address }}</textarea>
+                                </div>
+                            </div>
+
+                            {% if can_edit_company %}
+                            <div class="text-end mt-4">
+                                <button type="submit" class="btn btn-primary px-4">
+                                    <i class="bi bi-check2 me-1"></i>Save Company Profile
+                                </button>
+                            </div>
+                            {% else %}
+                            <div class="alert alert-light border mt-4 mb-0">
+                                <i class="bi bi-info-circle me-2"></i>
+                                Company profile is view-only for your role.
+                            </div>
+                            {% endif %}
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- HR POLICIES -->
+            {% if can_edit_hr or role == 'FOUNDER' or role == 'CEO' %}
+            <div class="tab-pane fade" id="hr-policy">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="fw-bold mb-1">HR Policies</h5>
+                        <small class="text-muted">Notice period, attendance and leave policy.</small>
+                    </div>
+
+                    <div class="card-body p-4">
+                        <form method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="section" value="hr_policy">
+
+                            <h6 class="fw-bold mb-3">Notice Period</h6>
+                            <div class="row g-3 mb-4">
+                                <div class="col-md-4">
+                                    <label class="form-label">Notice Period (days)</label>
+                                    <input type="number" min="0" name="notice_period_days" value="{{ settings_obj.notice_period_days }}" class="form-control" {% if not can_edit_hr %}readonly{% endif %}>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">Calculation</label>
+                                    <select name="notice_period_unit" class="form-select" {% if not can_edit_hr %}disabled{% endif %}>
+                                        <option value="CALENDAR" {% if settings_obj.notice_period_unit == 'CALENDAR' %}selected{% endif %}>Calendar Days</option>
+                                        <option value="WORKING" {% if settings_obj.notice_period_unit == 'WORKING' %}selected{% endif %}>Working Days</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <h6 class="fw-bold mb-3">Attendance</h6>
+                            <div class="row g-3 mb-4">
+                                <div class="col-md-4"><label class="form-label">Work Start</label><input type="time" name="work_start_time" value="{{ settings_obj.work_start_time|time:'H:i' }}" class="form-control" {% if not can_edit_hr %}readonly{% endif %}></div>
+                                <div class="col-md-4"><label class="form-label">Work End</label><input type="time" name="work_end_time" value="{{ settings_obj.work_end_time|time:'H:i' }}" class="form-control" {% if not can_edit_hr %}readonly{% endif %}></div>
+                                <div class="col-md-4"><label class="form-label">Grace Period (minutes)</label><input type="number" min="0" name="grace_period_minutes" value="{{ settings_obj.grace_period_minutes }}" class="form-control" {% if not can_edit_hr %}readonly{% endif %}></div>
+                                <div class="col-md-4"><label class="form-label">Half Day Hours</label><input type="number" step="0.25" min="0" name="half_day_hours" value="{{ settings_obj.half_day_hours }}" class="form-control" {% if not can_edit_hr %}readonly{% endif %}></div>
+                                <div class="col-md-4"><label class="form-label">Overtime After Hours</label><input type="number" step="0.25" min="0" name="overtime_after_hours" value="{{ settings_obj.overtime_after_hours }}" class="form-control" {% if not can_edit_hr %}readonly{% endif %}></div>
+                            </div>
+
+                            <h6 class="fw-bold mb-3">Leave</h6>
+                            <div class="row g-3 mb-4">
+                                <div class="col-md-4"><label class="form-label">Casual Leave / Year</label><input type="number" min="0" name="casual_leave_days" value="{{ settings_obj.casual_leave_days }}" class="form-control" {% if not can_edit_hr %}readonly{% endif %}></div>
+                                <div class="col-md-4"><label class="form-label">Sick Leave / Year</label><input type="number" min="0" name="sick_leave_days" value="{{ settings_obj.sick_leave_days }}" class="form-control" {% if not can_edit_hr %}readonly{% endif %}></div>
+                                <div class="col-md-4"><label class="form-label">Earned Leave / Year</label><input type="number" min="0" name="earned_leave_days" value="{{ settings_obj.earned_leave_days }}" class="form-control" {% if not can_edit_hr %}readonly{% endif %}></div>
+                                <div class="col-md-6"><label class="form-label">Maximum Carry Forward</label><input type="number" min="0" name="max_carry_forward_days" value="{{ settings_obj.max_carry_forward_days }}" class="form-control" {% if not can_edit_hr %}readonly{% endif %}></div>
+                                <div class="col-md-6 d-flex align-items-end">
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input" type="checkbox" name="carry_forward_enabled" id="carry_forward_enabled" {% if settings_obj.carry_forward_enabled %}checked{% endif %} {% if not can_edit_hr %}disabled{% endif %}>
+                                        <label class="form-check-label" for="carry_forward_enabled">Allow Leave Carry Forward</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {% if can_edit_hr %}
+                            <div class="text-end">
+                                <button type="submit" class="btn btn-primary px-4">Save HR Policies</button>
+                            </div>
+                            {% endif %}
+                        </form>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- PAYROLL -->
+            {% if can_edit_payroll or role == 'FOUNDER' or role == 'CEO' %}
+            <div class="tab-pane fade" id="payroll">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="fw-bold mb-1">Payroll Settings</h5>
+                        <small class="text-muted">Salary cycle, statutory deductions and payslip configuration.</small>
+                    </div>
+
+                    <div class="card-body p-4">
+                        <form method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="section" value="payroll">
+
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <label class="form-label">Salary Cycle</label>
+                                    <select name="salary_cycle" class="form-select" {% if not can_edit_payroll %}disabled{% endif %}>
+                                        <option value="MONTHLY" selected>Monthly</option>
+                                    </select>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <label class="form-label">Payroll Date</label>
+                                    <input type="number" min="1" max="31" name="payroll_date_day" value="{{ settings_obj.payroll_date_day }}" class="form-control" {% if not can_edit_payroll %}readonly{% endif %}>
+                                </div>
+
+                                <div class="col-12">
+                                    <label class="form-label">Payslip Number Format</label>
+                                    <input name="payslip_number_format" value="{{ settings_obj.payslip_number_format }}" class="form-control" {% if not can_edit_payroll %}readonly{% endif %}>
+                                    <div class="form-text">Example: PS-{YEAR}-{MONTH}-{EMPLOYEE}</div>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="pf_enabled" id="pf_enabled" {% if settings_obj.pf_enabled %}checked{% endif %} {% if not can_edit_payroll %}disabled{% endif %}>
+                                        <label class="form-check-label" for="pf_enabled">PF Enabled</label>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="esi_enabled" id="esi_enabled" {% if settings_obj.esi_enabled %}checked{% endif %} {% if not can_edit_payroll %}disabled{% endif %}>
+                                        <label class="form-check-label" for="esi_enabled">ESI Enabled</label>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="professional_tax_enabled" id="professional_tax_enabled" {% if settings_obj.professional_tax_enabled %}checked{% endif %} {% if not can_edit_payroll %}disabled{% endif %}>
+                                        <label class="form-check-label" for="professional_tax_enabled">Professional Tax Enabled</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {% if can_edit_payroll %}
+                            <div class="text-end mt-4">
+                                <button type="submit" class="btn btn-primary px-4">Save Payroll Settings</button>
+                            </div>
+                            {% endif %}
+                        </form>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+        </div>
+    </div>
 </div>
 
 {% endblock %}

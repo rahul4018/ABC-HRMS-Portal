@@ -1,0 +1,333 @@
+{% extends 'layouts/base.html' %}
+
+{% block content %}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
+    <div>
+        <h2 class="fw-bold mb-1">Resignation Details</h2>
+        <p class="text-muted mb-0">Resignation approval, notice period and exit clearance.</p>
+    </div>
+    <a href="{% url 'resignation_list' %}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left me-1"></i> Back
+    </a>
+</div>
+
+<div class="row g-4">
+
+    <div class="col-xl-8">
+
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-body p-4">
+
+                <div class="d-flex justify-content-between align-items-start gap-3 mb-4">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="rounded-circle bg-primary-subtle text-primary fw-bold d-flex align-items-center justify-content-center" style="width:58px;height:58px;">
+                            {{ resignation.employee.user.first_name|slice:":1"|upper }}{{ resignation.employee.user.last_name|slice:":1"|upper }}
+                        </div>
+                        <div>
+                            <h4 class="fw-bold mb-1">{{ resignation.employee.user.get_full_name }}</h4>
+                            <div class="text-muted">
+                                {{ resignation.employee.employee_id }} · {{ resignation.employee.designation }} · {{ resignation.employee.department.name|default:"—" }}
+                            </div>
+                        </div>
+                    </div>
+
+                    {% if resignation.status == 'PENDING' %}
+                        <span class="badge rounded-pill bg-warning-subtle text-warning-emphasis border border-warning-subtle px-3 py-2">Pending HR Review</span>
+                    {% elif resignation.status == 'NOTICE_PERIOD' %}
+                        <span class="badge rounded-pill bg-primary-subtle text-primary border border-primary-subtle px-3 py-2">Notice Period</span>
+                    {% elif resignation.status == 'EARLY_RELEASE_REQUESTED' %}
+                        <span class="badge rounded-pill bg-info-subtle text-info-emphasis border border-info-subtle px-3 py-2">Early Release Requested</span>
+                    {% elif resignation.status == 'EXIT_PROCESS' %}
+                        <span class="badge rounded-pill bg-dark-subtle text-dark border px-3 py-2">Exit Process</span>
+                    {% elif resignation.status == 'COMPLETED' %}
+                        <span class="badge rounded-pill bg-success-subtle text-success border border-success-subtle px-3 py-2">Completed</span>
+                    {% elif resignation.status == 'REJECTED' %}
+                        <span class="badge rounded-pill bg-danger-subtle text-danger border border-danger-subtle px-3 py-2">Rejected</span>
+                    {% else %}
+                        <span class="badge rounded-pill bg-secondary-subtle text-secondary border px-3 py-2">{{ resignation.get_status_display }}</span>
+                    {% endif %}
+                </div>
+
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <div class="bg-light rounded-3 p-3 h-100">
+                            <div class="small text-muted">Resignation Date</div>
+                            <div class="fw-bold mt-1">{{ resignation.resignation_date|date:"d M Y" }}</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="bg-light rounded-3 p-3 h-100">
+                            <div class="small text-muted">Notice Period</div>
+                            <div class="fw-bold mt-1">{{ resignation.notice_period_days }} days</div>
+                            <div class="small text-muted">{{ resignation.get_notice_period_unit_display }}</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="bg-light rounded-3 p-3 h-100">
+                            <div class="small text-muted">Expected LWD</div>
+                            <div class="fw-bold mt-1">{{ resignation.expected_last_working_day|date:"d M Y" }}</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="bg-light rounded-3 p-3 h-100">
+                            <div class="small text-muted">Operational LWD</div>
+                            <div class="fw-bold mt-1 text-primary">{{ resignation.last_working_day|date:"d M Y" }}</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="bg-light rounded-3 p-3 h-100">
+                            <div class="small text-muted">Days Remaining</div>
+                            <div class="fw-bold mt-1">{{ resignation.days_remaining }}</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="bg-light rounded-3 p-3 h-100">
+                            <div class="small text-muted">Applied On</div>
+                            <div class="fw-bold mt-1">{{ resignation.created_at|date:"d M Y" }}</div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-body p-4">
+                <h5 class="fw-bold mb-3">Reason & Comments</h5>
+                <div class="mb-4">
+                    <div class="small text-muted mb-1">Reason</div>
+                    <div class="bg-light rounded-3 p-3">{{ resignation.reason|linebreaksbr }}</div>
+                </div>
+
+                {% if resignation.additional_comments %}
+                    <div class="mb-4">
+                        <div class="small text-muted mb-1">Additional Comments</div>
+                        <div>{{ resignation.additional_comments|linebreaksbr }}</div>
+                    </div>
+                {% endif %}
+
+                {% if resignation.requested_early_release_date %}
+                    <div class="alert alert-info border-0 mb-0">
+                        <strong>Early release request:</strong>
+                        {{ resignation.requested_early_release_date|date:"d M Y" }}
+                        <div class="small mt-1">{{ resignation.early_release_reason|default:"No reason provided." }}</div>
+                    </div>
+                {% endif %}
+
+                {% if resignation.supervisor_remark %}
+                    <div class="mt-3">
+                        <div class="small text-muted mb-1">HR / Supervisor Remark</div>
+                        <div>{{ resignation.supervisor_remark|linebreaksbr }}</div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        {% if is_manager %}
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div>
+                            <h5 class="fw-bold mb-1">Offboarding Checklist</h5>
+                            <p class="small text-muted mb-0">Complete each clearance item before closing the exit.</p>
+                        </div>
+                        <div class="text-end">
+                            <div class="fw-bold">{{ resignation.exit_progress }}%</div>
+                            <div class="small text-muted">Complete</div>
+                        </div>
+                    </div>
+
+                    <div class="progress mb-4" style="height:8px;">
+                        <div class="progress-bar" style="width:{{ resignation.exit_progress }}%;"></div>
+                    </div>
+
+                    <form action="{% url 'update_offboarding' resignation.pk %}" method="post">
+                        {% csrf_token %}
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Handover</label>
+                            <select name="handover_status" class="form-select">
+                                <option value="PENDING" {% if resignation.handover_status == 'PENDING' %}selected{% endif %}>Pending</option>
+                                <option value="IN_PROGRESS" {% if resignation.handover_status == 'IN_PROGRESS' %}selected{% endif %}>In Progress</option>
+                                <option value="COMPLETED" {% if resignation.handover_status == 'COMPLETED' %}selected{% endif %}>Completed</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold">Handover Notes</label>
+                            <textarea name="handover_notes" class="form-control" rows="3" placeholder="Handover details...">{{ resignation.handover_notes|default:'' }}</textarea>
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                                <span>Exit Interview Completed</span>
+                                {% if resignation.exit_interview_completed %}
+                                    <span class="badge bg-success">Complete</span>
+                                {% else %}
+                                    <span class="badge bg-warning text-dark">Pending</span>
+                                {% endif %}
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                                <span>Assets Cleared</span>
+                                {% if resignation.assets_cleared %}
+                                    <span class="badge bg-success">Complete</span>
+                                {% else %}
+                                    <span class="badge bg-warning text-dark">Pending</span>
+                                {% endif %}
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                                <span>Documents Cleared</span>
+                                {% if resignation.documents_cleared %}
+                                    <span class="badge bg-success">Complete</span>
+                                {% else %}
+                                    <span class="badge bg-warning text-dark">Pending</span>
+                                {% endif %}
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                                <span>Payroll Cleared</span>
+                                {% if resignation.payroll_cleared %}
+                                    <span class="badge bg-success">Complete</span>
+                                {% else %}
+                                    <span class="badge bg-warning text-dark">Pending</span>
+                                {% endif %}
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                                <span>Full &amp; Final Settlement</span>
+                                {% if resignation.full_final_settlement_completed %}
+                                    <span class="badge bg-success">Complete</span>
+                                {% else %}
+                                    <span class="badge bg-warning text-dark">Pending</span>
+                                {% endif %}
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                                <span>Experience Letter Issued</span>
+                                {% if resignation.experience_letter_issued %}
+                                    <span class="badge bg-success">Complete</span>
+                                {% else %}
+                                    <span class="badge bg-warning text-dark">Pending</span>
+                                {% endif %}
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                                <span>Relieving Letter Issued</span>
+                                {% if resignation.relieving_letter_issued %}
+                                    <span class="badge bg-success">Complete</span>
+                                {% else %}
+                                    <span class="badge bg-warning text-dark">Pending</span>
+                                {% endif %}
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-center py-2">
+                                <span>Account Deactivated</span>
+                                {% if resignation.account_deactivated %}
+                                    <span class="badge bg-success">Complete</span>
+                                {% else %}
+                                    <span class="badge bg-warning text-dark">Pending</span>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="col-md-6"><div class="form-check"><input class="form-check-input" type="checkbox" name="exit_interview_completed" id="ei" {% if resignation.exit_interview_completed %}checked{% endif %}><label class="form-check-label" for="ei">Exit Interview Completed</label></div></div>
+                            <div class="col-md-6"><div class="form-check"><input class="form-check-input" type="checkbox" name="assets_cleared" id="assets" {% if resignation.assets_cleared %}checked{% endif %}><label class="form-check-label" for="assets">Assets Cleared</label></div></div>
+                            <div class="col-md-6"><div class="form-check"><input class="form-check-input" type="checkbox" name="documents_cleared" id="docs" {% if resignation.documents_cleared %}checked{% endif %}><label class="form-check-label" for="docs">Documents Cleared</label></div></div>
+                            <div class="col-md-6"><div class="form-check"><input class="form-check-input" type="checkbox" name="payroll_cleared" id="payroll" {% if resignation.payroll_cleared %}checked{% endif %}><label class="form-check-label" for="payroll">Payroll Cleared</label></div></div>
+                            <div class="col-md-6"><div class="form-check"><input class="form-check-input" type="checkbox" name="full_final_settlement_completed" id="fnf" {% if resignation.full_final_settlement_completed %}checked{% endif %}><label class="form-check-label" for="fnf">Full & Final Settlement</label></div></div>
+                            <div class="col-md-6"><div class="form-check"><input class="form-check-input" type="checkbox" name="experience_letter_issued" id="exp" {% if resignation.experience_letter_issued %}checked{% endif %}><label class="form-check-label" for="exp">Experience Letter Issued</label></div></div>
+                            <div class="col-md-6"><div class="form-check"><input class="form-check-input" type="checkbox" name="relieving_letter_issued" id="rel" {% if resignation.relieving_letter_issued %}checked{% endif %}><label class="form-check-label" for="rel">Relieving Letter Issued</label></div></div>
+                            <div class="col-md-6"><div class="form-check"><input class="form-check-input" type="checkbox" name="account_deactivated" id="acct" {% if resignation.account_deactivated %}checked{% endif %}><label class="form-check-label" for="acct">Account Deactivated</label></div></div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary mt-4">
+                            <i class="bi bi-check2-circle me-1"></i>
+                            Update Exit Checklist
+                        </button>
+                    </form>
+                </div>
+            </div>
+        {% endif %}
+
+    </div>
+
+    <div class="col-xl-4">
+
+        {% if is_manager and resignation.status in 'PENDING EARLY_RELEASE_REQUESTED SENT_BACK' %}
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-3">HR Review</h5>
+
+                    <form action="{% url 'approve_resignation' resignation.pk %}" method="post" class="mb-2">
+                        {% csrf_token %}
+                        <textarea name="remark" class="form-control mb-2" rows="3" placeholder="Optional approval remark..."></textarea>
+                        <button class="btn btn-success w-100">Approve & Start Notice Period</button>
+                    </form>
+
+                    <form action="{% url 'send_back_resignation' resignation.pk %}" method="post" class="mb-2">
+                        {% csrf_token %}
+                        <input type="hidden" name="remark" value="Clarification required from employee.">
+                        <button class="btn btn-warning w-100">Send Back for Clarification</button>
+                    </form>
+
+                    <form action="{% url 'reject_resignation' resignation.pk %}" method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="remark" value="Resignation rejected by HR.">
+                        <button class="btn btn-outline-danger w-100">Reject Resignation</button>
+                    </form>
+                </div>
+            </div>
+        {% endif %}
+
+        {% if not is_manager and resignation.status in 'PENDING SENT_BACK EARLY_RELEASE_REQUESTED' %}
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-2">Need to withdraw?</h5>
+                    <p class="small text-muted">You can withdraw this request while it is still under review.</p>
+                    <form action="{% url 'withdraw_resignation' resignation.pk %}" method="post" onsubmit="return confirm('Withdraw this resignation request?');">
+                        {% csrf_token %}
+                        <button class="btn btn-outline-danger w-100">Withdraw Request</button>
+                    </form>
+                </div>
+            </div>
+        {% endif %}
+
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-4">
+                <h5 class="fw-bold mb-3">Exit Workflow</h5>
+
+                <div class="d-flex gap-3 mb-3">
+                    <i class="bi bi-check-circle-fill text-success"></i>
+                    <div><strong>Resignation Submitted</strong><div class="small text-muted">{{ resignation.created_at|date:"d M Y" }}</div></div>
+                </div>
+
+                <div class="d-flex gap-3 mb-3">
+                    <i class="bi {% if resignation.status in 'NOTICE_PERIOD EXIT_PROCESS COMPLETED' %}bi-check-circle-fill text-success{% else %}bi-circle text-muted{% endif %}"></i>
+                    <div><strong>HR Approval</strong></div>
+                </div>
+
+                <div class="d-flex gap-3 mb-3">
+                    <i class="bi {% if resignation.status in 'NOTICE_PERIOD EXIT_PROCESS COMPLETED' %}bi-check-circle-fill text-success{% else %}bi-circle text-muted{% endif %}"></i>
+                    <div><strong>Notice Period</strong></div>
+                </div>
+
+                <div class="d-flex gap-3 mb-3">
+                    <i class="bi {% if resignation.status in 'EXIT_PROCESS COMPLETED' %}bi-check-circle-fill text-success{% else %}bi-circle text-muted{% endif %}"></i>
+                    <div><strong>Handover & Clearance</strong></div>
+                </div>
+
+                <div class="d-flex gap-3">
+                    <i class="bi {% if resignation.status == 'COMPLETED' %}bi-check-circle-fill text-success{% else %}bi-circle text-muted{% endif %}"></i>
+                    <div><strong>Exit Completed</strong></div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}

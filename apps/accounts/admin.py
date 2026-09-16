@@ -6,22 +6,32 @@ from .models import User
 
 @admin.register(User)
 class CustomUserAdmin(UserAdmin):
-
     model = User
 
     list_display = (
-        'email',
         'username',
+        'first_name',
+        'last_name',
+        'access_role',
         'role',
         'is_staff',
         'is_superuser',
+        'is_active',
+    )
+
+    search_fields = (
+        'username',
+        'first_name',
+        'last_name',
+        'email',
     )
 
     fieldsets = UserAdmin.fieldsets + (
         (
-            'Role Management',
+            'HRMS Access',
             {
                 'fields': (
+                    'access_role',
                     'role',
                 )
             },
@@ -30,9 +40,10 @@ class CustomUserAdmin(UserAdmin):
 
     add_fieldsets = UserAdmin.add_fieldsets + (
         (
-            'Role Management',
+            'HRMS Access',
             {
                 'fields': (
+                    'access_role',
                     'role',
                 )
             },

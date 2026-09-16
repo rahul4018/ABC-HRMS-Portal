@@ -1,4 +1,4 @@
-# SkillCheckHub HRMS
+# ABC HRMS Portal
 
 A modern Human Resource Management System (HRMS) built with Django to streamline workforce management, recruitment, employee operations, performance reviews, payroll administration, and organizational reporting.
 
@@ -6,7 +6,7 @@ A modern Human Resource Management System (HRMS) built with Django to streamline
 
 ## Overview
 
-SkillCheckHub HRMS is designed to centralize and automate core HR processes within an organization. The platform provides role-based access, employee lifecycle management, recruitment workflows, attendance tracking, leave management, document management, performance reviews, payroll support, audit tracking, and reporting capabilities.
+ABC HRMS Portal is designed to centralize and automate core HR processes within an organization. The platform provides role-based access, employee lifecycle management, recruitment workflows, attendance tracking, leave management, document management, performance reviews, payroll support, audit tracking, and reporting capabilities.
 
 ---
 
@@ -136,7 +136,7 @@ SkillCheckHub HRMS is designed to centralize and automate core HR processes with
 ## Project Structure
 
 ```text
-SkillCheckHub-Hrms/
+ABC HRMS Portal-Hrms/
 
 ├── apps/
 │   ├── accounts/
@@ -168,7 +168,7 @@ SkillCheckHub-Hrms/
 
 ```bash
 git clone <repository-url>
-cd SkillCheckHub-Hrms
+cd ABC HRMS Portal-Hrms
 ```
 
 ### Create Virtual Environment

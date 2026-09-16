@@ -1,0 +1,26 @@
+{% extends 'layouts/base.html' %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+<div class="sc-page-head">
+  <div><div class="sc-eyebrow">WORKFORCE OPERATIONS</div><h1>{{ title }}</h1><p>Complete the information and save the workflow update.</p></div>
+</div>
+<div class="sc-card">
+  <form method="post" novalidate>
+    {% csrf_token %}
+    {% if form.non_field_errors %}<div class="alert alert-danger">{{ form.non_field_errors }}</div>{% endif %}
+    <div class="sc-form-grid">
+      {% for field in form %}
+      <div class="sc-field {% if field.name == 'comments' or field.name == 'feedback' or field.name == 'hr_summary' or field.name == 'description' %}sc-form-full{% endif %}">
+        <label for="{{ field.id_for_label }}">{{ field.label }}{% if field.field.required %} <span class="text-danger">*</span>{% endif %}</label>
+        {{ field }}
+        {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}
+        {% for e in field.errors %}<div class="text-danger small mt-1">{{ e }}</div>{% endfor %}
+      </div>
+      {% endfor %}
+    </div>
+    <div class="sc-form-actions">
+      <button class="btn btn-primary" type="submit"><i class="bi bi-check2"></i> Save Changes</button>
+    </div>
+  </form>
+</div>
+{% endblock %}

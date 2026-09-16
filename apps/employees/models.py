@@ -1,3 +1,4 @@
+from datetime import time
 from django.db import models
 from django.conf import settings
 
@@ -19,6 +20,30 @@ class Department(models.Model):
         max_length=100,
         blank=True,
         null=True
+    )
+    # Structured fields for department management. The legacy department_head
+    # field is retained for backward compatibility.
+    code = models.CharField(
+        max_length=20,
+        unique=True,
+        null=True,
+        blank=True
+    )
+    head_employee = models.ForeignKey(
+        'Employee',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='headed_departments'
+    )
+    STATUS_CHOICES = [
+        ('ACTIVE', 'Active'),
+        ('INACTIVE', 'Inactive'),
+    ]
+    status = models.CharField(
+        max_length=10,
+        choices=STATUS_CHOICES,
+        default='ACTIVE'
     )
     created_at = models.DateTimeField(
         auto_now_add=True
@@ -119,7 +144,7 @@ class Employee(models.Model):
 
     location = models.CharField(
         max_length=100,
-        default='Bangalore'
+        default='Demo City'
     )
 
     date_of_birth = models.DateField(
@@ -187,6 +212,24 @@ class Employee(models.Model):
         null=True
     )
 
+    account_holder_name = models.CharField(
+        max_length=100,
+        blank=True,
+        null=True
+    )
+
+    ifsc_code = models.CharField(
+        max_length=20,
+        blank=True,
+        null=True
+    )
+
+    uan_number = models.CharField(
+        max_length=30,
+        blank=True,
+        null=True
+    )
+
     pan_number = models.CharField(
         max_length=20,
         blank=True,
@@ -241,6 +284,30 @@ class Employee(models.Model):
         default='ACTIVE'
     )
 
+    # --- Employee Profile Onboarding Status ---
+    # PROFILE_PENDING: Employee must complete personal/profile information.
+    # PROFILE_SUBMITTED: Employee has submitted the profile for HR review.
+    # HR_REVIEW: HR is currently reviewing/updating the profile.
+    # ACTIVE: HR has approved the profile and normal dashboard access is allowed.
+    PROFILE_STATUS_CHOICES = [
+        ('PROFILE_PENDING', 'Profile Pending'),
+        ('PROFILE_SUBMITTED', 'Profile Submitted'),
+        ('HR_REVIEW', 'HR Review'),
+        ('ACTIVE', 'Active'),
+    ]
+
+    profile_status = models.CharField(
+        max_length=20,
+        choices=PROFILE_STATUS_CHOICES,
+        default='PROFILE_PENDING',
+        db_index=True
+    )
+
+    profile_submitted_at = models.DateTimeField(
+        null=True,
+        blank=True
+    )
+
     created_at = models.DateTimeField(
         auto_now_add=True
     )
@@ -265,6 +332,22 @@ class Attendance(models.Model):
         ('HALF_DAY', 'Half Day'),
     ]
 
+    SOURCE_CHOICES = [
+        ('WEB', 'Web'),
+        ('MOBILE', 'Mobile'),
+        ('BIOMETRIC', 'Biometric'),
+        ('MANUAL', 'Manual HR Entry'),
+        ('API', 'API'),
+    ]
+
+    SHIFT_CHOICES = [
+        ('MORNING', 'Morning Shift'),
+        ('GENERAL', 'General Shift'),
+        ('EVENING', 'Evening Shift'),
+        ('NIGHT', 'Night Shift'),
+        ('FLEXIBLE', 'Flexible'),
+    ]
+
     employee = models.ForeignKey(
         Employee,
         on_delete=models.CASCADE
@@ -277,6 +360,22 @@ class Attendance(models.Model):
     check_out = models.TimeField(
         null=True,
         blank=True
+    )
+    ABCeduled_check_in = models.TimeField(
+        default=time(9, 0)
+    )
+    ABCeduled_check_out = models.TimeField(
+        default=time(18, 0)
+    )
+    shift_name = models.CharField(
+        max_length=30,
+        choices=SHIFT_CHOICES,
+        default='GENERAL'
+    )
+    attendance_source = models.CharField(
+        max_length=20,
+        choices=SOURCE_CHOICES,
+        default='WEB'
     )
     status = models.CharField(
         max_length=20,
@@ -296,7 +395,7 @@ class Attendance(models.Model):
 
     class Meta:
         unique_together = ('employee', 'date')
-        ordering = ['-date']
+        ordering = ['-date', '-check_in']
 
     def __str__(self):
         return f"{self.employee.employee_id} - {self.date}"
@@ -333,21 +432,56 @@ class Announcement(models.Model):
 # Employee Documents Model
 # ==========================================
 
+# ==========================================
+# ENHANCED DOCUMENT MANAGEMENT
+# Replace the existing EmployeeDocument class
+# with this class, then keep the rest of models.py.
+# ==========================================
+
 class EmployeeDocument(models.Model):
+    CATEGORY_CHOICES = [
+        ('IDENTITY', 'Identity'),
+        ('EMPLOYMENT', 'Employment'),
+        ('PAYROLL', 'Payroll / Compliance'),
+        ('EDUCATION', 'Education'),
+        ('OTHER', 'Other'),
+    ]
+
     DOCUMENT_TYPES = [
         ('AADHAAR', 'Aadhaar'),
         ('PAN', 'PAN'),
+        ('PASSPORT', 'Passport'),
+        ('VOTER_ID', 'Voter ID'),
         ('RESUME', 'Resume'),
+        ('OFFER_LETTER', 'Offer Letter'),
+        ('APPOINTMENT_LETTER', 'Appointment Letter'),
+        ('CONTRACT', 'Employment Contract'),
+        ('NDA', 'NDA'),
+        ('EXPERIENCE_LETTER', 'Experience Letter'),
+        ('RELIEVING_LETTER', 'Relieving Letter'),
+        ('BANK_PROOF', 'Bank Proof'),
+        ('PF', 'PF'),
+        ('ESI', 'ESI'),
+        ('UAN', 'UAN'),
         ('CERTIFICATE', 'Certificate'),
-        ('CONTRACT', 'Contract'),
+        ('MARKSHEET', 'Marksheet'),
+        ('DEGREE', 'Degree Certificate'),
         ('OTHER', 'Other'),
     ]
 
     STATUS_CHOICES = [
         ('PENDING', 'Pending'),
+        ('UNDER_REVIEW', 'Under Review'),
         ('APPROVED', 'Approved'),
         ('REJECTED', 'Rejected'),
         ('SENT_BACK', 'Sent Back'),
+        ('EXPIRED', 'Expired'),
+    ]
+
+    CONFIDENTIALITY_CHOICES = [
+        ('NORMAL', 'Normal'),
+        ('CONFIDENTIAL', 'Confidential'),
+        ('HIGHLY_CONFIDENTIAL', 'Highly Confidential'),
     ]
 
     employee = models.ForeignKey(
@@ -355,42 +489,178 @@ class EmployeeDocument(models.Model):
         on_delete=models.CASCADE,
         related_name='documents'
     )
+
+    category = models.CharField(
+        max_length=30,
+        choices=CATEGORY_CHOICES,
+        default='OTHER'
+    )
+
     title = models.CharField(
         max_length=200
     )
+
     document_type = models.CharField(
         max_length=50,
         choices=DOCUMENT_TYPES
     )
+
+    document_number = models.CharField(
+        max_length=100,
+        blank=True,
+        null=True
+    )
+
+    issue_date = models.DateField(
+        blank=True,
+        null=True
+    )
+
+    expiry_date = models.DateField(
+        blank=True,
+        null=True
+    )
+
+    confidentiality = models.CharField(
+        max_length=30,
+        choices=CONFIDENTIALITY_CHOICES,
+        default='NORMAL'
+    )
+
     file = models.FileField(
         upload_to='employee_documents/'
     )
+
     status = models.CharField(
         max_length=20,
         choices=STATUS_CHOICES,
         default='PENDING'
     )
+
     remarks = models.TextField(
         blank=True,
         null=True
     )
+
+    rejection_reason = models.TextField(
+        blank=True,
+        null=True
+    )
+
     uploaded_at = models.DateTimeField(
         auto_now_add=True
     )
+
+    updated_at = models.DateTimeField(
+        auto_now=True
+    )
+
+    uploaded_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name='uploaded_employee_documents'
+    )
+
+    reviewed_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='reviewed_employee_documents'
+    )
+
+    reviewed_at = models.DateTimeField(
+        null=True,
+        blank=True
+    )
+
+    is_active = models.BooleanField(
+        default=True
+    )
+
+    class Meta:
+        ordering = ['-uploaded_at']
+        indexes = [
+            models.Index(fields=['employee', 'document_type']),
+            models.Index(fields=['status', 'expiry_date']),
+            models.Index(fields=['is_active']),
+        ]
+
+    def __str__(self):
+        return f"{self.employee.employee_id} - {self.title}"
+
+    @property
+    def is_expired(self):
+        from django.utils import timezone
+        return bool(self.expiry_date and self.expiry_date < timezone.localdate())
+
+    @property
+    def expires_soon(self):
+        from django.utils import timezone
+        from datetime import timedelta
+        if not self.expiry_date:
+            return False
+        today = timezone.localdate()
+        return today <= self.expiry_date <= today + timedelta(days=30)
+
+
+class DocumentVersion(models.Model):
+    document = models.ForeignKey(
+        EmployeeDocument,
+        on_delete=models.CASCADE,
+        related_name='versions'
+    )
+
+    version_number = models.PositiveIntegerField()
+
+    file = models.FileField(
+        upload_to='employee_documents/versions/'
+    )
+
     uploaded_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,
         null=True
     )
 
+    note = models.TextField(
+        blank=True,
+        null=True
+    )
+
+    uploaded_at = models.DateTimeField(
+        auto_now_add=True
+    )
+
+    class Meta:
+        ordering = ['-version_number']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['document', 'version_number'],
+                name='unique_document_version'
+            )
+        ]
+
     def __str__(self):
-        return f"{self.employee.employee_id} - {self.title}"
-    
-# ==========================================
-# Asset Management
-# ==========================================
+        return f"{self.document.title} - v{self.version_number}"
 
 class Asset(models.Model):
+
+    # Asset lifecycle / procurement fields
+    serial_number = models.CharField(max_length=100, blank=True, null=True)
+    manufacturer = models.CharField(max_length=100, blank=True, null=True)
+    model_name = models.CharField(max_length=150, blank=True, null=True)
+    vendor = models.CharField(max_length=150, blank=True, null=True)
+    invoice_number = models.CharField(max_length=100, blank=True, null=True)
+    warranty_start = models.DateField(blank=True, null=True)
+    warranty_end = models.DateField(blank=True, null=True)
+    assignment_date = models.DateField(blank=True, null=True)
+    return_date = models.DateField(blank=True, null=True)
+    condition = models.CharField(max_length=20, default='GOOD')
+    location = models.CharField(max_length=150, blank=True, null=True)
+
+
 
     ASSET_TYPES = [
         ('LAPTOP', 'Laptop'),
@@ -511,3 +781,66 @@ class EmployeeLifecycle(models.Model):
     def __str__(self):
 
         return self.employee.employee_id
+
+
+# ==========================================
+# Asset Lifecycle History
+# ==========================================
+
+class AssetHistory(models.Model):
+    ACTION_CHOICES = [
+        ('CREATED', 'Created'),
+        ('ASSIGNED', 'Assigned'),
+        ('TRANSFERRED', 'Transferred'),
+        ('RETURNED', 'Returned'),
+        ('REPAIR', 'Sent for Repair'),
+        ('REPAIRED', 'Repair Completed'),
+        ('LOST', 'Marked Lost'),
+        ('DAMAGED', 'Marked Damaged'),
+        ('RETIRED', 'Retired'),
+        ('DISPOSED', 'Disposed'),
+        ('UPDATED', 'Updated'),
+    ]
+
+    asset = models.ForeignKey(
+        'Asset',
+        on_delete=models.CASCADE,
+        related_name='history'
+    )
+
+    action = models.CharField(max_length=30, choices=ACTION_CHOICES)
+
+    from_employee = models.ForeignKey(
+        'Employee',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='asset_history_from'
+    )
+
+    to_employee = models.ForeignKey(
+        'Employee',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='asset_history_to'
+    )
+
+    event_date = models.DateTimeField(auto_now_add=True)
+
+    notes = models.TextField(blank=True, null=True)
+
+    performed_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='asset_history_actions'
+    )
+
+    class Meta:
+        ordering = ['-event_date', '-id']
+
+    def __str__(self):
+        return f"{self.asset.asset_code} - {self.get_action_display()}"
+

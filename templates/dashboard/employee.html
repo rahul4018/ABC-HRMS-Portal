@@ -1,107 +1,17 @@
 {% extends 'layouts/base.html' %}
-
 {% block content %}
-<div class="container-fluid py-4">
-
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h2 class="fw-bold mb-1">Employee Dashboard</h2>
-            <p class="text-muted mb-0">Welcome back, {{ request.user.email }}</p>
-        </div>
-    </div>
-
-    <div class="row g-4 mb-4">
-
-        <div class="col-md-6 col-lg-3">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-body text-center py-4">
-                    <i class="bi bi-calendar-check fs-1 text-primary"></i>
-                    <h5 class="mt-3">Attendance</h5>
-                    <p class="text-muted small">Mark and view attendance</p>
-                    <a href="/attendance/" class="btn btn-primary btn-sm px-3">Open</a>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-6 col-lg-3">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-body text-center py-4">
-                    <i class="bi bi-airplane fs-1 text-success"></i>
-                    <h5 class="mt-3">Leave Requests</h5>
-                    <p class="text-muted small">Apply and track leave</p>
-                    <a href="/leave/" class="btn btn-success btn-sm px-3">Open</a>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-6 col-lg-3">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-body text-center py-4">
-                    <i class="bi bi-graph-up-arrow fs-1 text-warning"></i>
-                    <h5 class="mt-3">PMR</h5>
-                    <p class="text-muted small">Performance reviews</p>
-                    <a href="/appraisal/" class="btn btn-warning btn-sm px-3">Open</a>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-6 col-lg-3">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-body text-center py-4">
-                    <i class="bi bi-receipt fs-1 text-danger"></i>
-                    <h5 class="mt-3">Payslips</h5>
-                    <p class="text-muted small">Salary statements</p>
-                    <a href="/payslips/" class="btn btn-danger btn-sm px-3">Open</a>
-                </div>
-            </div>
-        </div>
-
-    </div>
-
-    <div class="row g-4">
-
-        <div class="col-lg-8">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-header bg-white border-0 pt-3">
-                    <h5 class="mb-0 fw-bold">Quick Actions</h5>
-                </div>
-                <div class="card-body">
-                    <div class="row g-3">
-                        <div class="col-md-4">
-                            <a href="/attendance/mark/" class="btn btn-outline-primary w-100">Mark Attendance</a>
-                        </div>
-                        <div class="col-md-4">
-                            <a href="/leave/apply/" class="btn btn-outline-success w-100">Apply Leave</a>
-                        </div>
-                        <div class="col-md-4">
-                            <a href="/appraisal/create/" class="btn btn-outline-warning w-100">Submit PMR</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-lg-4">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-header bg-white border-0 pt-3">
-                    <h5 class="mb-0 fw-bold">Employee Services</h5>
-                </div>
-                <div class="card-body">
-                    <div class="d-grid gap-2">
-                        <a href="/documents/" class="btn btn-outline-dark text-start ps-3">
-                            <i class="bi bi-file-earmark-text me-2"></i> Documents
-                        </a>
-                        <a href="/notifications/" class="btn btn-outline-dark text-start ps-3">
-                            <i class="bi bi-bell me-2"></i> Notifications
-                        </a>
-                        <a href="/resignation/" class="btn btn-outline-dark text-start ps-3">
-                            <i class="bi bi-box-arrow-right me-2"></i> Resignation
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-    </div>
+<div class="py-2">
+  <div class="mb-4"><h2 class="fw-bold mb-1">My Dashboard</h2><p class="text-muted mb-0">Welcome back, {{ employee.user.get_full_name|default:request.user.email }}.</p></div>
+  <div class="row g-3 mb-4">
+    {% include 'dashboard/_kpi.html' with title='Profile Completion' value=profile_completion icon='person-check' color='primary' suffix='%' %}
+    {% include 'dashboard/_kpi.html' with title='Casual Leave' value=leave_balance.remaining_casual_leave|default:0 icon='calendar' color='success' %}
+    {% include 'dashboard/_kpi.html' with title='Sick Leave' value=leave_balance.remaining_sick_leave|default:0 icon='heart-pulse' color='danger' %}
+    {% include 'dashboard/_kpi.html' with title='Earned Leave' value=leave_balance.remaining_earned_leave|default:0 icon='airplane' color='warning' %}
+  </div>
+  <div class="row g-4 mb-4">
+    <div class="col-lg-8"><div class="card border-0 shadow-sm"><div class="card-header bg-white border-0 pt-3"><h5 class="fw-bold mb-0">My Employment</h5></div><div class="card-body"><div class="row g-3"><div class="col-md-4"><small class="text-muted">Employee ID</small><div class="fw-semibold">{{ employee.employee_id }}</div></div><div class="col-md-4"><small class="text-muted">Department</small><div class="fw-semibold">{{ employee.department }}</div></div><div class="col-md-4"><small class="text-muted">Designation</small><div class="fw-semibold">{{ employee.designation }}</div></div><div class="col-md-4"><small class="text-muted">Joining Date</small><div class="fw-semibold">{{ employee.joining_date|date:'d M Y' }}</div></div><div class="col-md-4"><small class="text-muted">Work Mode</small><div class="fw-semibold">{{ employee.get_work_mode_display }}</div></div><div class="col-md-4"><small class="text-muted">Status</small><div class="fw-semibold">{{ employee.get_status_display }}</div></div></div></div></div></div>
+    <div class="col-lg-4"><div class="card border-0 shadow-sm h-100"><div class="card-header bg-white border-0 pt-3"><h5 class="fw-bold mb-0">Quick Actions</h5></div><div class="card-body d-grid gap-2"><a class="btn btn-primary" href="/attendance/">Attendance</a><a class="btn btn-outline-success" href="/leave/">Apply Leave</a><a class="btn btn-outline-warning" href="/appraisal/">My PMR</a><a class="btn btn-outline-danger" href="/payslips/">My Payslips</a><a class="btn btn-outline-dark" href="/documents/">My Documents</a></div></div></div>
+  </div>
+  <div class="row g-4"><div class="col-lg-6"><div class="card border-0 shadow-sm"><div class="card-header bg-white border-0 pt-3"><h5 class="fw-bold mb-0">Recent Payslips</h5></div><div class="card-body p-0"><div class="list-group list-group-flush">{% for p in personal_payslips %}<a href="/payslips/{{ p.id }}/" class="list-group-item d-flex justify-content-between"><span>{{ p.month }} {{ p.year }}</span><strong>₹ {{ p.net_salary|floatformat:2 }}</strong></a>{% empty %}<div class="p-3 text-muted">No payslips available.</div>{% endfor %}</div></div></div></div><div class="col-lg-6"><div class="card border-0 shadow-sm"><div class="card-header bg-white border-0 pt-3"><h5 class="fw-bold mb-0">Upcoming Holidays</h5></div><div class="card-body p-0"><div class="list-group list-group-flush">{% for h in upcoming_holidays %}<div class="list-group-item d-flex justify-content-between"><span>{{ h.name }}</span><small>{{ h.holiday_date|date:'d M' }}</small></div>{% empty %}<div class="p-3 text-muted">No upcoming holidays.</div>{% endfor %}</div></div></div></div></div>
 </div>
 {% endblock %}

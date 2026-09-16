@@ -132,7 +132,7 @@ def promotion_letter(request, pk):
 
     # Document Header branding elements
     pdf.setFont("Helvetica-Bold", 22)
-    pdf.drawString(50, height - 50, "SkillCheckHub HRMS")
+    pdf.drawString(50, height - 50, "ABC HRMS Portal")
 
     pdf.setFont("Helvetica", 10)
     pdf.drawString(50, height - 65, "Employee Management Platform")
@@ -179,13 +179,13 @@ def promotion_letter(request, pk):
 
     pdf.setFont("Helvetica", 11)
     pdf.drawString(50, height - 700, "HR Department")
-    pdf.drawString(50, height - 720, "SkillCheckHub HRMS")
+    pdf.drawString(50, height - 720, "ABC HRMS Portal")
 
     # Document Footer Block Elements
     pdf.line(40, 70, width - 40, 70)
     pdf.setFont("Helvetica", 9)
     pdf.drawString(50, 50, "This is a system-generated promotion letter.")
-    pdf.drawRightString(width - 50, 50, "SkillCheckHub HRMS")
+    pdf.drawRightString(width - 50, 50, "ABC HRMS Portal")
 
     # Finalize Page Context Canvas Rendering
     pdf.showPage()

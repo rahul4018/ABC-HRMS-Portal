@@ -1,0 +1,99 @@
+{% extends 'layouts/base.html' %}
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+<div>
+<h2 class="fw-bold mb-1">{{ document.title }}</h2>
+<p class="text-muted mb-0">
+{{ document.employee.user.get_full_name|default:document.employee.user.email }}
+· {{ document.employee.employee_id }}
+</p>
+</div>
+<a href="{% url 'document_list' %}" class="btn btn-outline-secondary">Back</a>
+</div>
+
+<div class="row g-4">
+<div class="col-lg-8">
+<div class="card border-0 shadow-sm mb-4">
+<div class="card-body p-4">
+<div class="row g-4">
+<div class="col-md-6"><small class="text-muted d-block">Employee</small><strong>{{ document.employee.user.get_full_name|default:document.employee.user.email }}</strong><div class="text-muted">{{ document.employee.employee_id }}</div></div>
+<div class="col-md-6"><small class="text-muted d-block">Department</small><strong>{{ document.employee.department|default:"-" }}</strong></div>
+<div class="col-md-4"><small class="text-muted d-block">Category</small><strong>{{ document.get_category_display }}</strong></div>
+<div class="col-md-4"><small class="text-muted d-block">Type</small><strong>{{ document.get_document_type_display }}</strong></div>
+<div class="col-md-4"><small class="text-muted d-block">Status</small><strong>{{ document.get_status_display }}</strong></div>
+<div class="col-md-4"><small class="text-muted d-block">Document Number</small><strong>{{ document.document_number|default:"—" }}</strong></div>
+<div class="col-md-4"><small class="text-muted d-block">Issue Date</small><strong>{{ document.issue_date|date:"d M Y"|default:"—" }}</strong></div>
+<div class="col-md-4"><small class="text-muted d-block">Expiry Date</small><strong>{{ document.expiry_date|date:"d M Y"|default:"—" }}</strong></div>
+<div class="col-md-4"><small class="text-muted d-block">Confidentiality</small><strong>{{ document.get_confidentiality_display }}</strong></div>
+<div class="col-md-4"><small class="text-muted d-block">Uploaded</small><strong>{{ document.uploaded_at|date:"d M Y, h:i A" }}</strong></div>
+<div class="col-md-4"><small class="text-muted d-block">Uploaded By</small><strong>{{ document.uploaded_by.get_full_name|default:document.uploaded_by.email|default:"—" }}</strong></div>
+<div class="col-12"><small class="text-muted d-block">Notes</small><p class="mb-0">{{ document.remarks|default:"—" }}</p></div>
+{% if document.rejection_reason %}<div class="col-12"><div class="alert alert-warning mb-0"><strong>Review Comment:</strong> {{ document.rejection_reason }}</div></div>{% endif %}
+</div>
+
+<div class="d-flex gap-2 mt-4 flex-wrap">
+<a href="{% url 'download_document' document.pk %}" class="btn btn-primary">Open / Download</a>
+{% if is_hr %}
+<button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#replaceModal">Replace</button>
+<form action="{% url 'delete_document' document.pk %}" method="post" class="d-inline">{% csrf_token %}<button class="btn btn-outline-danger" onclick="return confirm('Archive this document?')">Archive</button></form>
+{% endif %}
+</div>
+</div>
+</div>
+
+{% if is_hr and document.status != "APPROVED" %}
+<div class="card border-0 shadow-sm">
+<div class="card-body">
+<h5 class="fw-bold mb-3">HR Review</h5>
+<form method="post">
+{% csrf_token %}
+<textarea name="rejection_reason" rows="3" class="form-control mb-3" placeholder="Comment / rejection reason"></textarea>
+<div class="d-flex gap-2">
+<button formaction="{% url 'approve_document' document.pk %}" class="btn btn-success">Approve</button>
+<button formaction="{% url 'reject_document' document.pk %}" class="btn btn-danger">Reject</button>
+<button formaction="{% url 'send_back_document' document.pk %}" class="btn btn-outline-primary">Send Back</button>
+</div>
+</form>
+</div>
+</div>
+{% endif %}
+</div>
+
+<div class="col-lg-4">
+<div class="card border-0 shadow-sm">
+<div class="card-body">
+<h5 class="fw-bold mb-3">Version History</h5>
+{% for version in versions %}
+<div class="border-bottom py-3">
+<div class="fw-semibold">Version {{ version.version_number }}</div>
+<div class="small text-muted">{{ version.uploaded_at|date:"d M Y, h:i A" }}</div>
+<div class="small text-muted">{{ version.note|default:"Previous version" }}</div>
+</div>
+{% empty %}<p class="text-muted mb-0">No previous versions.</p>{% endfor %}
+</div>
+</div>
+</div>
+</div>
+
+{% if is_hr %}
+<div class="modal fade" id="replaceModal" tabindex="-1">
+<div class="modal-dialog">
+<div class="modal-content">
+<form method="post" enctype="multipart/form-data" action="{% url 'replace_document' document.pk %}">
+{% csrf_token %}
+<div class="modal-header"><h5 class="modal-title">Replace Document</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+<div class="modal-body">
+<label class="form-label">New File *</label>
+<input type="file" name="file" class="form-control" accept=".pdf,.jpg,.jpeg,.png" required>
+<label class="form-label mt-3">Version Note</label>
+<textarea name="version_note" rows="3" class="form-control" placeholder="Why was this document replaced?"></textarea>
+</div>
+<div class="modal-footer"><button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button><button class="btn btn-primary">Replace</button></div>
+</form>
+</div>
+</div>
+</div>
+{% endif %}
+
+{% endblock %}

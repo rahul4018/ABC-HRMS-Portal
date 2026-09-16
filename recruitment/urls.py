@@ -1,21 +1,202 @@
 from django.urls import path
 from .views import (
+    recruitment_dashboard,
+    hiring_request_list,
+    hiring_request_create,
+    hiring_request_approve,
+    hiring_request_reject,
     requirement_list,
-    create_requirement,
-    applicant_list,
-    shortlist_applicant,
-    select_applicant,
-    onboard_applicant,
-    convert_to_employee,
+    requirement_create,
+    requirement_detail,
+    requirement_close,
+    applicants_list,
+    candidate_create,
+    candidate_detail,
+    candidate_stage,
+    interview_create,
+    interview_feedback,
+    offer_create,
+    offer_status,
+    offer_pdf,
+    background_update,
+    onboarding_task_create,
+    onboarding_task_toggle,
+    convert_candidate_to_employee,
+    recruitment_interviews,
+    assessment_create,
+    assessment_update,
+    offer_approve,
+    career_page,
+    job_posting_manage,
+    recruitment_offers,
+    recruitment_onboarding,
+    recruitment_reports,
 )
 
 urlpatterns = [
-    path('', requirement_list, name='requirement_list'),
-    path('create/', create_requirement, name='create_requirement'),
-    path('<int:requirement_id>/applicants/', applicant_list, name='applicant_list'),
-    path('applicant/<int:pk>/shortlist/', shortlist_applicant, name='shortlist_applicant'),
-    path('applicant/<int:pk>/select/', select_applicant, name='select_applicant'),
-    path('applicant/<int:pk>/onboard/', onboard_applicant, name='onboard_applicant'),
-    path('applicant/<int:pk>/convert/', convert_to_employee,name='convert_to_employee'
-),
+    path(
+        '',
+        recruitment_dashboard,
+        name='recruitment_dashboard',
+    ),
+
+    path(
+        'hiring-requests/',
+        hiring_request_list,
+        name='hiring_request_list',
+    ),
+    path(
+        'hiring-requests/create/',
+        hiring_request_create,
+        name='hiring_request_create',
+    ),
+    path(
+        'hiring-requests/<int:pk>/approve/',
+        hiring_request_approve,
+        name='hiring_request_approve',
+    ),
+    path(
+        'hiring-requests/<int:pk>/reject/',
+        hiring_request_reject,
+        name='hiring_request_reject',
+    ),
+
+    path(
+        'career/',
+        career_page,
+        name='career_page',
+    ),
+
+    path(
+        'requirements/',
+        requirement_list,
+        name='requirement_list',
+    ),
+    path(
+        'create/',
+        requirement_create,
+        name='requirement_create',
+    ),
+    path(
+        'requirement/<int:pk>/',
+        requirement_detail,
+        name='requirement_detail',
+    ),
+    path(
+        'requirement/<int:pk>/close/',
+        requirement_close,
+        name='requirement_close',
+    ),
+    path(
+        'requirement/<int:pk>/posting/',
+        job_posting_manage,
+        name='job_posting_manage',
+    ),
+    path(
+        'requirement/<int:requirement_id>/applicants/',
+        applicants_list,
+        name='applicants_list',
+    ),
+
+    path(
+        'candidates/',
+        applicants_list,
+        name='candidate_list',
+    ),
+    path(
+        'candidate/create/',
+        candidate_create,
+        name='candidate_create',
+    ),
+    path(
+        'candidate/<int:pk>/',
+        candidate_detail,
+        name='candidate_detail',
+    ),
+    path(
+        'candidate/<int:pk>/stage/',
+        candidate_stage,
+        name='candidate_stage',
+    ),
+    path(
+        'candidate/<int:pk>/interview/',
+        interview_create,
+        name='interview_create',
+    ),
+    path(
+        'candidate/<int:pk>/assessment/',
+        assessment_create,
+        name='assessment_create',
+    ),
+    path(
+        'interview/<int:pk>/feedback/',
+        interview_feedback,
+        name='interview_feedback',
+    ),
+    path(
+        'candidate/<int:pk>/offer/',
+        offer_create,
+        name='offer_create',
+    ),
+    path(
+        'offer/<int:pk>/approve/',
+        offer_approve,
+        name='offer_approve',
+    ),
+    path(
+        'offer/<int:pk>/status/',
+        offer_status,
+        name='offer_status',
+    ),
+    path(
+        'offer/<int:pk>/pdf/',
+        offer_pdf,
+        name='offer_pdf',
+    ),
+    path(
+        'assessment/<int:pk>/update/',
+        assessment_update,
+        name='assessment_update',
+    ),
+    path(
+        'candidate/<int:pk>/background/',
+        background_update,
+        name='background_update',
+    ),
+    path(
+        'candidate/<int:pk>/onboarding-task/',
+        onboarding_task_create,
+        name='onboarding_task_create',
+    ),
+    path(
+        'onboarding/<int:pk>/toggle/',
+        onboarding_task_toggle,
+        name='onboarding_task_toggle',
+    ),
+    path(
+        'candidate/<int:pk>/convert/',
+        convert_candidate_to_employee,
+        name='convert_candidate_to_employee',
+    ),
+
+    path(
+        'interviews/',
+        recruitment_interviews,
+        name='recruitment_interviews',
+    ),
+    path(
+        'offers/',
+        recruitment_offers,
+        name='recruitment_offers',
+    ),
+    path(
+        'onboarding/',
+        recruitment_onboarding,
+        name='recruitment_onboarding',
+    ),
+    path(
+        'reports/',
+        recruitment_reports,
+        name='recruitment_reports',
+    ),
 ]

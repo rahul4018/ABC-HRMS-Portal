@@ -1,211 +1,123 @@
 {% extends 'layouts/base.html' %}
-
 {% block content %}
 
 <div class="d-flex justify-content-between align-items-center mb-4">
-
-```
-<div>
-
-    <h2 class="fw-bold">
-        Document Management
-    </h2>
-
-    <p class="text-muted mb-0">
-        Manage employee uploaded documents.
-    </p>
-
+    <div>
+        <h2 class="fw-bold mb-1">Document Management</h2>
+        <p class="text-muted mb-0">Securely manage employee documents, verification and compliance.</p>
+    </div>
+    <a href="{% url 'upload_document' %}" class="btn btn-primary">
+        <i class="bi bi-cloud-upload me-1"></i> Upload Document
+    </a>
 </div>
 
-<a href="{% url 'upload_document' %}"
-   class="btn btn-primary">
-
-    Upload Document
-
-</a>
-```
-
+<div class="row g-3 mb-4">
+    <div class="col-md-2"><div class="card border-0 shadow-sm"><div class="card-body"><small class="text-muted">Documents</small><h3 class="fw-bold">{{ total_documents }}</h3></div></div></div>
+    <div class="col-md-2"><div class="card border-0 shadow-sm"><div class="card-body"><small class="text-muted">Pending Review</small><h3 class="fw-bold text-warning">{{ pending_documents }}</h3></div></div></div>
+    <div class="col-md-2"><div class="card border-0 shadow-sm"><div class="card-body"><small class="text-muted">Approved</small><h3 class="fw-bold text-success">{{ approved_documents }}</h3></div></div></div>
+    <div class="col-md-2"><div class="card border-0 shadow-sm"><div class="card-body"><small class="text-muted">Rejected</small><h3 class="fw-bold text-danger">{{ rejected_documents }}</h3></div></div></div>
+    <div class="col-md-2"><div class="card border-0 shadow-sm"><div class="card-body"><small class="text-muted">Expiring Soon</small><h3 class="fw-bold text-danger">{{ expiring_soon }}</h3></div></div></div>
+    <div class="col-md-2"><div class="card border-0 shadow-sm"><div class="card-body"><small class="text-muted">Employees Missing Docs</small><h3 class="fw-bold">{{ missing_documents }}</h3></div></div></div>
 </div>
 
-<div class="card">
-
-```
-<div class="card-body">
-
-    <table class="table align-middle">
-
-        <thead>
-
-            <tr>
-
-                <th>Employee</th>
-
-                <th>Title</th>
-
-                <th>Type</th>
-
-                <th>Status</th>
-
-                <th>Uploaded</th>
-
-                <th>File</th>
-
-                <th>Actions</th>
-
-            </tr>
-
-        </thead>
-
-        <tbody>
-
-            {% for document in documents %}
-
-            <tr>
-
-                <td>
-
-                    {{ document.employee.user.email }}
-
-                </td>
-
-                <td>
-
-                    {{ document.title }}
-
-                </td>
-
-                <td>
-
-                    {{ document.get_document_type_display }}
-
-                </td>
-
-                <td>
-
-                    {% if document.status == 'APPROVED' %}
-
-                        <span class="badge bg-success">
-
-                            Approved
-
-                        </span>
-
-                    {% elif document.status == 'REJECTED' %}
-
-                        <span class="badge bg-danger">
-
-                            Rejected
-
-                        </span>
-
-                    {% elif document.status == 'SENT_BACK' %}
-
-                        <span class="badge bg-info">
-
-                            Sent Back
-
-                        </span>
-
-                    {% else %}
-
-                        <span class="badge bg-warning text-dark">
-
-                            Pending
-
-                        </span>
-
-                    {% endif %}
-
-                </td>
-
-                <td>
-
-                    {{ document.uploaded_at|date:"d M Y" }}
-
-                </td>
-
-                <td>
-
-                    <a href="{{ document.file.url }}"
-                       target="_blank"
-                       class="btn btn-sm btn-secondary">
-
-                        Open
-
-                    </a>
-
-                </td>
-
-                <td>
-
-                    {% if request.user.role == 'SUPERVISOR' %}
-
-                        {% if document.status == 'PENDING' %}
-
-                            <a href="{% url 'approve_document' document.id %}"
-                               class="btn btn-sm btn-success">
-
-                                Approve
-
-                            </a>
-
-                            <a href="{% url 'reject_document' document.id %}"
-                               class="btn btn-sm btn-danger">
-
-                                Reject
-
-                            </a>
-
-                            <a href="{% url 'send_back_document' document.id %}"
-                               class="btn btn-sm btn-warning">
-
-                                Send Back
-
-                            </a>
-
-                        {% endif %}
-
-                    {% else %}
-
-                        {% if document.status == 'SENT_BACK' or document.status == 'REJECTED' %}
-
-                            <a href="{% url 'delete_document' document.id %}"
-                               class="btn btn-sm btn-danger">
-
-                                Remove
-
-                            </a>
-
-                        {% endif %}
-
-                    {% endif %}
-
-                </td>
-
-            </tr>
-
-            {% empty %}
-
-            <tr>
-
-                <td colspan="7"
-                    class="text-center text-muted py-5">
-
-                    No documents found.
-
-                </td>
-
-            </tr>
-
-            {% endfor %}
-
-        </tbody>
-
-    </table>
-
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+        <form method="get">
+            <div class="row g-2">
+                <div class="col-md-3"><input name="search" value="{{ search }}" class="form-control" placeholder="Employee, ID, document, number..."></div>
+                <div class="col-md-2">
+                    <select name="department" class="form-select">
+                        <option value="">All Departments</option>
+                        {% for d in departments %}<option value="{{ d.id }}" {% if selected_department == d.id|stringformat:"s" %}selected{% endif %}>{{ d.name }}</option>{% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select name="category" class="form-select">
+                        <option value="">All Categories</option>
+                        {% for value,label in categories %}<option value="{{ value }}" {% if selected_category == value %}selected{% endif %}>{{ label }}</option>{% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select name="status" class="form-select">
+                        <option value="">All Status</option>
+                        {% for value,label in statuses %}<option value="{{ value }}" {% if selected_status == value %}selected{% endif %}>{{ label }}</option>{% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select name="expiry" class="form-select">
+                        <option value="">All Expiry</option>
+                        <option value="7_DAYS" {% if selected_expiry == "7_DAYS" %}selected{% endif %}>Expiring in 7 days</option>
+                        <option value="30_DAYS" {% if selected_expiry == "30_DAYS" %}selected{% endif %}>Expiring in 30 days</option>
+                        <option value="EXPIRED" {% if selected_expiry == "EXPIRED" %}selected{% endif %}>Expired</option>
+                        <option value="NO_EXPIRY" {% if selected_expiry == "NO_EXPIRY" %}selected{% endif %}>No Expiry</option>
+                    </select>
+                </div>
+                <div class="col-md-1"><button class="btn btn-dark w-100">Filter</button></div>
+            </div>
+        </form>
+    </div>
 </div>
-```
 
+<div class="card border-0 shadow-sm">
+<div class="table-responsive">
+<table class="table table-hover align-middle mb-0">
+<thead class="table-light">
+<tr><th>Employee</th><th>Department</th><th>Document</th><th>Type</th><th>Uploaded</th><th>Expiry</th><th>Status</th><th>Actions</th></tr>
+</thead>
+<tbody>
+{% for document in documents %}
+<tr>
+<td>
+    <div class="fw-semibold">{{ document.employee.user.get_full_name|default:document.employee.user.email }}</div>
+    <small class="text-muted">{{ document.employee.employee_id }}</small>
+</td>
+<td>{{ document.employee.department|default:"-" }}</td>
+<td>
+    <div class="fw-semibold">{{ document.title }}</div>
+    {% if document.document_number %}<small class="text-muted">{{ document.document_number }}</small>{% endif %}
+</td>
+<td>
+    <span class="badge bg-light text-dark">{{ document.get_document_type_display }}</span>
+</td>
+<td>{{ document.uploaded_at|date:"d M Y" }}</td>
+<td>
+    {% if document.expiry_date %}
+        {{ document.expiry_date|date:"d M Y" }}
+        {% if document.is_expired %}<span class="badge bg-danger ms-1">Expired</span>
+        {% elif document.expires_soon %}<span class="badge bg-warning text-dark ms-1">Soon</span>{% endif %}
+    {% else %}<span class="text-muted">—</span>{% endif %}
+</td>
+<td>
+    {% if document.status == "APPROVED" %}<span class="badge bg-success-subtle text-success">Approved</span>
+    {% elif document.status == "REJECTED" %}<span class="badge bg-danger-subtle text-danger">Rejected</span>
+    {% elif document.status == "EXPIRED" %}<span class="badge bg-danger">Expired</span>
+    {% elif document.status == "SENT_BACK" %}<span class="badge bg-info-subtle text-info">Sent Back</span>
+    {% else %}<span class="badge bg-warning-subtle text-warning-emphasis">{{ document.get_status_display }}</span>{% endif %}
+</td>
+<td class="text-nowrap">
+    <a href="{% url 'document_detail' document.pk %}" class="btn btn-sm btn-outline-secondary">View</a>
+    <a href="{% url 'download_document' document.pk %}" class="btn btn-sm btn-primary">Open</a>
+</td>
+</tr>
+{% empty %}
+<tr><td colspan="8" class="text-center text-muted py-5">No documents found.</td></tr>
+{% endfor %}
+</tbody>
+</table>
+</div>
+</div>
+
+<div class="d-flex justify-content-between align-items-center mt-4">
+    <small class="text-muted">Showing {{ page_obj.start_index }}–{{ page_obj.end_index }} of {{ page_obj.paginator.count }}</small>
+    <div class="d-flex gap-2">
+        {% if page_obj.has_previous %}
+        <a class="btn btn-outline-secondary btn-sm" href="?page={{ page_obj.previous_page_number }}&page_size={{ page_size }}&search={{ search }}&department={{ selected_department }}&category={{ selected_category }}&status={{ selected_status }}&expiry={{ selected_expiry }}">← Previous</a>
+        {% endif %}
+        <span class="btn btn-primary btn-sm">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+        {% if page_obj.has_next %}
+        <a class="btn btn-outline-secondary btn-sm" href="?page={{ page_obj.next_page_number }}&page_size={{ page_size }}&search={{ search }}&department={{ selected_department }}&category={{ selected_category }}&status={{ selected_status }}&expiry={{ selected_expiry }}">Next →</a>
+        {% endif %}
+    </div>
 </div>
 
 {% endblock %}

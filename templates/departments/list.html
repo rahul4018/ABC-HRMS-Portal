@@ -1,171 +1,93 @@
 {% extends 'layouts/base.html' %}
-
 {% block content %}
-
 <div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h2 class="fw-bold mb-1">Department Management</h2>
+    <p class="text-muted mb-0">Organize teams, department heads and workforce structure.</p>
+  </div>
+  <a href="{% url 'department_add' %}" class="btn btn-primary"><i class="bi bi-plus-circle me-1"></i>Add Department</a>
+</div>
 
-    <div>
+<div class="row g-3 mb-4">
+  <div class="col-md-3"><div class="card border-0 shadow-sm h-100"><div class="card-body"><div class="text-muted small text-uppercase fw-semibold">Departments</div><div class="fs-3 fw-bold mt-1">{{ total_departments }}</div></div></div></div>
+  <div class="col-md-3"><div class="card border-0 shadow-sm h-100"><div class="card-body"><div class="text-muted small text-uppercase fw-semibold">Active</div><div class="fs-3 fw-bold mt-1">{{ active_departments }}</div></div></div></div>
+  <div class="col-md-3"><div class="card border-0 shadow-sm h-100"><div class="card-body"><div class="text-muted small text-uppercase fw-semibold">Employees</div><div class="fs-3 fw-bold mt-1">{{ total_employees }}</div></div></div></div>
+  <div class="col-md-3"><div class="card border-0 shadow-sm h-100"><div class="card-body"><div class="text-muted small text-uppercase fw-semibold">Heads Unassigned</div><div class="fs-3 fw-bold mt-1">{{ unassigned_heads }}</div></div></div></div>
+</div>
 
-        <h2 class="fw-bold">
-            Department Management
-        </h2>
-
-        <p class="text-muted mb-0">
-            Manage organizational departments.
-        </p>
-
-    </div>
-
-    <a href="{% url 'add_department' %}"
-       class="btn btn-primary">
-
-        <i class="bi bi-plus-circle me-1"></i>
-
-        Add Department
-
-    </a>
-
+<div class="card border-0 shadow-sm mb-4">
+  <div class="card-body">
+    <form method="get" class="row g-3 align-items-end">
+      <div class="col-md-7">
+        <label class="form-label fw-semibold">Search</label>
+        <input type="text" name="q" value="{{ query }}" class="form-control" placeholder="Department, code or department head...">
+      </div>
+      <div class="col-md-3">
+        <label class="form-label fw-semibold">Status</label>
+        <select name="status" class="form-select">
+          <option value="">All Status</option>
+          <option value="ACTIVE" {% if selected_status == 'ACTIVE' %}selected{% endif %}>Active</option>
+          <option value="INACTIVE" {% if selected_status == 'INACTIVE' %}selected{% endif %}>Inactive</option>
+        </select>
+      </div>
+      <div class="col-md-2 d-flex gap-2">
+        <button class="btn btn-dark w-100" type="submit">Filter</button>
+      </div>
+    </form>
+  </div>
 </div>
 
 <div class="card border-0 shadow-sm">
-
-    <div class="card-body">
-
-        <table class="table align-middle table-hover">
-
-            <thead class="table-light">
-
-                <tr>
-
-                    <th>Department</th>
-
-                    <th>Description</th>
-
-                    <th>Department Head</th>
-
-                    <th>Total Employees</th>
-
-                    <th>Created</th>
-
-                    <th>Actions</th>
-
-                </tr>
-
-            </thead>
-
-            <tbody>
-
-                {% for department in departments %}
-
-                <tr>
-
-                    <td>
-
-                        <span class="fw-semibold">
-
-                            {{ department.name }}
-
-                        </span>
-
-                    </td>
-
-                    <td>
-
-                        {% if department.description %}
-
-                            {{ department.description }}
-
-                        {% else %}
-
-                            <span class="text-muted">
-                                No description
-                            </span>
-
-                        {% endif %}
-
-                    </td>
-
-                    <td>
-
-                        {% if department.department_head %}
-
-                            {{ department.department_head }}
-
-                        {% else %}
-
-                            <span class="text-muted">
-                                Not Assigned
-                            </span>
-
-                        {% endif %}
-
-                    </td>
-
-                    <td>
-
-                        <span class="badge bg-dark">
-
-                            {{ department.employee_count }}
-
-                        </span>
-
-                    </td>
-
-                    <td>
-
-                        {{ department.created_at|date:"d M Y" }}
-
-                    </td>
-
-                    <td>
-
-                        <div class="d-flex gap-2">
-
-                            <a href="{% url 'edit_department' department.id %}"
-                               class="btn btn-sm btn-primary">
-
-                                <i class="bi bi-pencil-square"></i>
-
-                            </a>
-
-                            {% if request.user.role == 'SUPERVISOR' %}
-
-                            <a href="{% url 'delete_department' department.id %}"
-                               class="btn btn-sm btn-danger">
-
-                                <i class="bi bi-trash"></i>
-
-                            </a>
-
-                            {% endif %}
-
-                        </div>
-
-                    </td>
-
-                </tr>
-
-                {% empty %}
-
-                <tr>
-
-                    <td colspan="6"
-                        class="text-center text-muted py-5">
-
-                        No departments found.
-
-                    </td>
-
-                </tr>
-
-                {% endfor %}
-
-            </tbody>
-
-        </table>
-
-    </div>
-
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+      <thead class="table-light">
+        <tr>
+          <th>Department</th>
+          <th>Code</th>
+          <th>Department Head</th>
+          <th>Employees</th>
+          <th>Status</th>
+          <th>Created</th>
+          <th class="text-end">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for department in departments %}
+        <tr>
+          <td>
+            <a href="{% url 'department_detail' department.id %}" class="text-decoration-none fw-semibold text-dark">{{ department.name }}</a>
+            <div class="small text-muted">{{ department.description|truncatechars:60 }}</div>
+          </td>
+          <td><span class="badge bg-light text-dark border font-monospace">{{ department.code|default:'-' }}</span></td>
+          <td>
+            {% if department.head_employee %}
+              <div class="fw-semibold">{{ department.head_employee.user.get_full_name }}</div>
+              <div class="small text-muted">{{ department.head_employee.employee_id }}</div>
+            {% else %}
+              <span class="text-muted">Not Assigned</span>
+            {% endif %}
+          </td>
+          <td><a href="{% url 'employee_list' %}?department={{ department.id }}" class="badge rounded-pill bg-light text-dark border text-decoration-none">{{ department.employee_count }}</a></td>
+          <td>
+            {% if department.status == 'ACTIVE' %}<span class="badge bg-success-subtle text-success">Active</span>{% else %}<span class="badge bg-secondary-subtle text-secondary">Inactive</span>{% endif %}
+          </td>
+          <td>{{ department.created_at|date:'d M Y' }}</td>
+          <td class="text-end">
+            <a href="{% url 'department_detail' department.id %}" class="btn btn-sm btn-outline-secondary">View</a>
+            <a href="{% url 'department_edit' department.id %}" class="btn btn-sm btn-primary">Edit</a>
+            {% if department.status == 'ACTIVE' %}
+            <form method="post" action="{% url 'department_delete' department.id %}" class="d-inline">
+              {% csrf_token %}
+              <button class="btn btn-sm btn-outline-danger" type="submit" onclick="return confirm('Deactivate this department?')">Deactivate</button>
+            </form>
+            {% endif %}
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="7" class="text-center py-5 text-muted">No departments found.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 </div>
-
 {% endblock %}

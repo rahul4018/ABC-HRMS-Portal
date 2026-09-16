@@ -1,44 +1,15 @@
 {% extends 'layouts/base.html' %}
-
 {% block content %}
-
-<h2 class="fw-bold mb-4">
-    Edit Department
-</h2>
-
-<div class="card border-0 shadow-sm">
-
-    <div class="card-body">
-
-        <form method="POST">
-
-            {% csrf_token %}
-
-            <div class="mb-3">
-
-                <label class="form-label">
-                    Department Name
-                </label>
-
-                <input type="text"
-                       name="name"
-                       class="form-control"
-                       value="{{ department.name }}"
-                       required>
-
-            </div>
-
-            <button type="submit"
-                    class="btn btn-primary">
-
-                Update Department
-
-            </button>
-
-        </form>
-
-    </div>
-
+<div class="d-flex justify-content-between align-items-center mb-4"><div><h2 class="fw-bold mb-1">Edit Department</h2><p class="text-muted mb-0">Update department structure and ownership.</p></div><a href="{% url 'department_detail' department.id %}" class="btn btn-secondary">← Back</a></div>
+<div class="card border-0 shadow-sm"><div class="card-body p-4">
+<form method="post">{% csrf_token %}
+<div class="row g-4">
+<div class="col-md-6"><label class="form-label fw-semibold">Department Name *</label><input name="name" value="{{ department.name }}" class="form-control" required></div>
+<div class="col-md-6"><label class="form-label fw-semibold">Department Code</label><input name="code" value="{{ department.code|default:'' }}" class="form-control" maxlength="20"></div>
+<div class="col-12"><label class="form-label fw-semibold">Description</label><textarea name="description" class="form-control" rows="3">{{ department.description|default:'' }}</textarea></div>
+<div class="col-md-6"><label class="form-label fw-semibold">Department Head</label><select name="head_employee" class="form-select"><option value="">Not Assigned</option>{% for employee in employees %}<option value="{{ employee.id }}" {% if department.head_employee_id == employee.id %}selected{% endif %}>{{ employee.user.get_full_name }} — {{ employee.employee_id }}</option>{% endfor %}</select></div>
+<div class="col-md-6"><label class="form-label fw-semibold">Status</label><select name="status" class="form-select"><option value="ACTIVE" {% if department.status == 'ACTIVE' %}selected{% endif %}>Active</option><option value="INACTIVE" {% if department.status == 'INACTIVE' %}selected{% endif %}>Inactive</option></select></div>
 </div>
-
+<div class="mt-4 d-flex gap-2"><button class="btn btn-primary" type="submit">Save Changes</button><a href="{% url 'department_detail' department.id %}" class="btn btn-outline-secondary">Cancel</a></div>
+</form></div></div>
 {% endblock %}

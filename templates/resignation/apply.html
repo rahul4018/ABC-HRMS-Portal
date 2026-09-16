@@ -2,79 +2,196 @@
 
 {% block content %}
 
-<div class="card shadow-sm border-0">
-
-    <div class="card-body p-4">
-
-        <div class="mb-4">
-
-            <h2 class="fw-bold">
-                Resignation Request
-            </h2>
-
-            <p class="text-muted mb-0">
-                Submit your resignation request for supervisor approval.
-            </p>
-
-        </div>
-
-        <form method="post">
-
-            {% csrf_token %}
-
-            <div class="mb-3">
-
-                <label class="form-label fw-semibold">
-                    Reason for Resignation
-                </label>
-
-                <textarea
-                    name="reason"
-                    class="form-control"
-                    rows="5"
-                    placeholder="Enter your resignation reason..."
-                    required></textarea>
-
-            </div>
-
-            <div class="mb-4">
-
-                <label class="form-label fw-semibold">
-                    Last Working Day
-                </label>
-
-                <input
-                    type="date"
-                    name="last_working_day"
-                    class="form-control"
-                    required>
-
-            </div>
-
-            <div class="d-flex gap-2">
-
-                <button
-                    type="submit"
-                    class="btn btn-danger">
-
-                    Submit Resignation
-
-                </button>
-
-                <a
-                    href="{% url 'resignation_list' %}"
-                    class="btn btn-secondary">
-
-                    Cancel
-
-                </a>
-
-            </div>
-
-        </form>
-
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-1">Resignation Request</h2>
+        <p class="text-muted mb-0">Submit your resignation request for HR review and approval.</p>
     </div>
 
+    <a href="{% url 'resignation_list' %}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left me-1"></i> Back
+    </a>
 </div>
+
+<div class="row g-4">
+
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-4">
+
+                <div class="d-flex align-items-center gap-3 mb-4">
+                    <div class="rounded-circle bg-primary-subtle text-primary d-flex align-items-center justify-content-center fw-bold"
+                         style="width:52px;height:52px;">
+                        {{ employee.user.first_name|slice:":1"|upper }}{{ employee.user.last_name|slice:":1"|upper }}
+                    </div>
+                    <div>
+                        <div class="fw-bold fs-5">{{ employee.user.get_full_name }}</div>
+                        <div class="text-muted small">
+                            {{ employee.employee_id }} · {{ employee.designation }} · {{ employee.department.name|default:"—" }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-md-4">
+                        <div class="bg-light rounded-3 p-3 h-100">
+                            <div class="text-muted small">Resignation Date</div>
+                            <div class="fw-bold mt-1">{{ resignation_date|date:"d M Y" }}</div>
+                            <div class="small text-muted">Automatic</div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="bg-light rounded-3 p-3 h-100">
+                            <div class="text-muted small">Notice Period</div>
+                            <div class="fw-bold mt-1">{{ notice_period_days }} Days</div>
+                            <div class="small text-muted">{{ notice_period_unit|title }} days</div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="bg-light rounded-3 p-3 h-100">
+                            <div class="text-muted small">Expected Last Working Day</div>
+                            <div class="fw-bold mt-1 text-primary">{{ expected_lwd|date:"d M Y" }}</div>
+                            <div class="small text-muted">Calculated automatically</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="alert alert-warning border-0">
+                    <i class="bi bi-info-circle me-2"></i>
+                    Your company's standard notice period is <strong>{{ notice_period_days }} days</strong>.
+                    The expected last working day is calculated by the system and cannot be manually changed.
+                </div>
+
+                <form method="post" id="resignationForm">
+                    {% csrf_token %}
+
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold">
+                            Reason for Resignation <span class="text-danger">*</span>
+                        </label>
+                        <textarea
+                            name="reason"
+                            class="form-control"
+                            rows="5"
+                            placeholder="Please provide your reason for resignation..."
+                            required></textarea>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold">Additional Comments</label>
+                        <textarea
+                            name="additional_comments"
+                            class="form-control"
+                            rows="3"
+                            placeholder="Optional comments or information for HR..."></textarea>
+                    </div>
+
+                    <div class="card bg-light border mb-4">
+                        <div class="card-body p-3">
+                            <div class="form-check form-switch mb-2">
+                                <input class="form-check-input" type="checkbox" name="early_release_requested" id="earlyReleaseToggle">
+                                <label class="form-check-label fw-semibold" for="earlyReleaseToggle">
+                                    Request Early Release
+                                </label>
+                            </div>
+                            <div class="small text-muted mb-3">
+                                Use this only when you need to leave before the calculated notice-period date.
+                                HR approval is required.
+                            </div>
+
+                            <div id="earlyReleaseFields" class="d-none">
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold">Requested Last Working Day</label>
+                                    <input
+                                        type="date"
+                                        name="requested_early_release_date"
+                                        class="form-control"
+                                        max="{{ expected_lwd|date:'Y-m-d' }}">
+                                </div>
+
+                                <div>
+                                    <label class="form-label fw-semibold">Early Release Reason</label>
+                                    <textarea
+                                        name="early_release_reason"
+                                        class="form-control"
+                                        rows="3"
+                                        placeholder="Explain why early release is required..."></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-danger px-4">
+                            <i class="bi bi-send me-1"></i>
+                            Submit Resignation
+                        </button>
+
+                        <a href="{% url 'resignation_list' %}" class="btn btn-secondary">
+                            Cancel
+                        </a>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-body p-4">
+                <h5 class="fw-bold mb-3">Resignation Process</h5>
+
+                <div class="d-flex gap-3 mb-3">
+                    <div class="text-primary"><i class="bi bi-1-circle-fill"></i></div>
+                    <div><strong>Submit Request</strong><div class="small text-muted">Your resignation enters HR review.</div></div>
+                </div>
+
+                <div class="d-flex gap-3 mb-3">
+                    <div class="text-primary"><i class="bi bi-2-circle-fill"></i></div>
+                    <div><strong>Approval</strong><div class="small text-muted">HR reviews and approves or sends it back.</div></div>
+                </div>
+
+                <div class="d-flex gap-3 mb-3">
+                    <div class="text-primary"><i class="bi bi-3-circle-fill"></i></div>
+                    <div><strong>Notice Period</strong><div class="small text-muted">Complete the applicable notice period.</div></div>
+                </div>
+
+                <div class="d-flex gap-3 mb-3">
+                    <div class="text-primary"><i class="bi bi-4-circle-fill"></i></div>
+                    <div><strong>Handover & Clearance</strong><div class="small text-muted">Complete assets, documents and payroll clearance.</div></div>
+                </div>
+
+                <div class="d-flex gap-3">
+                    <div class="text-success"><i class="bi bi-check-circle-fill"></i></div>
+                    <div><strong>Exit Complete</strong><div class="small text-muted">Final settlement and exit documents.</div></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-4">
+                <h6 class="fw-bold">Policy Note</h6>
+                <p class="small text-muted mb-0">
+                    The notice period is controlled by company policy. Employees cannot directly alter the system-calculated expected last working day.
+                    Early release is handled as a separate approval request.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+const toggle = document.getElementById('earlyReleaseToggle');
+const fields = document.getElementById('earlyReleaseFields');
+
+if (toggle && fields) {
+    toggle.addEventListener('change', function () {
+        fields.classList.toggle('d-none', !this.checked);
+    });
+}
+</script>
 
 {% endblock %}

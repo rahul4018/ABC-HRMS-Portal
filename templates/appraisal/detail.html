@@ -1,177 +1,106 @@
 {% extends 'layouts/base.html' %}
-
 {% block content %}
 
 <div class="d-flex justify-content-between align-items-center mb-4">
-
     <div>
-
-        <h2 class="fw-bold">
-            PMR Details
-        </h2>
-
-        <p class="text-muted mb-0">
-            Performance Management Report Information
-        </p>
-
+        <h2 class="fw-bold mb-1">Performance Review</h2>
+        <p class="text-muted mb-0">{{ pmr.title }}</p>
     </div>
-
-    <a href="{% url 'pmr_list' %}"
-       class="btn btn-secondary">
-
-        Back
-
-    </a>
-
+    <a href="{% url 'pmr_list' %}" class="btn btn-outline-secondary">Back</a>
 </div>
 
-<div class="card border-0 shadow-sm">
-
-    <div class="card-body">
-
-        <div class="row">
-
-            <div class="col-md-6 mb-3">
-
-                <label class="fw-bold">
-                    Employee
-                </label>
-
-                <p>
-
-                    {{ pmr.employee.user.email }}
-
-                </p>
-
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body p-4">
+        <div class="row g-4">
+            <div class="col-md-6">
+                <small class="text-muted">Employee</small>
+                <h4 class="fw-bold mb-0">
+                    {{ pmr.employee.user.get_full_name|default:pmr.employee.user.email }}
+                </h4>
+                <span class="text-muted">{{ pmr.employee.employee_id }}</span>
             </div>
-
-            <div class="col-md-6 mb-3">
-
-                <label class="fw-bold">
-                    Status
-                </label>
-
-                <p>
-
-                    {% if pmr.status == 'PENDING' %}
-
-                        <span class="badge bg-warning text-dark">
-                            Pending
-                        </span>
-
-                    {% elif pmr.status == 'APPROVED' %}
-
-                        <span class="badge bg-success">
-                            Approved
-                        </span>
-
-                    {% elif pmr.status == 'REJECTED' %}
-
-                        <span class="badge bg-danger">
-                            Rejected
-                        </span>
-
-                    {% else %}
-
-                        <span class="badge bg-secondary">
-                            {{ pmr.status }}
-                        </span>
-
-                    {% endif %}
-
-                </p>
-
+            <div class="col-md-3">
+                <small class="text-muted d-block">Department</small>
+                <strong>{{ pmr.employee.department|default:"-" }}</strong>
             </div>
-
-            <div class="col-md-12 mb-3">
-
-                <label class="fw-bold">
-                    Title
-                </label>
-
-                <p>
-
-                    {{ pmr.title }}
-
-                </p>
-
+            <div class="col-md-3">
+                <small class="text-muted d-block">Status</small>
+                <strong>{{ pmr.status|default:"Pending" }}</strong>
             </div>
-
-            <div class="col-md-12 mb-3">
-
-                <label class="fw-bold">
-                    Performance Summary
-                </label>
-
-                <div class="border rounded p-3 bg-light">
-
-                    {{ pmr.description }}
-
-                </div>
-
+            <div class="col-md-3">
+                <small class="text-muted d-block">Review Type</small>
+                <strong>{{ pmr.review_type|default:"Performance Review" }}</strong>
             </div>
-
-            <div class="col-md-6 mb-3">
-
-                <label class="fw-bold">
-                    Created On
-                </label>
-
-                <p>
-
-                    {{ pmr.created_at|date:"d M Y H:i" }}
-
-                </p>
-
+            <div class="col-md-3">
+                <small class="text-muted d-block">Review Period</small>
+                <strong>{{ pmr.review_period|default:"—" }}</strong>
             </div>
-
-            <div class="col-md-6 mb-3">
-
-                <label class="fw-bold">
-                    Last Updated
-                </label>
-
-                <p>
-
-                    {{ pmr.updated_at|date:"d M Y H:i" }}
-
-                </p>
-
+            <div class="col-md-3">
+                <small class="text-muted d-block">Overall Rating</small>
+                <strong class="fs-4">
+                    {{ pmr.overall_rating|default:pmr.rating|default:"—" }}
+                    {% if pmr.overall_rating or pmr.rating %}/5{% endif %}
+                </strong>
             </div>
-
+            <div class="col-md-3">
+                <small class="text-muted d-block">Promotion Recommendation</small>
+                <strong>{{ pmr.promotion_recommendation|default:"Not assessed" }}</strong>
+            </div>
         </div>
-
-        <hr>
-
-        <div class="d-flex gap-2">
-
-            <a href="{% url 'pmr_list' %}"
-               class="btn btn-secondary">
-
-                Back to PMR List
-
-            </a>
-
-            {% if pmr.status == 'PENDING' %}
-
-            <button class="btn btn-success">
-
-                Approve
-
-            </button>
-
-            <button class="btn btn-danger">
-
-                Reject
-
-            </button>
-
-            {% endif %}
-
-        </div>
-
     </div>
+</div>
 
+<div class="row g-4">
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <h5 class="fw-bold">Achievements</h5>
+                <p class="mb-0">{{ pmr.achievements|default:"No achievements recorded." }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <h5 class="fw-bold">Goals</h5>
+                <p class="mb-0">{{ pmr.goals|default:"No goals recorded." }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <h5 class="fw-bold">Strengths</h5>
+                <p class="mb-0">{{ pmr.strengths|default:"—" }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <h5 class="fw-bold">Areas for Improvement</h5>
+                <p class="mb-0">{{ pmr.improvement_areas|default:"—" }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <h5 class="fw-bold">Development Plan</h5>
+                <p class="mb-0">{{ pmr.development_plan|default:"—" }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <h5 class="fw-bold">Manager / HR Comments</h5>
+                <p class="mb-0">
+                    {{ pmr.manager_comments|default:pmr.comments|default:"—" }}
+                </p>
+            </div>
+        </div>
+    </div>
 </div>
 
 {% endblock %}

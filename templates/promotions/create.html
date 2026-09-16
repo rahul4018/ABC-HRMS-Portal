@@ -1,108 +1,16 @@
 {% extends 'layouts/base.html' %}
-
+{% block title %}Create Promotion{% endblock %}
 {% block content %}
-
-<h2 class="mb-4">
-    Create Promotion
-</h2>
-
-<div class="card">
-
-    <div class="card-body">
-
-        <form method="post">
-
-            {% csrf_token %}
-
-            <div class="mb-3">
-
-                <label class="form-label">
-                    Employee
-                </label>
-
-                <select name="employee"
-                        class="form-control">
-
-                    {% for employee in employees %}
-
-                    <option value="{{ employee.id }}">
-
-                        {{ employee.user.email }}
-
-                    </option>
-
-                    {% endfor %}
-
-                </select>
-
-            </div>
-
-            <div class="mb-3">
-
-                <label class="form-label">
-
-                    Old Designation
-
-                </label>
-
-                <input type="text"
-                       name="old_designation"
-                       class="form-control">
-
-            </div>
-
-            <div class="mb-3">
-
-                <label class="form-label">
-
-                    New Designation
-
-                </label>
-
-                <input type="text"
-                       name="new_designation"
-                       class="form-control">
-
-            </div>
-
-            <div class="mb-3">
-
-                <label class="form-label">
-
-                    Effective Date
-
-                </label>
-
-                <input type="date"
-                       name="effective_date"
-                       class="form-control">
-
-            </div>
-
-            <div class="mb-3">
-
-                <label class="form-label">
-
-                    Remarks
-
-                </label>
-
-                <textarea name="remarks"
-                          class="form-control"></textarea>
-
-            </div>
-
-            <button type="submit"
-                    class="btn btn-success">
-
-                Create Promotion
-
-            </button>
-
-        </form>
-
-    </div>
-
-</div>
-
+<div class="sc-page-head"><div><div class="sc-eyebrow">PERFORMANCE &amp; GROWTH</div><h1>Create Promotion</h1><p>Prepare a promotion proposal for review and approval.</p></div><div class="sc-page-actions"><a href="{% url 'promotion_list' %}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left"></i> Back to Promotions</a></div></div>
+<div class="sc-card"><form method="post" novalidate>{% csrf_token %}
+  <div class="sc-form-section-title"><i class="bi bi-award"></i><div><strong>Promotion Details</strong><small>Select the employee and define the proposed role change.</small></div></div>
+  <div class="sc-form-grid">
+    <div class="sc-field"><label for="id_employee">Employee <span class="text-danger">*</span></label><select id="id_employee" name="employee" required>{% for employee in employees %}<option value="{{ employee.id }}">{{ employee.employee_id }} — {{ employee.user.get_full_name|default:employee.employee_id }}</option>{% endfor %}</select></div>
+    <div class="sc-field"><label for="id_effective_date">Effective Date <span class="text-danger">*</span></label><input id="id_effective_date" type="date" name="effective_date" required></div>
+    <div class="sc-field"><label for="id_old_designation">Current Designation <span class="text-danger">*</span></label><input id="id_old_designation" type="text" name="old_designation" placeholder="Current designation" required></div>
+    <div class="sc-field"><label for="id_new_designation">Proposed Designation <span class="text-danger">*</span></label><input id="id_new_designation" type="text" name="new_designation" placeholder="New designation" required></div>
+    <div class="sc-field sc-form-full"><label for="id_remarks">Remarks</label><textarea id="id_remarks" name="remarks" placeholder="Reason, business justification or additional notes"></textarea></div>
+  </div>
+  <div class="sc-form-actions"><a href="{% url 'promotion_list' %}" class="btn btn-outline-secondary">Cancel</a><button type="submit" class="btn btn-primary"><i class="bi bi-send"></i> Submit for Approval</button></div>
+</form></div>
 {% endblock %}

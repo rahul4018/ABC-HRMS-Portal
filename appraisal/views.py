@@ -22,21 +22,136 @@ def pmr_list(request):
 
 @login_required
 def pmr_create(request):
-    employee = Employee.objects.filter(user=request.user).first()
+    """
+    HR/Supervisor can create a PMR for any employee.
+    Employees can create a PMR only for themselves.
+    """
 
-    if not employee:
-        messages.error(request, "Employee profile not found.")
-        return redirect("pmr_list")
+    is_manager = (
+        getattr(request.user, "role", None) == "SUPERVISOR"
+        or getattr(request.user, "portal_role", None) in {
+            "ADMIN",
+            "HR",
+            "CEO",
+            "FOUNDER",
+        }
+    )
 
+    # -----------------------------------------
+    # HR / Management: choose the employee
+    # -----------------------------------------
+    if is_manager:
+
+        employees = Employee.objects.select_related(
+            "user",
+            "department"
+        ).filter(
+            status="ACTIVE"
+        ).order_by(
+            "employee_id"
+        )
+
+    else:
+
+        employee = Employee.objects.filter(
+            user=request.user
+        ).first()
+
+        if not employee:
+            messages.error(
+                request,
+                "Employee profile not found."
+            )
+
+            return redirect("pmr_list")
+
+        employees = Employee.objects.filter(
+            pk=employee.pk
+        )
+
+    # -----------------------------------------
+    # CREATE PMR
+    # -----------------------------------------
     if request.method == "POST":
-        title = request.POST.get("title", "").strip()
-        achievements = request.POST.get("achievements", "").strip()
-        goals = request.POST.get("goals", "").strip()
+
+        title = request.POST.get(
+            "title",
+            ""
+        ).strip()
+
+        achievements = request.POST.get(
+            "achievements",
+            ""
+        ).strip()
+
+        goals = request.POST.get(
+            "goals",
+            ""
+        ).strip()
+
+        # HR chooses employee
+        if is_manager:
+
+            employee_id = request.POST.get(
+                "employee"
+            )
+
+            employee = Employee.objects.filter(
+                pk=employee_id,
+                status="ACTIVE"
+            ).first()
+
+        else:
+
+            employee = Employee.objects.filter(
+                user=request.user
+            ).first()
+
+        # -----------------------------------------
+        # Validation
+        # -----------------------------------------
+        if not employee:
+
+            messages.error(
+                request,
+                "Please select a valid employee."
+            )
+
+            return render(
+                request,
+                "appraisal/create.html",
+                {
+                    "employees": employees,
+                    "is_manager": is_manager,
+                    "title": title,
+                    "achievements": achievements,
+                    "goals": goals,
+                }
+            )
 
         if not title or not achievements or not goals:
-            messages.error(request, "All fields are required.")
-            return redirect("pmr_create")
 
+            messages.error(
+                request,
+                "Title, achievements and goals are required."
+            )
+
+            return render(
+                request,
+                "appraisal/create.html",
+                {
+                    "employees": employees,
+                    "is_manager": is_manager,
+                    "selected_employee": employee.id,
+                    "title": title,
+                    "achievements": achievements,
+                    "goals": goals,
+                }
+            )
+
+        # -----------------------------------------
+        # Create PMR
+        # -----------------------------------------
         PMR.objects.create(
             employee=employee,
             title=title,
@@ -45,20 +160,60 @@ def pmr_create(request):
             status="PENDING"
         )
 
-        # Send automatic notifications to all supervisors
-        supervisors = User.objects.filter(role='SUPERVISOR')
+        # -----------------------------------------
+        # Notify supervisors
+        # -----------------------------------------
+        supervisors = User.objects.filter(
+            role="SUPERVISOR",
+            is_active=True
+        )
+
         for supervisor in supervisors:
+
             create_notification(
                 supervisor,
-                'New PMR Submitted',
-                f'{employee.user.email} submitted a PMR.'
+                "New PMR Submitted",
+                (
+                    f"{employee.user.get_full_name() or employee.user.email} "
+                    f"has a new performance review."
+                )
             )
 
-        messages.success(request, "PMR submitted successfully.")
+        # -----------------------------------------
+        # Audit
+        # -----------------------------------------
+        try:
+
+            create_audit_log(
+                request.user,
+                "PMR",
+                (
+                    f"Created performance review for "
+                    f"{employee.user.email}"
+                )
+            )
+
+        except Exception:
+            pass
+
+        messages.success(
+            request,
+            "PMR created successfully."
+        )
+
         return redirect("pmr_list")
 
-    return render(request, "appraisal/create.html")
-
+    # -----------------------------------------
+    # GET
+    # -----------------------------------------
+    return render(
+        request,
+        "appraisal/create.html",
+        {
+            "employees": employees,
+            "is_manager": is_manager,
+        }
+    )
 
 @login_required
 def pmr_detail(request, pk):

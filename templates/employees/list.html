@@ -2,72 +2,222 @@
 
 {% block content %}
 
-<div class="d-flex justify-content-between align-items-center mb-4">
+<!-- =========================================================
+     PAGE HEADER
+========================================================== -->
+
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
 
     <div>
+        <div class="d-flex align-items-center gap-2 mb-1">
 
-        <h2 class="fw-bold">
-            Employee Management
-        </h2>
+            <h2 class="fw-bold mb-0">
+                Employee Management
+            </h2>
+
+        </div>
 
         <p class="text-muted mb-0">
-            Manage employees efficiently.
+            Manage employee information, records, and employment status.
         </p>
-
     </div>
 
-    <div class="d-flex gap-2">
 
-        <a href="{% url 'export_employees_csv' %}"
-           class="btn btn-success">
+    <div class="d-flex align-items-center gap-2">
 
+        <a
+            href="{% url 'export_employees_csv' %}"
+            class="btn btn-outline-secondary"
+        >
             <i class="bi bi-download me-1"></i>
-
-            Export CSV
-
+            Export
         </a>
 
-        <a href="/employees/add/"
-           class="btn btn-primary">
 
-            <i class="bi bi-plus-circle me-1"></i>
-
+        <a
+            href="{% url 'employee_add' %}"
+            class="btn btn-primary"
+        >
+            <i class="bi bi-person-plus me-1"></i>
             Add Employee
-
         </a>
 
     </div>
 
 </div>
 
-<!-- SEARCH & FILTERS -->
 
-<div class="card border-0 shadow-sm mb-4">
 
-    <div class="card-body">
+<!-- =========================================================
+     SUMMARY CARDS
+========================================================== -->
 
-        <form method="GET">
+<div class="row g-3 mb-4">
 
-            <div class="row g-3">
 
-                <!-- Search -->
+    <!-- Total -->
 
-                <div class="col-md-4">
+    <div class="col-md-4">
 
-                    <input type="text"
-                           name="search"
-                           class="form-control"
-                           placeholder="Search by email..."
-                           value="{{ search_query }}">
+        <div class="card border-0 shadow-sm h-100">
+
+            <div class="card-body p-4">
+
+                <div class="d-flex justify-content-between align-items-start">
+
+                    <div>
+
+                        <div class="text-muted small text-uppercase fw-semibold">
+                            Total Employees
+                        </div>
+
+                        <div class="fs-2 fw-bold mt-1">
+                            {{ total_employees }}
+                        </div>
+
+                    </div>
+
+                    <div class="text-primary fs-4">
+                        <i class="bi bi-people"></i>
+                    </div>
 
                 </div>
 
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- Active -->
+
+    <div class="col-md-4">
+
+        <div class="card border-0 shadow-sm h-100">
+
+            <div class="card-body p-4">
+
+                <div class="d-flex justify-content-between align-items-start">
+
+                    <div>
+
+                        <div class="text-muted small text-uppercase fw-semibold">
+                            Active
+                        </div>
+
+                        <div class="fs-2 fw-bold text-success mt-1">
+                            {{ active_employees }}
+                        </div>
+
+                    </div>
+
+                    <div class="text-success fs-4">
+                        <i class="bi bi-person-check"></i>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- Inactive -->
+
+    <div class="col-md-4">
+
+        <div class="card border-0 shadow-sm h-100">
+
+            <div class="card-body p-4">
+
+                <div class="d-flex justify-content-between align-items-start">
+
+                    <div>
+
+                        <div class="text-muted small text-uppercase fw-semibold">
+                            Inactive
+                        </div>
+
+                        <div class="fs-2 fw-bold text-secondary mt-1">
+                            {{ inactive_employees }}
+                        </div>
+
+                    </div>
+
+                    <div class="text-secondary fs-4">
+                        <i class="bi bi-person-x"></i>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<!-- =========================================================
+     FILTERS
+========================================================== -->
+
+<div class="card border-0 shadow-sm mb-4">
+
+    <div class="card-body p-4">
+
+        <form method="get">
+
+            <div class="row g-3 align-items-end">
+
+
+                <!-- Search -->
+
+                <div class="col-xl-4 col-lg-4">
+
+                    <label class="form-label fw-semibold">
+                        Search Employee
+                    </label>
+
+                    <div class="input-group">
+
+                        <span class="input-group-text bg-white">
+                            <i class="bi bi-search"></i>
+                        </span>
+
+                        <input
+                            type="text"
+                            name="search"
+                            value="{{ search_query|default:'' }}"
+                            class="form-control"
+                            placeholder="Name, employee ID, email, designation..."
+                        >
+
+                    </div>
+
+                </div>
+
+
+
                 <!-- Department -->
 
-                <div class="col-md-3">
+                <div class="col-xl-2 col-lg-2">
 
-                    <select name="department"
-                            class="form-select">
+                    <label class="form-label fw-semibold">
+                        Department
+                    </label>
+
+                    <select
+                        name="department"
+                        class="form-select"
+                    >
 
                         <option value="">
                             All Departments
@@ -75,14 +225,14 @@
 
                         {% for department in departments %}
 
-                        <option value="{{ department.id }}"
-                            {% if department_filter == department.id|stringformat:"s" %}
-                                selected
-                            {% endif %}>
-
-                            {{ department.name }}
-
-                        </option>
+                            <option
+                                value="{{ department.id }}"
+                                {% if department_filter == department.id|stringformat:"s" %}
+                                    selected
+                                {% endif %}
+                            >
+                                {{ department.name }}
+                            </option>
 
                         {% endfor %}
 
@@ -90,51 +240,175 @@
 
                 </div>
 
+
+
                 <!-- Status -->
 
-                <div class="col-md-3">
+                <div class="col-xl-2 col-lg-2">
 
-                    <select name="status"
-                            class="form-select">
+                    <label class="form-label fw-semibold">
+                        Status
+                    </label>
+
+                    <select
+                        name="status"
+                        class="form-select"
+                    >
 
                         <option value="">
                             All Status
                         </option>
 
-                        <option value="ACTIVE"
-                            {% if status_filter == 'ACTIVE' %}
+                        <option
+                            value="ACTIVE"
+                            {% if status_filter == "ACTIVE" %}
                                 selected
-                            {% endif %}>
-
+                            {% endif %}
+                        >
                             Active
-
                         </option>
 
-                        <option value="INACTIVE"
-                            {% if status_filter == 'INACTIVE' %}
+                        <option
+                            value="INACTIVE"
+                            {% if status_filter == "INACTIVE" %}
                                 selected
-                            {% endif %}>
-
+                            {% endif %}
+                        >
                             Inactive
-
                         </option>
 
                     </select>
 
                 </div>
 
-                <!-- Button -->
 
-                <div class="col-md-2 d-grid">
 
-                    <button type="submit"
-                            class="btn btn-dark">
+                <!-- Employment Type -->
 
-                        Filter
+                <div class="col-xl-2 col-lg-2">
 
-                    </button>
+                    <label class="form-label fw-semibold">
+                        Employment Type
+                    </label>
+
+                    <select
+                        name="employment_type"
+                        class="form-select"
+                    >
+
+                        <option value="">
+                            All Types
+                        </option>
+
+                        <option
+                            value="FULL_TIME"
+                            {% if employment_type_filter == "FULL_TIME" %}
+                                selected
+                            {% endif %}
+                        >
+                            Full Time
+                        </option>
+
+                        <option
+                            value="PART_TIME"
+                            {% if employment_type_filter == "PART_TIME" %}
+                                selected
+                            {% endif %}
+                        >
+                            Part Time
+                        </option>
+
+                        <option
+                            value="CONTRACT"
+                            {% if employment_type_filter == "CONTRACT" %}
+                                selected
+                            {% endif %}
+                        >
+                            Contractor
+                        </option>
+
+                        <option
+                            value="INTERN"
+                            {% if employment_type_filter == "INTERN" %}
+                                selected
+                            {% endif %}
+                        >
+                            Intern
+                        </option>
+
+                    </select>
 
                 </div>
+
+
+
+                <!-- Page Size -->
+
+                <div class="col-xl-2 col-lg-2">
+
+                    <label class="form-label fw-semibold">
+                        Show
+                    </label>
+
+                    <select
+                        name="page_size"
+                        class="form-select"
+                        onchange="this.form.submit()"
+                    >
+
+                        <option
+                            value="10"
+                            {% if page_size == 10 %}
+                                selected
+                            {% endif %}
+                        >
+                            10
+                        </option>
+
+                        <option
+                            value="20"
+                            {% if page_size == 20 %}
+                                selected
+                            {% endif %}
+                        >
+                            20
+                        </option>
+
+                        <option
+                            value="50"
+                            {% if page_size == 50 %}
+                                selected
+                            {% endif %}
+                        >
+                            50
+                        </option>
+
+                    </select>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- Filter Buttons -->
+
+            <div class="d-flex justify-content-end gap-2 mt-3">
+
+                <a
+                    href="{% url 'employee_list' %}"
+                    class="btn btn-outline-secondary"
+                >
+                    Clear
+                </a>
+
+                <button
+                    type="submit"
+                    class="btn btn-dark px-4"
+                >
+                    <i class="bi bi-funnel me-1"></i>
+                    Filter
+                </button>
 
             </div>
 
@@ -144,97 +418,419 @@
 
 </div>
 
-<!-- EMPLOYEE TABLE -->
+
+
+<!-- =========================================================
+     RESULT BAR
+========================================================== -->
+
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+
+    <div>
+
+        {% if paginator.count %}
+
+            <span class="text-muted small">
+
+                Showing
+
+                <strong class="text-dark">
+                    {{ page_obj.start_index }}
+                </strong>
+
+                –
+
+                <strong class="text-dark">
+                    {{ page_obj.end_index }}
+                </strong>
+
+                of
+
+                <strong class="text-dark">
+                    {{ paginator.count }}
+                </strong>
+
+                employees
+
+            </span>
+
+        {% else %}
+
+            <span class="text-muted small">
+                No employees found
+            </span>
+
+        {% endif %}
+
+    </div>
+
+
+    {% if paginator.num_pages > 0 %}
+
+        <div class="text-muted small">
+
+            Page
+
+            <strong class="text-dark">
+                {{ page_obj.number }}
+            </strong>
+
+            of
+
+            <strong class="text-dark">
+                {{ paginator.num_pages }}
+            </strong>
+
+        </div>
+
+    {% endif %}
+
+</div>
+
+
+
+<!-- =========================================================
+     EMPLOYEE TABLE
+========================================================== -->
 
 <div class="card border-0 shadow-sm">
 
-    <div class="card-body">
+    <div class="table-responsive">
 
-        <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
 
-            <table class="table table-hover align-middle">
+            <thead>
 
-                <thead class="table-light">
+                <tr>
+
+                    <th class="px-4 py-3">
+                        EMPLOYEE
+                    </th>
+
+                    <th>
+                        EMAIL
+                    </th>
+
+                    <th>
+                        DEPARTMENT
+                    </th>
+
+                    <th>
+                        DESIGNATION
+                    </th>
+
+                    <th>
+                        JOINING DATE
+                    </th>
+
+                    <th>
+                        TYPE
+                    </th>
+
+                    <th>
+                        STATUS
+                    </th>
+
+                    <th class="text-end px-4">
+                        ACTIONS
+                    </th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+                {% for employee in employees %}
 
                     <tr>
 
-                        <th>Employee ID</th>
-                        <th>Email</th>
-                        <th>Department</th>
-                        <th>Designation</th>
-                        <th>Status</th>
-                        <th>Actions</th>
 
-                    </tr>
+                        <!-- =================================================
+                             EMPLOYEE
+                        ================================================== -->
 
-                </thead>
+                        <td class="px-4">
 
-                <tbody>
+                            <div class="d-flex align-items-center gap-3">
 
-                    {% for employee in employees %}
 
-                    <tr>
+                                <!-- Avatar -->
 
-                        <td>
+                                {% if employee.profile_picture %}
 
-                            {{ employee.employee_id }}
+                                    <img
+                                        src="{{ employee.profile_picture.url }}"
+                                        alt="{{ employee.user.get_full_name }}"
+                                        class="rounded-circle"
+                                        style="
+                                            width:42px;
+                                            height:42px;
+                                            object-fit:cover;
+                                        "
+                                    >
+
+                                {% else %}
+
+                                    <div
+                                        class="rounded-circle bg-light border d-flex align-items-center justify-content-center fw-bold text-primary"
+                                        style="
+                                            width:42px;
+                                            height:42px;
+                                            min-width:42px;
+                                        "
+                                    >
+
+                                        {% if employee.user.first_name %}
+
+                                            {{ employee.user.first_name|slice:":1"|upper }}
+
+                                            {% if employee.user.last_name %}
+                                                {{ employee.user.last_name|slice:":1"|upper }}
+                                            {% endif %}
+
+                                        {% else %}
+
+                                            {{ employee.user.email|slice:":1"|upper }}
+
+                                        {% endif %}
+
+                                    </div>
+
+                                {% endif %}
+
+
+
+                                <div>
+
+                                    <div class="fw-semibold text-dark">
+
+                                        {{ employee.user.get_full_name|default:employee.user.email }}
+
+                                    </div>
+
+
+                                    <div class="small text-muted font-monospace">
+
+                                        {{ employee.employee_id }}
+
+                                    </div>
+
+                                </div>
+
+                            </div>
 
                         </td>
 
-                        <td>
 
-                            {{ employee.user.email }}
 
-                        </td>
-
-                        <td>
-
-                            {{ employee.department }}
-
-                        </td>
+                        <!-- =================================================
+                             EMAIL
+                        ================================================== -->
 
                         <td>
 
-                            {{ employee.designation }}
+                            <span class="small text-muted">
 
-                        </td>
-
-                        <td>
-
-                            {% if employee.status == 'ACTIVE' %}
-
-                            <span class="badge bg-success">
-
-                                Active
+                                {{ employee.user.email }}
 
                             </span>
+
+                        </td>
+
+
+
+                        <!-- =================================================
+                             DEPARTMENT
+                        ================================================== -->
+
+                        <td>
+
+                            {% if employee.department %}
+
+                                <span class="text-dark">
+
+                                    {{ employee.department.name }}
+
+                                </span>
 
                             {% else %}
 
-                            <span class="badge bg-danger">
-
-                                Inactive
-
-                            </span>
+                                <span class="text-muted">
+                                    —
+                                </span>
 
                             {% endif %}
 
                         </td>
 
+
+
+                        <!-- =================================================
+                             DESIGNATION
+                        ================================================== -->
+
                         <td>
 
-                            <div class="d-flex gap-2">
+                            <span class="text-dark">
 
-                                <a href="/employees/{{ employee.id }}/"
-                                   class="btn btn-sm btn-dark">
+                                {{ employee.designation|default:"—" }}
 
+                            </span>
+
+                        </td>
+
+
+
+                        <!-- =================================================
+                             JOINING DATE
+                        ================================================== -->
+
+                        <td>
+
+                            {% if employee.joining_date %}
+
+                                <span class="text-dark">
+
+                                    {{ employee.joining_date|date:"d M Y" }}
+
+                                </span>
+
+                            {% else %}
+
+                                <span class="text-muted">
+                                    —
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+
+
+                        <!-- =================================================
+                             EMPLOYMENT TYPE
+                        ================================================== -->
+
+                        <td>
+
+                            {% if employee.employee_id|slice:":3" == "CEO" or employee.employee_id|slice:":3" == "CTO" or employee.employee_id|slice:":3" == "CFO" or employee.employee_id|slice:":2" == "HR" %}
+
+                                <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-3 py-2">
+
+                                    <i class="bi bi-person-badge me-1"></i>
+                                    Leadership
+
+                                </span>
+
+
+                            {% elif employee.employment_type == "CONTRACT" %}
+
+                                <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle rounded-pill px-3 py-2">
+
+                                    <i class="bi bi-file-earmark-text me-1"></i>
+                                    Contractor
+
+                                </span>
+
+
+                            {% elif employee.employment_type == "PART_TIME" %}
+
+                                <span class="badge bg-info-subtle text-info-emphasis border border-info-subtle rounded-pill px-3 py-2">
+
+                                    Part Time
+
+                                </span>
+
+
+                            {% elif employee.employment_type == "INTERN" %}
+
+                                <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle rounded-pill px-3 py-2">
+
+                                    Intern
+
+                                </span>
+
+
+                            {% else %}
+
+                                <span class="badge bg-light text-dark border rounded-pill px-3 py-2">
+
+                                    Employee
+
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+
+
+                        <!-- =================================================
+                             STATUS
+                        ================================================== -->
+
+                        <td>
+
+                            {% if employee.status == "ACTIVE" %}
+
+                                <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3 py-2">
+
+                                    <i class="bi bi-circle-fill me-1"
+                                       style="font-size:6px;">
+                                    </i>
+
+                                    Active
+
+                                </span>
+
+                            {% else %}
+
+                                <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle rounded-pill px-3 py-2">
+
+                                    <i class="bi bi-circle-fill me-1"
+                                       style="font-size:6px;">
+                                    </i>
+
+                                    Inactive
+
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+
+
+                        <!-- =================================================
+                             ACTIONS
+                        ================================================== -->
+
+                        <td class="text-end px-4">
+
+                            <div class="d-inline-flex gap-1">
+
+
+                                <a
+                                    href="{% url 'employee_detail' employee.id %}"
+                                    class="btn btn-sm btn-outline-secondary"
+                                    title="View employee"
+                                >
+
+                                    <i class="bi bi-eye me-1"></i>
                                     View
 
                                 </a>
 
-                                <a href="/employees/{{ employee.id }}/edit/"
-                                   class="btn btn-sm btn-primary">
 
+                                <a
+                                    href="{% url 'employee_edit' employee.id %}"
+                                    class="btn btn-sm btn-primary"
+                                    title="Edit employee"
+                                >
+
+                                    <i class="bi bi-pencil-square me-1"></i>
                                     Edit
 
                                 </a>
@@ -245,29 +841,213 @@
 
                     </tr>
 
-                    {% empty %}
+
+                {% empty %}
+
+                    <!-- =================================================
+                         EMPTY STATE
+                    ================================================== -->
 
                     <tr>
 
-                        <td colspan="6"
-                            class="text-center text-muted py-5">
+                        <td
+                            colspan="8"
+                            class="text-center py-5"
+                        >
 
-                            No employees found.
+                            <div class="py-4">
+
+                                <div
+                                    class="rounded-circle bg-light d-inline-flex align-items-center justify-content-center mb-3"
+                                    style="
+                                        width:64px;
+                                        height:64px;
+                                    "
+                                >
+
+                                    <i class="bi bi-people fs-3 text-muted"></i>
+
+                                </div>
+
+
+                                <div class="fw-semibold fs-5">
+                                    No employees found
+                                </div>
+
+
+                                <div class="small text-muted mt-1">
+
+                                    Try changing the search or filters.
+
+                                </div>
+
+                            </div>
 
                         </td>
 
                     </tr>
 
-                    {% endfor %}
+                {% endfor %}
 
-                </tbody>
+            </tbody>
 
-            </table>
+        </table>
+
+    </div>
+
+</div>
+
+
+
+<!-- =========================================================
+     PAGINATION
+========================================================== -->
+
+{% if paginator.num_pages > 1 %}
+
+    <div class="d-flex flex-wrap justify-content-between align-items-center mt-4 gap-3">
+
+
+        <!-- Previous -->
+
+        <div>
+
+            {% if page_obj.has_previous %}
+
+                <a
+                    href="?page={{ page_obj.previous_page_number }}&page_size={{ page_size }}&search={{ search_query|urlencode }}&department={{ department_filter }}&status={{ status_filter }}&employment_type={{ employment_type_filter }}"
+                    class="btn btn-outline-secondary"
+                >
+
+                    <i class="bi bi-chevron-left me-1"></i>
+                    Previous
+
+                </a>
+
+            {% else %}
+
+                <button
+                    class="btn btn-outline-secondary"
+                    disabled
+                >
+
+                    <i class="bi bi-chevron-left me-1"></i>
+                    Previous
+
+                </button>
+
+            {% endif %}
+
+        </div>
+
+
+
+        <!-- Page Numbers -->
+
+        <div class="d-flex flex-wrap gap-1 justify-content-center">
+
+            {% for num in paginator.page_range %}
+
+                {% if num == page_obj.number %}
+
+                    <span class="btn btn-primary">
+                        {{ num }}
+                    </span>
+
+
+                {% elif num == 1 or num == paginator.num_pages or num >= page_obj.number|add:"-2" and num <= page_obj.number|add:"2" %}
+
+                    <a
+                        href="?page={{ num }}&page_size={{ page_size }}&search={{ search_query|urlencode }}&department={{ department_filter }}&status={{ status_filter }}&employment_type={{ employment_type_filter }}"
+                        class="btn btn-outline-secondary"
+                    >
+                        {{ num }}
+                    </a>
+
+
+                {% elif num == 2 and page_obj.number > 4 %}
+
+                    <span class="px-2 py-2 text-muted">
+                        …
+                    </span>
+
+
+                {% elif num == paginator.num_pages|add:"-1" and page_obj.number < paginator.num_pages|add:"-3" %}
+
+                    <span class="px-2 py-2 text-muted">
+                        …
+                    </span>
+
+                {% endif %}
+
+            {% endfor %}
+
+        </div>
+
+
+
+        <!-- Next -->
+
+        <div>
+
+            {% if page_obj.has_next %}
+
+                <a
+                    href="?page={{ page_obj.next_page_number }}&page_size={{ page_size }}&search={{ search_query|urlencode }}&department={{ department_filter }}&status={{ status_filter }}&employment_type={{ employment_type_filter }}"
+                    class="btn btn-outline-secondary"
+                >
+
+                    Next
+                    <i class="bi bi-chevron-right ms-1"></i>
+
+                </a>
+
+            {% else %}
+
+                <button
+                    class="btn btn-outline-secondary"
+                    disabled
+                >
+
+                    Next
+                    <i class="bi bi-chevron-right ms-1"></i>
+
+                </button>
+
+            {% endif %}
 
         </div>
 
     </div>
 
+{% endif %}
+
+
+
+<!-- =========================================================
+     PAGE FOOTER
+========================================================== -->
+
+<div class="d-flex justify-content-between align-items-center mt-3">
+
+    <div class="small text-muted">
+
+        Employee records are managed by HR.
+
+    </div>
+
+
+    {% if paginator.count %}
+
+        <div class="small text-muted">
+
+            {{ paginator.count }} total record{{ paginator.count|pluralize }}
+
+        </div>
+
+    {% endif %}
+
 </div>
+
 
 {% endblock %}
