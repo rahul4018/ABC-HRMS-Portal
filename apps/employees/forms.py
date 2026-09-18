@@ -1,5 +1,6 @@
 from django import forms
 from django.contrib.auth import get_user_model
+from django.db import transaction
 
 from .models import Employee, Asset
 
@@ -317,35 +318,83 @@ class EmployeeCreateForm(forms.ModelForm):
                     'form-control',
                 )
 
+    def clean_username(self):
+        username = (self.cleaned_data.get('username') or '').strip()
+
+        if not username:
+            raise forms.ValidationError(
+                'User ID is required.'
+            )
+
+        if User.objects.filter(username__iexact=username).exists():
+            raise forms.ValidationError(
+                'This User ID is already in use. Please choose another one.'
+            )
+
+        return username
+
+    def clean_email(self):
+        email = (self.cleaned_data.get('email') or '').strip()
+
+        if not email:
+            return ''
+
+        if User.objects.filter(email__iexact=email).exists():
+            raise forms.ValidationError(
+                'This email address is already in use.'
+            )
+
+        return email
+
     def save(self, commit=True):
-        user = User.objects.create_user(
-            username=self.cleaned_data['username'],
-            email=self.cleaned_data.get('email') or '',
-            password=self.cleaned_data['password'],
-            first_name=self.cleaned_data['first_name'],
-            last_name=self.cleaned_data['last_name'],
-            role='EMPLOYEE',
-            is_active=True,
-        )
+        with transaction.atomic():
+            user = User.objects.create_user(
+                username=self.cleaned_data['username'],
+                email=self.cleaned_data.get('email') or '',
+                password=self.cleaned_data['password'],
+                first_name=self.cleaned_data['first_name'],
+                last_name=self.cleaned_data['last_name'],
+                role='EMPLOYEE',
+                is_active=True,
+            )
 
-        # Force the new employee through the first-login password flow.
-        if hasattr(user, 'must_change_password'):
-            user.must_change_password = True
+            # Force the new employee through the first-login password flow.
+            if hasattr(user, 'must_change_password'):
+                user.must_change_password = True
 
-        employee = super().save(commit=False)
-        employee.user = user
+            employee = super().save(commit=False)
+            employee.user = user
 
-        # Newly created employee profiles must be completed and reviewed.
-        if hasattr(employee, 'profile_status'):
-            employee.profile_status = 'PROFILE_PENDING'
-        if hasattr(employee, 'profile_submitted_at'):
-            employee.profile_submitted_at = None
+            # Employee ID is HR/system controlled and generated automatically.
+            if not employee.employee_id:
+                existing_ids = (
+                    Employee.objects
+                    .filter(employee_id__startswith='EMP')
+                    .values_list('employee_id', flat=True)
+                )
 
-        if commit:
-            user.save()
-            employee.save()
+                numbers = []
 
-        return employee
+                for value in existing_ids:
+                    if value and value.startswith('EMP'):
+                        suffix = value[3:]
+                        if suffix.isdigit():
+                            numbers.append(int(suffix))
+
+                next_number = max(numbers, default=0) + 1
+                employee.employee_id = f'EMP{next_number:04d}'
+
+            # Newly created employee profiles must be completed and reviewed.
+            if hasattr(employee, 'profile_status'):
+                employee.profile_status = 'PROFILE_PENDING'
+            if hasattr(employee, 'profile_submitted_at'):
+                employee.profile_submitted_at = None
+
+            if commit:
+                user.save()
+                employee.save()
+
+            return employee
 
 
 # ==========================================================
